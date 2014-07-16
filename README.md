@@ -1,4 +1,4 @@
 geomancer
 =========
 
-OpenSource tool to help journalists easily mash up data based on shared geography.
+Tool for journalists to join geographic data to existing spreadsheets
