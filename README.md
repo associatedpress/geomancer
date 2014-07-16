@@ -1,4 +1,4 @@
 geomancer
 =========
 
-Tool for journalists to join geographic data to existing spreadsheets
+Tool for journalists to join data associated with geographies to existing spreadsheets 
