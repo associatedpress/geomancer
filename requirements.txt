@@ -1,0 +1,4 @@
+Flask==0.10.1
+SQLAlchemy==0.9.6
+csvkit==0.7.3
+psycopg2==2.5.3
