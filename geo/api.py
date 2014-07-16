@@ -1,8 +1,8 @@
-from flask import Blueprint, make_response, request
+from flask import Blueprint, make_response, request, session, render_template
 import json
 
 api = Blueprint('api', __name__)
 
 @api.route('/')
 def index():
-    return make_response(json.dumps({}))
+    return render_template('index.html')
