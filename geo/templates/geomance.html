@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+    <div class="col-sm-12">
+        <h2>Geomancing commencing</h2>
+        {% for field in field_names %}
+            <p>{{field}}</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
