@@ -1,1 +1,2 @@
 SECRET_KEY = 'something secret'
+CACHE_DIR = '/path/where/app/can/cache/responses'

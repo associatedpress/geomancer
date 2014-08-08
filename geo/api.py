@@ -1,17 +1,7 @@
-from flask import Blueprint, make_response, request, session, \
-    render_template, current_app
+from flask import Blueprint, make_response, request
 import json
-import os
-import gzip
-from uuid import uuid4
-from werkzeug import secure_filename
-from csvkit import convert
-from csvkit.unicsv import UnicodeCSVReader
-from cStringIO import StringIO
 
 api = Blueprint('api', __name__)
-
-ALLOWED_EXTENSIONS = set(['csv', 'xls', 'xlsx'])
 
 @api.route('/api/geomance/', methods=['POST', 'GET'])
 def geomance_api():
@@ -36,3 +26,22 @@ def geomance_api():
     resp.headers['Content-Type'] = 'application/json'
     return resp
 
+@api.route('/api/<geo_type>/')
+def data_attrs(geo_type):
+    """ 
+    For a given geographic type, return a list of available data attributes
+    for that geography.
+    """
+    resp = make_response(json.dumps({}))
+    resp.headers['Content-Type'] = 'application/json'
+    return resp
+
+@api.route('/api/data-map/')
+def data_map(geo_type):
+    """ 
+    For a list of geographic identifiers, a geographic type and data attributes, 
+    return a set of data attributes for each gepgraphic identifier
+    """
+    resp = make_response(json.dumps({}))
+    resp.headers['Content-Type'] = 'application/json'
+    return resp

@@ -41,7 +41,7 @@ def index():
             columns = [', '.join(c) for c in columns]
             sample_data = []
             for index,_ in enumerate(context['header_row']):
-              sample_data.append((index, context['header_row'][index], columns[index]))
+                sample_data.append((index, context['header_row'][index], columns[index]))
             context['sample_data'] = sample_data
             outp.seek(0)
             session['file'] = outp.getvalue()
