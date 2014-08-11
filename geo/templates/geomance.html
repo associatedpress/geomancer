@@ -3,9 +3,87 @@
 <div class="row">
     <div class="col-sm-12">
         <h2>Geomancing commencing</h2>
-        {% for field in field_names %}
-            <p>{{field}}</p>
-        {% endfor %}
+        <form id="mance-form" role="form">
+            {% for field_name, info in fields.items() %}
+                <h4>Field Name: {{field_name}} <br /> Geography Type: {{info.geo_type_name}}</h4>
+                {% for key, val in data_types.items() %}
+                    {% if loop.index is odd %}
+                    <div class="row">
+                    {% endif %}
+                    <div class="checkbox col-sm-6">
+                        <label>
+                          <input type="checkbox" name="{{ info.column_index }}-{{ info.geo_type }}-{{ key }}" /> {{val.human_name}}
+                        </label>
+                    </div>
+                    {% if loop.index is even or loop.last %}
+                    </div>
+                    {% endif %}
+                {% endfor %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-default">Submit</button>
+        </form>
     </div>
 </div>
+{% endblock %}
+{% block extra_javascript %}
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('#mance-form').on('submit', function(e){
+                e.preventDefault()
+                var data = parseParams($(this).serialize());
+                var d = {}
+                $.each(data, function(key, i){
+                    var vals = key.split('-');
+                    if (typeof d[vals[0]] === 'undefined'){
+                        d[vals[0]] = {
+                            'type': vals[1],
+                            'append_columns': []
+                        }
+                    }
+                    d[vals[0]]['append_columns'].push(vals[2])
+                });
+                $.ajax({
+                    url:"/api/geomance/",
+                    type: 'POST',
+                    data: JSON.stringify(d),
+                    success: function(resp){
+                        poll_worker(resp['session_key']);
+                    },
+                    processData: false,
+                    contentType: 'application/json',
+                })
+            })
+        })
+        function poll_worker(session_key){
+            $.ajax({
+                url: "/api/geomance-results/" + session_key + "/",
+                success: function(data){
+                    if (data.ready){
+                        display_results(data);
+                    } else {
+                        setTimeout(function(){poll_worker(session_key)}, 3000)
+                    }
+                }
+            })
+        }
+        function display_results(data){
+            console.log(data)
+        }
+        function parseParams(query){
+            var re = /([^&=]+)=?([^&]*)/g;
+            var decodeRE = /\+/g;  // Regex for replacing addition symbol with a space
+            var decode = function (str) {return decodeURIComponent( str.replace(decodeRE, " ") );};
+            var params = {}, e;
+            while ( e = re.exec(query) ) {
+                var k = decode( e[1] ), v = decode( e[2] );
+                if (k.substring(k.length - 2) === '[]') {
+                    k = k.substring(0, k.length - 2);
+                    (params[k] || (params[k] = [])).push(v);
+                }
+                else params[k] = v;
+            }
+            return params;
+        }
+    </script>
 {% endblock %}

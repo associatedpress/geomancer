@@ -1,2 +1,3 @@
 SECRET_KEY = 'something secret'
 CACHE_DIR = '/path/where/app/can/cache/responses'
+REDIS_QUEUE_KEY = 'something_simple'

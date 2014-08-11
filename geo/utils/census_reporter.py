@@ -48,6 +48,7 @@ class CensusReporter(scrapelib.Scraper):
     def data_show(self, acs='latest', table_ids=None, geo_ids=None):
         """ 
         Fetch data from given ACS release based upon the table_ids and geo_ids
+        Census Reporter only has acs2012_1yr, acs2012_3yr, acs2012_5yr releases
         """
         query = {
             'table_ids': ','.join(table_ids),

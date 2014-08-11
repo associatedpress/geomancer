@@ -8,6 +8,7 @@ from werkzeug import secure_filename
 from csvkit import convert
 from csvkit.unicsv import UnicodeCSVReader
 from cStringIO import StringIO
+from geo.utils.lookups import GEO_TYPES, ACS_DATA_TYPES
 
 views = Blueprint('views', __name__)
 
@@ -51,13 +52,16 @@ def index():
 def geomance():
     if not session.get('file'):
         redirect(url_for('views.index'))
-    print request.form
     inp = StringIO(session['file'])
     reader = UnicodeCSVReader(inp)
     header = reader.next()
-    field_names = []
+    fields = {}
     for k,v in request.form.items():
         index = int(k.split('_')[1])
-        field_names.append(header[index])
-    context = {'field_names': field_names}
+        fields[header[index]] = {
+            'geo_type_name': GEO_TYPES[v],
+            'geo_type': v,
+            'column_index': index
+        }
+    context = {'fields': fields, 'data_types': ACS_DATA_TYPES}
     return render_template('geomance.html', **context)
