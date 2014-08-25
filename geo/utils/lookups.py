@@ -1,20 +1,80 @@
-GEO_TYPES = {
-    "state_city_name": "City Name + State Name",
-    "state_name": "State Name",
-    "state_city_postal": "City + State Postal Code",
-    "state_fips": "State FIPS Code",
-    "state_county_fips": "State + County FIPS Codes",
-    "zip_5": "5-digit ZIP Code",
-    "zip_9": "ZIP+4 Code",
-    "state_postal": "State Postal Code",
-    "state_county_postal": "State Postal Code + County Name",
-    "state_county_name": "Full State Name + County Name",
-    "state_school_postal": "State Postal Code + School District Name",
-    "state_congress_postal": "State Postal Code + Congressional District Number",
-    "census_tract": "State FIPS + County FIPS + Census Tract",
-    "census_blockgroup": "State FIPS + County FIPS + Census Block Group",
-    "census_block": "State FIPS + County FIPS + Census Block",
-}
+GEO_TYPES = [
+    {
+        "name": "state_city_name",
+        "description": "City Name + State Name",
+        "acs_sumlev": "160,170",
+    },
+    {
+        "name": "state_name", 
+        "description": "State Name",
+        "acs_sumlev": "040",
+    },
+    {
+        "name": "state_city_postal",
+        "description": "City + State Postal Code",
+        "acs_sumlev": "850,860",
+    },
+    {
+        "name": "state_fips",
+        "description": "State FIPS Code",
+        "acs_sumlev": "040",
+    },
+    {
+        "name": "state_county_fips",
+        "description": "State + County FIPS Codes",
+        "acs_sumlev": "050"
+    },
+    {
+        "name": "zip_5",
+        "description": "5-digit ZIP Code",
+        "acs_sumlev": "850,860",
+    },
+    {
+        "name": "zip_9",
+        "description": "ZIP+4 Code",
+        "acs_sumlev": "850,860",
+    },
+    {
+        "name": "state_postal",
+        "description": "State Postal Code",
+        "acs_sumlev": "040",
+    },
+    {
+        "name": "state_county_postal",
+        "description": "State Postal Code + County Name",
+        "acs_sumlev": "050"
+    },
+    {
+        "name": "state_county_name",
+        "decription": "Full State Name + County Name",
+        "acs_sumlev": "050",
+    },
+    {
+        "name": "state_school_postal",
+        "description": "State Postal Code + School District Name",
+        "acs_sumlev": "950,960,970",
+    },
+    {
+        "name": "state_congress_postal",
+        "description": "State Postal Code + Congressional District Number",
+        "acs_sumlev": "500", # Assuming US Congressional District
+    },
+    {
+        "name": "census_tract",
+        "description": "State FIPS + County FIPS + Census Tract",
+        "acs_sumlev": "140",
+    },
+    {
+        "name": "census_blockgroup",
+        "description": "State FIPS + County FIPS + Census Block Group",
+        "acs_sumlev": "150",
+    },
+    {
+        "name": "census_block",
+        "description": "State FIPS + County FIPS + Census Block",
+        "acs_sumlev": "101",
+    },
+]
 
 ACS_DATA_TYPES = {
     "total_pop": {

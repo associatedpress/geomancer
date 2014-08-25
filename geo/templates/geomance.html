@@ -5,7 +5,7 @@
         <h2>Geomancing commencing</h2>
         <form id="mance-form" role="form">
             {% for field_name, info in fields.items() %}
-                <h4>Field Name: {{field_name}} <br /> Geography Type: {{info.geo_type_name}}</h4>
+                <h4>Field Name: {{field_name}}</h4>
                 {% for key, val in data_types.items() %}
                     {% if loop.index is odd %}
                     <div class="row">

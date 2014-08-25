@@ -32,7 +32,10 @@ def geomance_api():
 
     Responds with a key that can be used to poll for results
     """
-    field_defs = json.loads(request.data)
+    defs = json.loads(request.data)
+    field_defs = {}
+    for k,v in defs.items():
+        field_defs[int(k)] = v
     if request.files:
         file_contents = request.files['input_file'].read()
     else:
@@ -57,10 +60,21 @@ def geomance_results(session_key):
 def geo_types():
     """ 
     Return a list of supported geography types
+    Optionally include a 'name', 'description', or 'acs_sumlev' 
+    to limit response
     """
     types = []
-    for k,v in GEO_TYPES.items():
-        types.append({'name': k, 'description': v})
+    if request.args.get('name'):
+        name = request.args['name'].lower()
+        types = [r for r in GEO_TYPES if name in r['name'].lower()]
+    elif request.args.get('description'):
+        desc = request.args['description'].lower()
+        types = [r for r in GEO_TYPES if desc in r['description'].lower()]
+    elif request.args.get('acs_sumlev'):
+        sumlev = request.args['acs_sumlev'].lower()
+        types = [r for r in GEO_TYPES if sumlev in r['acs_sumlev'].lower()]
+    else:
+        types = GEO_TYPES
     resp = make_response(json.dumps(types))
     resp.headers['Content-Type'] = 'application/json'
     return resp

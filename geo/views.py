@@ -65,7 +65,7 @@ def index():
     return render_template('index.html', **context)
 
 @views.route('/geomance/', methods=['POST'])
-def geomance():
+def geomance_view():
     if not session.get('file'):
         redirect(url_for('views.index'))
     inp = StringIO(session['file'])
@@ -75,7 +75,6 @@ def geomance():
     for k,v in request.form.items():
         index = int(k.split('_')[1])
         fields[header[index]] = {
-            'geo_type_name': GEO_TYPES[v],
             'geo_type': v,
             'column_index': index
         }
