@@ -7,6 +7,7 @@ from uuid import uuid4
 from werkzeug import secure_filename
 from csvkit import convert
 from csvkit.unicsv import UnicodeCSVReader
+from csvkit.cleanup import RowChecker
 from cStringIO import StringIO
 from geo.utils.lookups import GEO_TYPES, ACS_DATA_TYPES
 
@@ -27,6 +28,18 @@ def index():
             context['errors'] = ['We had a problem with reading your file. \
                 This could have to do with the file encoding or format']
             converted = None
+        f.seek(0)
+        if len(f.next()) == len(converted):
+            f.seek(0)
+            reader = UnicodeCSVReader(f)
+            checker = RowChecker(reader)
+            for row in checker.checked_rows():
+                pass
+            if checker.errors:
+                converted = None
+                context['errors'] = ['We had a problem converting your file']
+                context['errors'].extend(['Line %s: %s' % (l + 1, v) \
+                    for l,v in enumerate(checker.errors[:10])])
         if converted:
             outp = StringIO(converted)
             reader = UnicodeCSVReader(outp)
@@ -35,7 +48,10 @@ def index():
             columns = [[] for c in context['header_row']]
             column_ids = range(len(context['header_row']))
             for row in range(10):
-                rows.append(reader.next())
+                try:
+                    rows.append(reader.next())
+                except StopIteration:
+                    break
             for i, row in enumerate(rows):
                 for j,d in enumerate(row):
                     columns[j].append(row[column_ids[j]])

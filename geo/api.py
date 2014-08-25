@@ -1,6 +1,7 @@
 from flask import Blueprint, make_response, request, jsonify, \
     session as flask_session
 from geo.worker import DelayedResult, do_the_work
+from geo.utils.lookups import GEO_TYPES
 import json
 from redis import Redis
 
@@ -51,6 +52,19 @@ def geomance_results(session_key):
         return jsonify(ready=False)
     redis.delete(session_key)
     return jsonify(ready=True, result=rv.return_value)
+
+@api.route('/api/geo-types/')
+def geo_types():
+    """ 
+    Return a list of supported geography types
+    """
+    types = []
+    for k,v in GEO_TYPES.items():
+        types.append({'name': k, 'description': v})
+    resp = make_response(json.dumps(types))
+    resp.headers['Content-Type'] = 'application/json'
+    return resp
+    
 
 @api.route('/api/<geo_type>/')
 def data_attrs(geo_type):

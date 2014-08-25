@@ -58,23 +58,13 @@
                 if(!$(this).is(':checked')){
                     $(parent).find('.geotype').remove();
                 } else {
-                    var item = '<select class="geotype" name="geotype_' + col_index + '">';
-                    item += '<option value="state_city_name">City Name + State Name</option>'
-                    item += '<option value="state_city_postal">City + State Postal Code</option>'
-                    item += '<option value="state_fips">State FIPS Code</option>'
-                    item += '<option value="state_county_fips">State + County FIPS Codes</option>'
-                    item += '<option value="zip_5">5-digit ZIP Code</option>'
-                    item += '<option value="zip_9">ZIP+4 Code</option>'
-                    item += '<option value="state_postal">State Postal Code</option>'
-                    item += '<option value="state_county_postal">State Postal Code + County Name</option>'
-                    item += '<option value="state_county_name">Full State Name + County Name</option>'
-                    item += '<option value="state_school_postal">State Postal Code + School District Name</option>'
-                    item += '<option value="state_congress_postal">State Postal Code + Congressional District Number</option>'
-                    item += '<option value="census_tract">State FIPS + County FIPS + Census Tract</option>'
-                    item += '<option value="census_blockgroup">State FIPS + County FIPS + Census Block Group</option>'
-                    item += '<option value="census_block">State FIPS + County FIPS + Census Block</option>'
-                    item += '</select>'
-                    $(parent).append(item);
+                    $.getJSON('{{ url_for("api.geo_types") }}', {}, function(types){
+                        var item = '<select class="geotype" name="geotype_' + col_index + '">';
+                        $.each(types, function(i, type){
+                            item += '<option value="' + type.name + '">' + type.description + '</option>';
+                        })
+                        $(parent).append(item);
+                    })
                 }
             })
         })

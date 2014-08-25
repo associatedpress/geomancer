@@ -1,5 +1,6 @@
 GEO_TYPES = {
     "state_city_name": "City Name + State Name",
+    "state_name": "State Name",
     "state_city_postal": "City + State Postal Code",
     "state_fips": "State FIPS Code",
     "state_county_fips": "State + County FIPS Codes",
