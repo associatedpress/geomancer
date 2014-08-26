@@ -75,31 +75,34 @@ def do_the_work(file_contents, field_defs):
             except KeyError:
                 geoid_mapper[row_geoid] = [row_idx]
     
-    data = c.data_show(geo_ids=list(geo_ids), table_ids=list(table_ids))
+    try:
+        data = c.data_show(geo_ids=list(geo_ids), table_ids=list(table_ids))
 
-    # glue together uploaded data & censusreporter data
-    col_idxs = [int(k) for k in field_defs.keys()]
-    for idx in col_idxs:
-        for row in output:
-            geo = row[idx]
-            try:
-                geoid_search = c.geo_search(geo, sumlevs=sumlevs)
-            except CensusReporterError, e:
-                return e.message
-            row_geoid = geoid_search['results'][0]['full_geoid']
-            geo_type = field_defs[idx]['type']
-            manced_data = data[row_geoid]
-            row.extend(manced_data)
-    new_header = header + data['header']
+        # glue together uploaded data & censusreporter data
+        col_idxs = [int(k) for k in field_defs.keys()]
+        for idx in col_idxs:
+            for row in output:
+                geo = row[idx]
+                try:
+                    geoid_search = c.geo_search(geo, sumlevs=sumlevs)
+                except CensusReporterError, e:
+                    return e.message
+                row_geoid = geoid_search['results'][0]['full_geoid']
+                geo_type = field_defs[idx]['type']
+                manced_data = data[row_geoid]
+                row.extend(manced_data)
+        new_header = header + data['header']
 
-    # write to csv
-    f = open(output_filepath, 'w')
-    writer = UnicodeCSVWriter(f)
-    writer.writerow(new_header)
-    writer.writerows(output)
+        # write to csv
+        f = open(output_filepath, 'w')
+        writer = UnicodeCSVWriter(f)
+        writer.writerow(new_header)
+        writer.writerows(output)
 
-    return output_filepath
-
+        return output_filepath
+        
+    except CensusReporterError, e:
+        return e.message
 
 
 
