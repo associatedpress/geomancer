@@ -5,7 +5,7 @@ from uuid import uuid4
 import sys
 import os
 from cStringIO import StringIO
-from csvkit.unicsv import UnicodeCSVReader
+from csvkit.unicsv import UnicodeCSVReader, UnicodeCSVWriter
 from geo.utils.lookups import ACS_DATA_TYPES, GEO_TYPES
 from geo.utils.census_reporter import CensusReporter, CensusReporterError
 
@@ -52,7 +52,11 @@ def do_the_work(file_contents, field_defs):
     geo_ids = set()
     table_ids = set()
     geoid_mapper = {}
+    output = []
+    output_filepath = 'output.csv'
+
     for row_idx, row in enumerate(reader):
+        output.append(row)
         col_idxs = [int(k) for k in field_defs.keys()]
         for idx in col_idxs:
             val = row[idx]
@@ -70,15 +74,34 @@ def do_the_work(file_contents, field_defs):
                 geoid_mapper[row_geoid].append(row_idx)
             except KeyError:
                 geoid_mapper[row_geoid] = [row_idx]
-    print geo_ids
-    print table_ids
-    print geoid_mapper
-    return 'boo'
-    #try:
-    #    data = c.data_show(geo_ids=list(geo_ids), table_ids=list(table_ids))
-    #except CensusReporterError, e:
-    #    return e.message
-    #return data
+    
+    data = c.data_show(geo_ids=list(geo_ids), table_ids=list(table_ids))
+
+    # glue together uploaded data & censusreporter data
+    col_idxs = [int(k) for k in field_defs.keys()]
+    for idx in col_idxs:
+        for row in output:
+            geo = row[idx]
+            try:
+                geoid_search = c.geo_search(geo, sumlevs=sumlevs)
+            except CensusReporterError, e:
+                return e.message
+            row_geoid = geoid_search['results'][0]['full_geoid']
+            geo_type = field_defs[idx]['type']
+            manced_data = data[row_geoid]
+            row.extend(manced_data)
+    new_header = header + data['header']
+
+    # write to csv
+    f = open(output_filepath, 'w')
+    writer = UnicodeCSVWriter(f)
+    writer.writerow(new_header)
+    writer.writerows(output)
+
+    return output_filepath
+
+
+
 
 def queue_daemon(app, rv_ttl=500):
     while 1:
