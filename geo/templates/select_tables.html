@@ -19,8 +19,8 @@
                     <tbody>
                         {% for key, val in data_types.items() %}
                             <tr>
-                                <td><input type="checkbox" name="{{ info.column_index }}-{{ info.geo_type }}-{{ key }}" /></td>
-                                <td>{{val.human_name}}</td>
+                                <td><input type="checkbox" id="{{ info.column_index }}-{{ info.geo_type }}-{{ key }}" name="{{ info.column_index }}-{{ info.geo_type }}-{{ key }}" /></td>
+                                <td><label for='{{ info.column_index }}-{{ info.geo_type }}-{{ key }}'>{{val.human_name}}</label></td>
                                 <td>Sex by Age by Educational Attainment for the Population 18 Years and Over</td>
                                 <td>population_black, population_white, etc</td>
                             </tr>
