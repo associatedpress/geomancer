@@ -1,0 +1,8 @@
+{% block content %}
+<ul class='nav nav-wizard'>
+  <li class='{% if request.path == "/" %} active {% endif %}'>1 - Upload Data</li>
+  <li class='{% if request.path == "/select-geo/" %} active {% endif %}'>2 - Select Geography</li>
+  <li class='{% if request.path == "/select-data/" %} active {% endif %}'>3 - Select Data to Add</li>
+  <li class='{% if request.path == "/geomance/" %} active {% endif %}'>4 - Geomance!</li>
+</ul>
+{% endblock %}
