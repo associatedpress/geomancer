@@ -1,5 +1,5 @@
 from flask import Blueprint, make_response, request, session, \
-    render_template, current_app
+    render_template, current_app, send_from_directory
 import json
 import os
 import gzip
@@ -65,6 +65,7 @@ def select_geo():
         context['sample_data'] = sample_data
         outp.seek(0)
         session['file'] = outp.getvalue()
+        session['filename'] = f.filename
     return render_template('select_geo.html', **context)
     
 
@@ -88,3 +89,7 @@ def select_tables():
 @views.route('/geomance/<session_key>/')
 def geomance_view(session_key):
     return render_template('geomance.html', session_key=session_key)
+
+@views.route('/download/<path:filename>')
+def download_results(filename):
+    return send_from_directory(current_app.config['RESULT_FOLDER'], filename)

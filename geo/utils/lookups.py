@@ -2,7 +2,7 @@ GEO_TYPES = [
     {
         "name": "state_city_name",
         "description": "City Name + State Name",
-        "acs_sumlev": "160,170",
+        "acs_sumlev": "160,170,060",
     },
     {
         "name": "state_name", 
@@ -12,7 +12,7 @@ GEO_TYPES = [
     {
         "name": "state_city_postal",
         "description": "City + State Postal Code",
-        "acs_sumlev": "850,860",
+        "acs_sumlev": "160,170,060",
     },
     {
         "name": "state_fips",

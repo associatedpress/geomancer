@@ -3,6 +3,8 @@ from urllib import urlencode
 import json
 import os
 from geo.app_config import CACHE_DIR
+from string import punctuation
+import re
 
 SUMLEV_NAMES = {
     "010": {"name": "nation", "plural": ""},
@@ -74,6 +76,8 @@ class CensusReporter(scrapelib.Scraper):
         Search for geoids based upon name of geography
         'sumlevs' is an optional comma seperated string with ACS Summary levels
         """
+        regex = re.compile('[%s]' % re.escape(punctuation))
+        search_term = regex.sub('', search_term)
         q_dict = {'q': search_term}
         if sumlevs:
             q_dict['sumlevs'] = ','.join(sumlevs)

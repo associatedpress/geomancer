@@ -8,6 +8,8 @@ from cStringIO import StringIO
 from csvkit.unicsv import UnicodeCSVReader, UnicodeCSVWriter
 from geo.utils.lookups import ACS_DATA_TYPES, GEO_TYPES
 from geo.utils.census_reporter import CensusReporter, CensusReporterError
+from geo.app_config import RESULT_FOLDER
+from datetime import datetime
 
 redis = Redis()
 
@@ -35,7 +37,7 @@ def queuefunc(f):
     return f
 
 @queuefunc
-def do_the_work(file_contents, field_defs):
+def do_the_work(file_contents, field_defs, filename):
     """
       field_defs looks like:
       {
@@ -87,21 +89,32 @@ def do_the_work(file_contents, field_defs):
         header = data['header']
         contents.seek(0)
         all_rows = list(reader)
+        included_idxs = set()
         header_row = all_rows.pop(0)
         output = []
         for col in header:
             header_row.append(col)
         for geoid, row_ids in geoid_mapper.items():
             for row_id in row_ids:
+                included_idxs.add(row_id)
                 row = all_rows[row_id]
                 row.extend(data[geoid])
                 output.append(row)
-        f = open('output.csv', 'w')
+        all_row_idxs = set(list(range(len(all_rows))))
+        missing_rows = all_row_idxs.difference(included_idxs)
+        for idx in missing_rows:
+            row = all_rows[idx]
+            row.extend(['' for i in header])
+            output.append(row)
+        fname = '%s_%s' % (filename, datetime.now().isoformat())
+        f = open('%s/%s' % (RESULT_FOLDER, fname), 'wb')
         writer = UnicodeCSVWriter(f)
         writer.writerow(header_row)
         writer.writerows(output)
-
-        return 'output.csv'
+        
+        download_path = '/download/%s' % fname
+        
+        return download_path
         
     except CensusReporterError, e:
         return e.message

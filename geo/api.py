@@ -38,9 +38,11 @@ def geomance_api():
         field_defs[int(k)] = v
     if request.files:
         file_contents = request.files['input_file'].read()
+        filename = request.files['input_file'].filename
     else:
         file_contents = flask_session['file']
-    session = do_the_work.delay(file_contents, field_defs)
+        filename = flask_session['filename']
+    session = do_the_work.delay(file_contents, field_defs, filename)
     resp = make_response(json.dumps({'session_key': session.key}))
     resp.headers['Content-Type'] = 'application/json'
     return resp
