@@ -2,27 +2,30 @@
 {% block content %}
 <div class="row">
     <div class="col-sm-12">
-        <h2>Geomancing commencing</h2>
-        <form id="mance-form" role="form">
-            {% for field_name, info in fields.items() %}
-                <h4>Field Name: {{field_name}}</h4>
-                {% for key, val in data_types.items() %}
-                    {% if loop.index is odd %}
-                    <div class="row">
-                    {% endif %}
-                    <div class="checkbox col-sm-6">
-                        <label>
-                          <input type="checkbox" name="{{ info.column_index }}-{{ info.geo_type }}-{{ key }}" /> {{val.human_name}}
-                        </label>
+        {% include "progress_steps.html" %}
+        <h2>2. Specify Geography</h2>
+        <div class="well">
+            <form id="mance-form" role="form">
+                {% for field_name, info in fields.items() %}
+                    <h4>Field Name: {{field_name}}</h4>
+                    {% for key, val in data_types.items() %}
+                        {% if loop.index is odd %}
+                        <div class="row">
+                        {% endif %}
+                        <div class="checkbox col-sm-6">
+                            <label>
+                              <input type="checkbox" name="{{ info.column_index }}-{{ info.geo_type }}-{{ key }}" /> {{val.human_name}}
+                            </label>
+                        </div>
+                        {% if loop.index is even or loop.last %}
+                        </div>
+                        {% endif %}
+                    {% endfor %}
                     </div>
-                    {% if loop.index is even or loop.last %}
-                    </div>
-                    {% endif %}
                 {% endfor %}
-                </div>
-            {% endfor %}
-            <button type="submit" class="btn btn-default">Submit</button>
-        </form>
+                <button type="submit" class="btn btn-default">Submit</button>
+            </form>
+        </div>
     </div>
 </div>
 {% endblock %}

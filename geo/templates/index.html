@@ -9,16 +9,38 @@
                 <p>{{error}}</p>
             {% endfor %}
         {% endif %}
-        
-        <form role="form" class="" method="POST" enctype="multipart/form-data">
-            <div class="form-group">
-                <input type="file" name="input_file" id="input_file" />
-                <p class="help-block">
-                    Only <strong>.csv, .xls or .xlsx</strong> files.
-                </p>
-            </div>
-            <button type="submit" class="btn btn-default">Submit</button>
-        </form>
     </div>
 </div>
+
+<div class="row">
+    <div class="col-sm-8">
+        <div class = "well">
+            <form role="form" class="" method="POST" action="{{ url_for('views.select_geo') }}" enctype="multipart/form-data">
+                <div class="form-group">
+                    <input type="file" name="input_file" id="input_file" />
+                    <p class="help-block">
+                        Only <strong>.csv, .xls or .xlsx</strong> files.
+                    </p>
+                </div>
+                <button type="submit" class="btn btn-default">Next ></button>
+            </form>
+        </div>
+
+        <h3>What is Geomancer?</h3>
+        <p>Geomancer is an open-source tool for journalists to easily <strong>add context to existing data</strong>, by finding & combining other relevant datasets by location.</p>
+        <p>To get started, all you need is a dataset that includes geographic information.</p>
+        <br>
+        <p><strong>Examples of what you can do:</strong></p>
+        <ul>
+            <li>Add population data to crime count data, in order to calculate crime rates</li>
+            <li></li>
+            <li></li>
+        </ul>
+        <br>
+        <p>Geomancer is funded by a <a href="http://www.knightfoundation.org/grants/201342768/" target="blank">Knight Foundation Prototype Grant</a></p>
+
+    </div>
+</div>
+
+
 {% endblock %}
