@@ -86,39 +86,38 @@ def do_the_work(file_contents, field_defs, filename):
     
     try:
         data = c.data_show(geo_ids=list(geo_ids), table_ids=list(table_ids))
-        header = data['header']
-        contents.seek(0)
-        all_rows = list(reader)
-        included_idxs = set()
-        header_row = all_rows.pop(0)
-        output = []
-        for col in header:
-            header_row.append(col)
-        for geoid, row_ids in geoid_mapper.items():
-            for row_id in row_ids:
-                included_idxs.add(row_id)
-                row = all_rows[row_id]
-                row.extend(data[geoid])
-                output.append(row)
-        all_row_idxs = set(list(range(len(all_rows))))
-        missing_rows = all_row_idxs.difference(included_idxs)
-        for idx in missing_rows:
-            row = all_rows[idx]
-            row.extend(['' for i in header])
-            output.append(row)
-        name, ext = os.path.splitext(filename)
-        fname = '%s_%s%s' % (name, datetime.now().isoformat(), ext)
-        f = open('%s/%s' % (RESULT_FOLDER, fname), 'wb')
-        writer = UnicodeCSVWriter(f)
-        writer.writerow(header_row)
-        writer.writerows(output)
-        
-        download_path = '/download/%s' % fname
-        
-        return download_path
-        
     except CensusReporterError, e:
         return e.message
+    header = data['header']
+    contents.seek(0)
+    all_rows = list(reader)
+    included_idxs = set()
+    header_row = all_rows.pop(0)
+    output = []
+    for col in header:
+        header_row.append(col)
+    for geoid, row_ids in geoid_mapper.items():
+        for row_id in row_ids:
+            included_idxs.add(row_id)
+            row = all_rows[row_id]
+            row.extend(data[geoid])
+            output.append(row)
+    all_row_idxs = set(list(range(len(all_rows))))
+    missing_rows = all_row_idxs.difference(included_idxs)
+    for idx in missing_rows:
+        row = all_rows[idx]
+        row.extend(['' for i in header])
+        output.append(row)
+    name, ext = os.path.splitext(filename)
+    fname = '%s_%s%s' % (name, datetime.now().isoformat(), ext)
+    f = open('%s/%s' % (RESULT_FOLDER, fname), 'wb')
+    writer = UnicodeCSVWriter(f)
+    writer.writerow(header_row)
+    writer.writerows(output)
+    
+    download_path = '/download/%s' % fname
+    
+    return download_path
 
 
 
