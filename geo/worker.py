@@ -106,7 +106,8 @@ def do_the_work(file_contents, field_defs, filename):
             row = all_rows[idx]
             row.extend(['' for i in header])
             output.append(row)
-        fname = '%s_%s' % (filename, datetime.now().isoformat())
+        name, ext = os.path.splitext(filename)
+        fname = '%s_%s%s' % (name, datetime.now().isoformat(), ext)
         f = open('%s/%s' % (RESULT_FOLDER, fname), 'wb')
         writer = UnicodeCSVWriter(f)
         writer.writerow(header_row)
