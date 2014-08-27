@@ -1,9 +1,18 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="row">
-    <div class="col-sm-8">
+    <div class="col-sm-12">
         {% include "progress_steps.html" %}
-        <h2>2. Specify Geography</h2>
+        <h2>3. Select Relevant Datasets to Add</h2>
+        {% if errors %}
+            {% for error in errors %}
+                <p>{{error}}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-8">
         <div class="well">
             <form id="mance-form" role="form">
                 {% for field_name, info in fields.items() %}
@@ -23,7 +32,7 @@
                     {% endfor %}
                     </div>
                 {% endfor %}
-                <button type="submit" class="btn btn-default">Submit</button>
+                <button type="submit" class="btn btn-default">Next ></button>
             </form>
         </div>
     </div>

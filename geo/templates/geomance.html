@@ -1,9 +1,18 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="row">
-    <div class="col-sm-8">
+    <div class="col-sm-12">
         {% include "progress_steps.html" %}
-        <h2>Geomancing commencing</h2>
+        <h2>Geomancing Commencing</h2>
+        {% if errors %}
+            {% for error in errors %}
+                <p>{{error}}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-8">
     </div>
 </div>
 {% endblock %}
