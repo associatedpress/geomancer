@@ -40,7 +40,7 @@ def select_geo():
             pass
         if checker.errors:
             converted = None
-            context['errors'] = ['We had a problem converting your file']
+            context['errors'] = ['We had a problem processing your file']
             context['errors'].extend(['Line %s: %s' % (l + 1, v) \
                 for l,v in enumerate(checker.errors[:10])])
     if converted:

@@ -1,44 +1,35 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="row">
-    <div class="col-sm-12">
+    <div class="col-sm-10">
         {% include "progress_steps.html" %}
         <h2>1. Upload a spreadsheet</h2>
-        {% if errors %}
-            {% for error in errors %}
-                <p>{{error}}</p>
-            {% endfor %}
-        {% endif %}
-    </div>
-</div>
+        {% include "errors.html" %}
 
-<div class="row">
-    <div class="col-sm-8">
         <div class = "well">
-            <form role="form" class="" method="POST" action="{{ url_for('views.select_geo') }}" enctype="multipart/form-data">
+            <form role="form" class="form" method="POST" action="{{ url_for('views.select_geo') }}" enctype="multipart/form-data">
                 <div class="form-group">
                     <input type="file" name="input_file" id="input_file" />
                     <p class="help-block">
                         Only <strong>.csv, .xls or .xlsx</strong> files.
                     </p>
                 </div>
-                <button type="submit" class="btn btn-default">Next ></button>
+                <button type="submit" class="btn btn-success">Next ></button>
             </form>
         </div>
 
-        <br>
         <h3>What is Geomancer?</h3>
-        <p>Geomancer is an open-source tool for journalists to easily <strong>add context to existing data</strong>, by finding & combining other relevant datasets by location.</p>
-        <p>To get started, all you need is a dataset that includes geographic information.</p>
-        <br>
+        <p>Geomancer is an open-source tool for journalists to easily <strong>add context to existing data</strong>, by finding &amp; combining other relevant datasets by location.</p>
+        <p>To get started, all you need is a dataset that includes a column with geographic information, like city or state.</p>
+        <!-- <br>
         <p><strong>Examples of what you can do:</strong></p>
         <ul>
-            <li>Add population data to crime count data, in order to calculate crime rates</li>
+            <li>Add population totals to crime count data, in order to calculate crime rates</li>
             <li></li>
             <li></li>
-        </ul>
-        <br>
-        <p>Geomancer is funded by a <a href="http://www.knightfoundation.org/grants/201342768/" target="blank">Knight Foundation Prototype Grant</a></p>
+        </ul> 
+        <br> -->
+        <p>Geomancer is funded by a <a href="http://www.knightfoundation.org/grants/201342768/" target="blank">Prototype Grant</a> from the <a href='http://www.knightfoundation.org/'>Knight Foundation</a>.</p>
 
     </div>
 </div>

@@ -1,0 +1,10 @@
+{% block content %}
+    {% if errors %}
+        <br />
+        <div class="alert alert-dismissable alert-danger">
+            {% for error in errors %}
+                <p>{{error}}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}

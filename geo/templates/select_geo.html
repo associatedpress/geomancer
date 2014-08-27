@@ -3,17 +3,8 @@
 <div class="row">
     <div class="col-sm-12">
         {% include "progress_steps.html" %}
-        <h2>2. Specify Geography</h2>
-        {% if errors %}
-            {% for error in errors %}
-                <p>{{error}}</p>
-            {% endfor %}
-        {% endif %}
-    </div>
-</div>
-<div class="row">
-    <div class="col-sm-8">
-      <form role="form" id="geotypes-form" action="{{ url_for('views.select_tables') }}" method="POST">
+        {% include "errors.html" %}
+        <form role="form" id="geotypes-form" action="{{ url_for('views.select_tables') }}" method="POST">
             <table class="table">
                 <thead>
                     <tr>
