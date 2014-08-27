@@ -2,3 +2,4 @@ Flask==0.10.1
 csvkit==0.7.3
 redis==2.10.1
 scrapelib==0.10.0
+gunicorn==19.1.1
