@@ -37,12 +37,15 @@ def queuefunc(f):
 @queuefunc
 def do_the_work(file_contents, field_defs):
     """
+      field_defs looks like:
       {
         10: {
           'type': 'city_state', 
           'append_columns': ['total_population', 'median_age']
         }
       }
+
+      file_contents is a string containing the contents of the uploaded file.
     """
     contents = StringIO(file_contents)
     reader = UnicodeCSVReader(contents)
@@ -52,11 +55,9 @@ def do_the_work(file_contents, field_defs):
     geo_ids = set()
     table_ids = set()
     geoid_mapper = {}
-    output = []
     output_filepath = 'output.csv'
 
     for row_idx, row in enumerate(reader):
-        output.append(row)
         col_idxs = [int(k) for k in field_defs.keys()]
         for idx in col_idxs:
             val = row[idx]
@@ -65,11 +66,17 @@ def do_the_work(file_contents, field_defs):
                 table_ids.add(ACS_DATA_TYPES[column]['table_id'])
             sumlevs = [g['acs_sumlev'] for g in GEO_TYPES if g['name'] == geo_type]
             try:
-                geoid_search = c.geo_search(val, sumlevs=sumlevs)
+                if val and sumlevs:
+                    geoid_search = c.geo_search(val, sumlevs=sumlevs)
+                else:
+                    continue
             except CensusReporterError, e:
                 return e.message
-            row_geoid = geoid_search['results'][0]['full_geoid']
-            geo_ids.add(row_geoid)
+            try:
+                row_geoid = geoid_search['results'][0]['full_geoid']
+                geo_ids.add(row_geoid)
+            except IndexError:
+                continue
             try:
                 geoid_mapper[row_geoid].append(row_idx)
             except KeyError:
@@ -77,29 +84,24 @@ def do_the_work(file_contents, field_defs):
     
     try:
         data = c.data_show(geo_ids=list(geo_ids), table_ids=list(table_ids))
-
-        # glue together uploaded data & censusreporter data
-        col_idxs = [int(k) for k in field_defs.keys()]
-        for idx in col_idxs:
-            for row in output:
-                geo = row[idx]
-                try:
-                    geoid_search = c.geo_search(geo, sumlevs=sumlevs)
-                except CensusReporterError, e:
-                    return e.message
-                row_geoid = geoid_search['results'][0]['full_geoid']
-                geo_type = field_defs[idx]['type']
-                manced_data = data[row_geoid]
-                row.extend(manced_data)
-        new_header = header + data['header']
-
-        # write to csv
-        f = open(output_filepath, 'w')
+        header = data['header']
+        contents.seek(0)
+        all_rows = list(reader)
+        header_row = all_rows.pop(0)
+        output = []
+        for col in header:
+            header_row.append(col)
+        for geoid, row_ids in geoid_mapper.items():
+            for row_id in row_ids:
+                row = all_rows[row_id]
+                row.extend(data[geoid])
+                output.append(row)
+        f = open('output.csv', 'w')
         writer = UnicodeCSVWriter(f)
-        writer.writerow(new_header)
+        writer.writerow(header_row)
         writer.writerows(output)
 
-        return output_filepath
+        return 'output.csv'
         
     except CensusReporterError, e:
         return e.message

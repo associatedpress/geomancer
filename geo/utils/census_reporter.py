@@ -67,6 +67,7 @@ class CensusReporter(scrapelib.Scraper):
         # We might want to talk about configuring an S3 backed cache for this
         # so we don't run the risk of running out of disk space. 
         self.cache_storage = scrapelib.cache.FileCache(cache_dir)
+        self.cache_write_only = False
 
     def geo_search(self, search_term, sumlevs=None):
         """ 
