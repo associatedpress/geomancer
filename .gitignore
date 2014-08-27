@@ -2,3 +2,6 @@
 .DS_Store
 app_config.py
 use_cases
+.env
+*.csv
+dump.rdb

@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+    <div class="col-sm-10">
+        {% include "progress_steps.html" %}
+        <h2>2. Specify Geography</h2>
+        <form id="mance-form" role="form">
+            {% for field_name, info in fields.items() %}
+                <h4>Column to match on: <strong>{{field_name}}</strong></h4>
+                <table class='table table-bordered table-striped'>
+                    <thead>
+                        <tr>
+                            <th>Select</th>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Columns to add</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for key, val in data_types.items() %}
+                            <tr>
+                                <td><input type="checkbox" id="{{ info.column_index }}-{{ info.geo_type }}-{{ key }}" name="{{ info.column_index }}-{{ info.geo_type }}-{{ key }}" /></td>
+                                <td><label for='{{ info.column_index }}-{{ info.geo_type }}-{{ key }}'>{{val.human_name}}</label></td>
+                                <td>Sex by Age by Educational Attainment for the Population 18 Years and Over</td>
+                                <td>population_black, population_white, etc</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endfor %}
+            <button type="submit" class="btn btn-success">Next ></button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+{% block extra_javascript %}
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('#mance-form').on('submit', function(e){
+                e.preventDefault()
+                var data = parseParams($(this).serialize());
+                var d = {}
+                $.each(data, function(key, i){
+                    var vals = key.split('-');
+                    if (typeof d[vals[0]] === 'undefined'){
+                        d[vals[0]] = {
+                            'type': vals[1],
+                            'append_columns': []
+                        }
+                    }
+                    d[vals[0]]['append_columns'].push(vals[2])
+                });
+                $.ajax({
+                    url:"/api/geomance/",
+                    type: 'POST',
+                    data: JSON.stringify(d),
+                    success: function(resp){
+                        window.location = '/geomance/' + resp['session_key'];
+                    },
+                    processData: false,
+                    contentType: 'application/json',
+                })
+            })
+        })
+        function display_results(data){
+            console.log(data)
+        }
+        function parseParams(query){
+            var re = /([^&=]+)=?([^&]*)/g;
+            var decodeRE = /\+/g;  // Regex for replacing addition symbol with a space
+            var decode = function (str) {return decodeURIComponent( str.replace(decodeRE, " ") );};
+            var params = {}, e;
+            while ( e = re.exec(query) ) {
+                var k = decode( e[1] ), v = decode( e[2] );
+                if (k.substring(k.length - 2) === '[]') {
+                    k = k.substring(0, k.length - 2);
+                    (params[k] || (params[k] = [])).push(v);
+                }
+                else params[k] = v;
+            }
+            return params;
+        }
+    </script>
+{% endblock %}

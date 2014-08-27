@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+    <div class="col-sm-12">
+        {% include "progress_steps.html" %}
+        {% include "errors.html" %}
+        <form role="form" id="geotypes-form" action="{{ url_for('views.select_tables') }}" method="POST">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Column Name</th>
+                        <th>Sample Values</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for index,name,values in sample_data %}
+                    <tr>
+                      <td data-column_index="{{ index }}">
+                            <label>
+                                <input type="checkbox" class="geography" /> Geography Column
+                            </label>
+                        </td>
+                        <td>{{ name }}</td>
+                        <td>{{ values }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <button type="submit" class="btn btn-default submit-types">Next ></button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+{% block extra_javascript %}
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('.geography').on('click', function(e){
+                var parent = $(this).parent().parent()
+                var col_index = $(parent).data('column_index')
+                if(!$(this).is(':checked')){
+                    $(parent).find('.geotype').remove();
+                } else {
+                    $.getJSON('{{ url_for("api.geo_types") }}', {}, function(types){
+                        var item = '<select class="geotype" name="geotype_' + col_index + '">';
+                        $.each(types, function(i, type){
+                            item += '<option value="' + type.name + '">' + type.description + '</option>';
+                        })
+                        $(parent).append(item);
+                    })
+                }
+            })
+        })
+    </script>
+{% endblock %}

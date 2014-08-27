@@ -9,9 +9,9 @@
     <title>Geomancer{% block title %}{% endblock %}</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/bootstrap.yeti.min.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/bootstrap-nav-wizard.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/font-awesome.css') }}" rel="stylesheet">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
     {% block extra_styles %}{% endblock %}
@@ -33,7 +33,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="/">Geomancer</a>
+          <a class="navbar-brand" href="/"><i class='fa fa-globe'></i> Geomancer</a>
         </div>
         <div class="navbar-collapse collapse pull-right">
           <ul class="nav navbar-nav">
@@ -42,7 +42,16 @@
       </div>
       <div class="container">
         {% block content %}{% endblock %}
+
+        <br />
+        <div class='clearfix'></div>
+
+        <div class="footer">
+          <p class='pull-right'>&copy; <a href='http://datamade.us'>Associated Press</a></p>
+        </div>
       </div>
+
+
 
     <!-- Bootstrap core JavaScript
     ================================================== -->

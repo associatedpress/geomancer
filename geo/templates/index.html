@@ -1,82 +1,38 @@
 {% extends 'base.html' %}
 {% block content %}
-{% if not sample_data %}
 <div class="row">
-    <div class="col-sm-12">
-        <h2>Start mancing some geo</h2>
-        {% if errors %}
-            {% for error in errors %}
-                <p>{{error}}</p>
-            {% endfor %}
-        {% endif %}
-        <form role="form" class="" method="POST" enctype="multipart/form-data">
-            <div class="form-group">
-                <input type="file" name="input_file" id="input_file" />
-            </div>
-            <button type="submit" class="btn btn-default">Submit</button>
-        </form>
+    <div class="col-sm-10">
+        {% include "progress_steps.html" %}
+        <h2>1. Upload a spreadsheet</h2>
+        {% include "errors.html" %}
+
+        <div class = "well">
+            <form role="form" class="form" method="POST" action="{{ url_for('views.select_geo') }}" enctype="multipart/form-data">
+                <div class="form-group">
+                    <input type="file" name="input_file" id="input_file" />
+                    <p class="help-block">
+                        Only <strong>.csv, .xls or .xlsx</strong> files.
+                    </p>
+                </div>
+                <button type="submit" class="btn btn-success">Next ></button>
+            </form>
+        </div>
+
+        <h3>What is Geomancer?</h3>
+        <p>Geomancer is an open-source tool for journalists to easily <strong>add context to existing data</strong>, by finding &amp; combining other relevant datasets by location.</p>
+        <p>To get started, all you need is a dataset that includes a column with geographic information, like city or state.</p>
+        <!-- <br>
+        <p><strong>Examples of what you can do:</strong></p>
+        <ul>
+            <li>Add population totals to crime count data, in order to calculate crime rates</li>
+            <li></li>
+            <li></li>
+        </ul> 
+        <br> -->
+        <p>Geomancer is funded by a <a href="http://www.knightfoundation.org/grants/201342768/" target="blank">Prototype Grant</a> from the <a href='http://www.knightfoundation.org/'>Knight Foundation</a>.</p>
+
     </div>
 </div>
-{% else %}
-<div class="row">
-    <div class="col-sm-12">
-      <form role="form" id="geotypes-form" action="{{ url_for('views.geomance') }}" method="POST">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>Column Name</th>
-                        <th>Sample Values</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for index,name,values in sample_data %}
-                    <tr>
-                      <td data-column_index="{{ index }}">
-                            <label>
-                                <input type="checkbox" class="geography" /> Geography Column
-                            </label>
-                        </td>
-                        <td>{{ name }}</td>
-                        <td>{{ values }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <button type="submit" class="btn btn-default submit-types">Submit</button>
-        </form>
-    </div>
-</div>
-{% endif %}
-{% endblock %}
-{% block extra_javascript %}
-    <script type="text/javascript">
-        $(document).ready(function(){
-            $('.geography').on('click', function(e){
-                var parent = $(this).parent().parent()
-                var col_index = $(parent).data('column_index')
-                if(!$(this).is(':checked')){
-                    $(parent).find('.geotype').remove();
-                } else {
-                    var item = '<select class="geotype" name="geotype_' + col_index + '">';
-                    item += '<option value="state_city_name">City Name + State Name</option>'
-                    item += '<option value="state_city_postal">City + State Postal Code</option>'
-                    item += '<option value="state_fips">State FIPS Code</option>'
-                    item += '<option value="state_county_fips">State + County FIPS Codes</option>'
-                    item += '<option value="zip_5">5-digit ZIP Code</option>'
-                    item += '<option value="zip_9">ZIP+4 Code</option>'
-                    item += '<option value="state_postal">State Postal Code</option>'
-                    item += '<option value="state_county_postal">State Postal Code + County Name</option>'
-                    item += '<option value="state_county_name">Full State Name + County Name</option>'
-                    item += '<option value="state_school_postal">State Postal Code + School District Name</option>'
-                    item += '<option value="state_congress_postal">State Postal Code + Congressional District Number</option>'
-                    item += '<option value="census_tract">State FIPS + County FIPS + Census Tract</option>'
-                    item += '<option value="census_blockgroup">State FIPS + County FIPS + Census Block Group</option>'
-                    item += '<option value="census_block">State FIPS + County FIPS + Census Block</option>'
-                    item += '</select>'
-                    $(parent).append(item);
-                }
-            })
-        })
-    </script>
+
+
 {% endblock %}

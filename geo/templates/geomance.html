@@ -1,11 +1,69 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="row">
-    <div class="col-sm-12">
-        <h2>Geomancing commencing</h2>
-        {% for field in field_names %}
-            <p>{{field}}</p>
-        {% endfor %}
+    <div class="col-sm-10">
+        {% include "progress_steps.html" %}
+        <h2>4. Merging data &hellip;</h2>
+        {% include "errors.html" %}
+
+        <div id='wait-info'>
+            <div class='well'>
+                <p><strong>This may take a few minutes.</strong> We are fetching data for each row in your spreadsheet.</p>
+                <p>When finished, your spreadsheet will be available to download below.</p>
+            </div>
+        </div>
+
+        <div id='spinner'><br /><br /></div>
+
+        <div id='results'>
+        </div>
     </div>
 </div>
+{% endblock %}
+{% block extra_javascript %}
+    <script src="{{ url_for('static', filename='js/spin.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery.spin.js') }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            var session_key = "{{ session_key }}";
+            $('#spinner').spin({'left': 0});
+            poll_worker(session_key)
+        })
+        function poll_worker(session_key){
+            $.ajax({
+                url: "/api/geomance-results/" + session_key + "/",
+                success: function(data){
+                    if (data.ready){
+                        display_results(data);
+                    } else {
+                        setTimeout(function(){poll_worker(session_key)}, 3000)
+                    }
+                }
+            })
+        }
+        function display_results(data){
+            console.log(data)
+            $('#spinner').spin(false);
+            $('#wait-info').slideUp();
+            $('#results').html('');
+
+            if(data.result == ''){
+                var template = "\
+                    <div class='alert alert-warning'>\
+                        <h4><i class='fa fa-bug'></i> Oh, no! We had a problem merging your data.</h4>\
+                        <p>Please <a href='/'>try again.</a><br />If this error persists <a href='mailto:info@datamade.us'>contact us.</a></p>\
+                    </div>";
+            } else {
+                var template = "\
+                    <h2><i class='fa fa-thumbs-o-up'></i> Your spreadsheet is ready!</h2>\
+                    <h4>\
+                        <a class='btn btn-success btn-lg' id='deduped-results' href='" + data.result + "'>\
+                            <i class='fa fa-download'></i> Download your spreadsheet\
+                        </a>\
+                    </h4>\
+                    ";
+            }
+            $('#results').html(template);
+        }
+    </script>
 {% endblock %}
