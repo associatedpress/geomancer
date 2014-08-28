@@ -1,77 +1,73 @@
 GEO_TYPES = [
     {
-        "name": "state_city_name",
-        "description": "City Name + State Name",
+        "name": "city",
+        "description": "city",
         "acs_sumlev": "160,170,060",
     },
     {
-        "name": "state_name", 
-        "description": "State Name",
+        "name": "state", 
+        "description": "State",
         "acs_sumlev": "040",
     },
     {
-        "name": "state_city_postal",
-        "description": "City + State Postal Code",
+        "name": "postal",
+        "description": "Postal Code",
         "acs_sumlev": "160,170,060",
     },
     {
         "name": "state_fips",
-        "description": "State FIPS Code",
+        "description": "FIPS Code - State",
         "acs_sumlev": "040",
     },
     {
         "name": "state_county_fips",
-        "description": "State + County FIPS Codes",
+        "description": "FIPS Code - State + County",
         "acs_sumlev": "050"
     },
     {
         "name": "zip_5",
-        "description": "5-digit ZIP Code",
+        "description": "ZIP Code (5 digit)",
         "acs_sumlev": "850,860",
     },
     {
         "name": "zip_9",
-        "description": "ZIP+4 Code",
+        "description": "ZIP Code (5+4 digit",
         "acs_sumlev": "850,860",
     },
+    # what is state postal code?
+    #{
+    #    "name": "state_postal",
+    #    "description": "State Postal Code",
+    #    "acs_sumlev": "040",
+    #},
     {
-        "name": "state_postal",
-        "description": "State Postal Code",
-        "acs_sumlev": "040",
-    },
-    {
-        "name": "state_county_postal",
-        "description": "State Postal Code + County Name",
+        "name": "county",
+        "description": "County",
         "acs_sumlev": "050"
     },
     {
-        "name": "state_county_name",
-        "description": "Full State Name + County Name",
-        "acs_sumlev": "050",
-    },
-    {
-        "name": "state_school_postal",
-        "description": "State Postal Code + School District Name",
+        "name": "school_district",
+        "description": "School District",
         "acs_sumlev": "950,960,970",
     },
     {
-        "name": "state_congress_postal",
-        "description": "State Postal Code + Congressional District Number",
+        "name": "congress_district",
+        "description": "Congressional District Number",
         "acs_sumlev": "500", # Assuming US Congressional District
     },
     {
         "name": "census_tract",
-        "description": "State FIPS + County FIPS + Census Tract",
+        "description": "Census Tract",
         "acs_sumlev": "140",
     },
     {
         "name": "census_blockgroup",
-        "description": "State FIPS + County FIPS + Census Block Group",
+        "description": "Census Block Group",
         "acs_sumlev": "150",
     },
     {
         "name": "census_block",
-        "description": "State FIPS + County FIPS + Census Block",
+        "description": "Census Block",
         "acs_sumlev": "101",
     },
 ]
