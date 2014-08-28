@@ -218,3 +218,9 @@ table, .alert, label,.control-label,.help-block,.checkbox,.radio { font-size: 14
     margin-right: 8px;
     opacity: 0.7;
 }
+
+.geo-column{
+  border-style: none;
+  background: red;
+  background-color: red;
+}

@@ -78,11 +78,12 @@ def select_tables():
     header = reader.next()
     fields = {}
     for k,v in request.form.items():
-        index = int(k.split('_')[1])
-        fields[header[index]] = {
-            'geo_type': v,
-            'column_index': index
-        }
+        if k.startswith("geotype"):
+            index = int(k.split('_')[1])
+            fields[header[index]] = {
+                'geo_type': v,
+                'column_index': index
+            }
     context = {'fields': fields, 'data_types': ACS_DATA_TYPES}
     return render_template('select_tables.html', **context)
 

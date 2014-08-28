@@ -4,21 +4,23 @@
     <div class="col-sm-12">
         {% include "progress_steps.html" %}
         {% include "errors.html" %}
+        <h2>2. Specify geography</h2>
+        <h4>Select the column that holds geographic data</h4>
         <form role="form" id="geotypes-form" action="{{ url_for('views.select_tables') }}" method="POST">
             <table class="table">
                 <thead>
                     <tr>
-                        <th></th>
-                        <th>Column Name</th>
-                        <th>Sample Values</th>
+                        <th width="30%"></th>
+                        <th width="15%">Column Name</th>
+                        <th width="55%">Sample Values</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for index,name,values in sample_data %}
                     <tr>
-                      <td data-column_index="{{ index }}">
+                        <td class="geo-column" data-column_index="{{ index }}">
                             <label>
-                                <input type="checkbox" class="geography" /> Geography Column
+                                <input type="radio" name="columns" class="geography" />
                             </label>
                         </td>
                         <td>{{ name }}</td>
@@ -39,10 +41,12 @@
                 var parent = $(this).parent().parent()
                 var col_index = $(parent).data('column_index')
                 if(!$(this).is(':checked')){
-                    $(parent).find('.geotype').remove();
+                    $(parent).find('.geo_dropdown').remove();
                 } else {
+                    $('.geo_dropdown').remove();
                     $.getJSON('{{ url_for("api.geo_types") }}', {}, function(types){
-                        var item = '<select class="geotype" name="geotype_' + col_index + '">';
+                        var item = '<select class="geo_dropdown" name="geotype_' + col_index + '">';
+                        var table = parent.parent().parent().parent()
                         $.each(types, function(i, type){
                             item += '<option value="' + type.name + '">' + type.description + '</option>';
                         })
