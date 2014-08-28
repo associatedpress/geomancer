@@ -46,7 +46,7 @@ GEO_TYPES = [
     },
     {
         "name": "state_county_name",
-        "decription": "Full State Name + County Name",
+        "description": "Full State Name + County Name",
         "acs_sumlev": "050",
     },
     {
