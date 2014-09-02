@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
+{% block title %}Add data - Geomancer {% endblock %}
 {% block content %}
 <div class="row">
     <div class="col-sm-10">
         {% include "progress_steps.html" %}
-        <h2>2. Select data to add</h2>
+        <h2>2. Add data</h2>
         <form id="mance-form" role="form">
             {% for field_name, info in fields.items() %}
                 <h4>Column to match on: <strong>{{field_name}}</strong></h4>

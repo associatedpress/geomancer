@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
+{% block title %}Select geography - Geomancer {% endblock %}
 {% block content %}
 <div class="row">
     <div class="col-sm-12">
         {% include "progress_steps.html" %}
         {% include "errors.html" %}
-        <h2>2. Specify geography</h2>
+        <h2>2. Select geography</h2>
         <h4>Select the column that holds geographic data</h4>
         <form role="form" id="geotypes-form" action="{{ url_for('views.select_tables') }}" method="POST">
             <table class="table">
