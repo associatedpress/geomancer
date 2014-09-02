@@ -10,15 +10,15 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th width="30%">Geography Type</th>
-                        <th width="15%">Column Name</th>
-                        <th width="55%">Sample Values</th>
+                        <th width="30%">Geography type</th>
+                        <th width="15%">Column name</th>
+                        <th width="55%">Sample values</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for index,name,values in sample_data %}
                     <tr>
-                        <td class="geo-column" data-column_index="{{ index }}">
+                        <td data-column_index="{{ index }}">
                             <label>
                                 <input type="radio" name="columns" class="geography" />
                             </label>

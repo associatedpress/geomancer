@@ -1,7 +1,7 @@
 GEO_TYPES = [
     {
         "name": "city",
-        "description": "city",
+        "description": "City",
         "acs_sumlev": "160,170,060",
     },
     {
