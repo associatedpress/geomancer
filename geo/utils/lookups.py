@@ -31,7 +31,7 @@ GEO_TYPES = [
     },
     {
         "name": "zip_9",
-        "description": "ZIP Code (5+4 digit",
+        "description": "ZIP Code (5+4 digit)",
         "acs_sumlev": "850,860",
     },
     # what is state postal code?
