@@ -10,6 +10,7 @@ from geo.utils.lookups import ACS_DATA_TYPES, GEO_TYPES
 from geo.utils.census_reporter import CensusReporter, CensusReporterError
 from geo.app_config import RESULT_FOLDER
 from datetime import datetime
+import xlwt
 
 redis = Redis()
 
@@ -96,6 +97,7 @@ def do_the_work(file_contents, field_defs, filename):
     output = []
     for col in header:
         header_row.append(col)
+    output.append(header_row)
     for geoid, row_ids in geoid_mapper.items():
         for row_id in row_ids:
             included_idxs.add(row_id)
@@ -110,15 +112,32 @@ def do_the_work(file_contents, field_defs, filename):
         output.append(row)
     name, ext = os.path.splitext(filename)
     fname = '%s_%s%s' % (name, datetime.now().isoformat(), ext)
-    f = open('%s/%s' % (RESULT_FOLDER, fname), 'wb')
-    writer = UnicodeCSVWriter(f)
-    writer.writerow(header_row)
-    writer.writerows(output)
+    fpath = RESULT_FOLDER + '/' + fname
+    if ext == 'xlsx':
+        writeXLSX(fpath, output)
+    elif ext == 'xls':
+        writeXLS(fpath, output)
+    else:
+        writeCSV(fpath, output)
     
     download_path = '/download/%s' % fname
     
     return download_path
 
+def writeXLS(fpath, output):
+    with open(fpath, 'wb') as f:
+        workbook = xlwt.Workbook(encoding='utf-8')
+        sheet = workbook.add_sheet('Geomancer Output')
+        for r, row in enumerate(output):
+            for c, col in enumerate(output[0]):
+                sheet.write(r, c, row[c])
+        workbook.save(fpath)
+
+
+def writeCSV(fpath, output):
+    with open(fpath, 'wb') as f:
+        writer = UnicodeCSVWriter(f)
+        writer.writerows(output)
 
 
 def queue_daemon(app, rv_ttl=500):
