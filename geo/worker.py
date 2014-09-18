@@ -11,6 +11,8 @@ from geo.utils.census_reporter import CensusReporter, CensusReporterError
 from geo.app_config import RESULT_FOLDER
 from datetime import datetime
 import xlwt
+from openpyxl import Workbook
+from openpyxl.cell import get_column_letter
 
 redis = Redis()
 
@@ -112,10 +114,10 @@ def do_the_work(file_contents, field_defs, filename):
         output.append(row)
     name, ext = os.path.splitext(filename)
     fname = '%s_%s%s' % (name, datetime.now().isoformat(), ext)
-    fpath = RESULT_FOLDER + '/' + fname
-    if ext == 'xlsx':
+    fpath = '%s/%s' % (RESULT_FOLDER, fname)
+    if ext == '.xlsx':
         writeXLSX(fpath, output)
-    elif ext == 'xls':
+    elif ext == '.xls':
         writeXLS(fpath, output)
     else:
         writeCSV(fpath, output)
@@ -133,6 +135,15 @@ def writeXLS(fpath, output):
                 sheet.write(r, c, row[c])
         workbook.save(fpath)
 
+def writeXLSX(fpath, output):
+    with open(fpath, 'wb') as f:
+        workbook = Workbook()
+        sheet = workbook.active
+        sheet.title = 'Geomancer Output'
+        numcols = len(output[0])
+        for r, row in enumerate(output):
+            sheet.append([row[col_idx] for col_idx in range(numcols)])
+        workbook.save(fpath)
 
 def writeCSV(fpath, output):
     with open(fpath, 'wb') as f:
