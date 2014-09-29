@@ -3,6 +3,7 @@ from urllib import urlencode
 import json
 import os
 from geo.app_config import CACHE_DIR
+from geo.utils.helpers import encoded_dict
 from string import punctuation
 import re
 
@@ -81,6 +82,7 @@ class CensusReporter(scrapelib.Scraper):
         q_dict = {'q': search_term}
         if sumlevs:
             q_dict['sumlevs'] = ','.join(sumlevs)
+        q_dict = encoded_dict(q_dict)
         params = urlencode(q_dict)
         try:
             response = self.urlopen('%s/geo/search?%s' % (self.base_url, params))
