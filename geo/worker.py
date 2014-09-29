@@ -122,10 +122,9 @@ def do_the_work(file_contents, field_defs, filename):
         else:
             writeCSV(fpath, output)
         
-        response = '/download/%s' % fname
+        return '/download/%s' % fname
     else:
         raise CensusReporterError('No geographies matched')
-    return download_path
 
 def writeXLS(fpath, output):
     with open(fpath, 'wb') as f:
