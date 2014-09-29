@@ -144,15 +144,16 @@ class CensusReporter(scrapelib.Scraper):
             for table_id in table_ids:
                 table_info = raw_results['tables'][table_id]
                 title = table_info['title']
-                detail_ids = table_info['columns'].keys()
+                detail_ids = [k for k in table_info['columns'].keys() \
+                    if table_info['columns'][k].get('indent') is not None]
                 denominator = table_info['denominator_column_id']
                 for detail_id in detail_ids:
-                    title = table_info['title']
-                    if denominator:
-                        detail_title = table_info['columns'][detail_id]['name']
-                        title = '%s, %s' % (title, detail_title,)
-                    if title not in results['header']:
-                        results['header'].extend([title, '%s (error margin)' % title])
+                    table_title = table_info['title']
+                    column_title = None
+                    detail_title = table_info['columns'][detail_id]['name']
+                    column_title = '%s, %s' % (table_title, detail_title,)
+                    if column_title not in results['header']:
+                        results['header'].extend([column_title, '%s (error margin)' % column_title])
                     detail_info = raw_results['data'][geo_id][table_id]
                     results[geo_id].extend([
                         detail_info['estimate'][detail_id], 
