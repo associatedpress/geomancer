@@ -56,7 +56,8 @@ def geomance_results(session_key):
     if rv.return_value is None:
         return jsonify(ready=False)
     redis.delete(session_key)
-    return jsonify(ready=True, result=rv.return_value)
+    result = rv.return_value
+    return jsonify(ready=True, result=result['result'], status=result['status'])
 
 @api.route('/api/geo-types/')
 def geo_types():

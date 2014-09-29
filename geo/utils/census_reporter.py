@@ -42,9 +42,10 @@ SUMLEV_NAMES = {
 }
 
 class CensusReporterError(Exception):
-    def __init__(self, message):
+    def __init__(self, message, body=None):
         Exception.__init__(self, message)
         self.message = message
+        self.body = body
 
 class CensusReporter(scrapelib.Scraper):
     """ 
@@ -85,7 +86,12 @@ class CensusReporter(scrapelib.Scraper):
         try:
             response = self.urlopen('%s/geo/search?%s' % (self.base_url, params))
         except scrapelib.HTTPError, e:
-            raise CensusReporterError('Census Reporter API returned %s' % e.body)
+            try:
+                body = json.loads(e.body.json()['error'])
+            except ValueError:
+                body = None
+            raise CensusReporterError('Census Reporter API returned a %s status' \
+                % response.status_code, body=body)
         results = json.loads(response)
         return results
 
@@ -134,7 +140,12 @@ class CensusReporter(scrapelib.Scraper):
         try:
             response = self.urlopen('%s/data/show/%s?%s' % (self.base_url, acs, params))
         except scrapelib.HTTPError, e:
-            raise CensusReporterError('Census Reporter API returned %s' % e.body)
+            try:
+                body = json.loads(e.body.json()['error'])
+            except ValueError:
+                body = None
+            raise CensusReporterError('Census Reporter API returned a %s status' \
+                % response.status_code, body=body)
         raw_results = json.loads(response)
         results = {'header': []}
         for geo_id in geo_ids:

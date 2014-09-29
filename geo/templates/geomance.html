@@ -44,18 +44,26 @@
         }
         function display_results(data){
             console.log(data)
+            console.log(data.result)
             $('#spinner').spin(false);
             $('#wait-info').slideUp();
             $('#results').html('');
-
-            if(data.result == ''){
-                var template = "\
+            var template = ''
+            if(data.status == 'error'){
+                template = "\
                     <div class='alert alert-warning'>\
                         <h4><i class='fa fa-bug'></i> Oh, no! We had a problem merging your data.</h4>\
+                        <p>" + data.result + "</p>\
+                        <p>Please <a href='/'>try again.</a><br />If this error persists <a href='mailto:info@datamade.us'>contact us.</a></p>\
+                    </div>";
+            } else if(data.result == ''){
+                template = "\
+                    <div class='alert alert-warning'>\
+                        <h4><i class='fa fa-bug'></i> Oh, no! No data was returned.</h4>\
                         <p>Please <a href='/'>try again.</a><br />If this error persists <a href='mailto:info@datamade.us'>contact us.</a></p>\
                     </div>";
             } else {
-                var template = "\
+                template = "\
                     <h2><i class='fa fa-thumbs-o-up'></i> Your spreadsheet is ready!</h2>\
                     <h4>\
                         <a class='btn btn-success btn-lg' id='deduped-results' href='" + data.result + "'>\
