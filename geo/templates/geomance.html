@@ -1,24 +1,19 @@
-{% extends 'base.html' %}
+{% extends 'wizard_base.html' %}
 {% block title %}Download - Geomancer {% endblock %}
-{% block content %}
-<div class="row">
-    <div class="col-sm-10">
-        {% include "progress_steps.html" %}
-        <h2>4. Merging data &hellip;</h2>
-        {% include "errors.html" %}
+{% block wizard_content %}
+<h2>4. Merging data &hellip;</h2>
+{% include "errors.html" %}
 
-        <div id='wait-info'>
-            <div class='well'>
-                <p><strong>This may take a few minutes.</strong> We are fetching data for each row in your spreadsheet.</p>
-                <p>When finished, your spreadsheet will be available to download below.</p>
-            </div>
-        </div>
-
-        <div id='spinner'><br /><br /></div>
-
-        <div id='results'>
-        </div>
+<div id='wait-info'>
+    <div class='well'>
+        <p><strong>This may take a few minutes.</strong> We are fetching data for each row in your spreadsheet.</p>
+        <p>When finished, your spreadsheet will be available to download below.</p>
     </div>
+</div>
+
+<div id='spinner'><br /><br /></div>
+
+<div id='results'>
 </div>
 {% endblock %}
 {% block extra_javascript %}

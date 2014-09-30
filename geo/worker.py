@@ -76,7 +76,7 @@ def do_the_work(file_contents, field_defs, filename):
                 else:
                     continue
             except CensusReporterError, e:
-                raise e
+                return e.message
             try:
                 row_geoid = geoid_search['results'][0]['full_geoid']
                 geo_ids.add(row_geoid)

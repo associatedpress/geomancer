@@ -1,73 +1,73 @@
 GEO_TYPES = [
     {
         "name": "city",
-        "description": "City",
+        "human_name": "City",
         "acs_sumlev": "160,170,060",
     },
     {
         "name": "state", 
-        "description": "State",
+        "human_name": "State",
         "acs_sumlev": "040",
     },
     {
         "name": "postal",
-        "description": "Postal Code",
+        "human_name": "Postal Code",
         "acs_sumlev": "160,170,060",
     },
     {
         "name": "state_fips",
-        "description": "FIPS Code - State",
+        "human_name": "FIPS Code - State",
         "acs_sumlev": "040",
     },
     {
         "name": "state_county_fips",
-        "description": "FIPS Code - State + County",
+        "human_name": "FIPS Code - State + County",
         "acs_sumlev": "050"
     },
     {
         "name": "zip_5",
-        "description": "ZIP Code (5 digit)",
+        "human_name": "ZIP Code (5 digit)",
         "acs_sumlev": "850,860",
     },
     {
         "name": "zip_9",
-        "description": "ZIP Code (5+4 digit)",
+        "human_name": "ZIP Code (5+4 digit)",
         "acs_sumlev": "850,860",
     },
     # what is state postal code?
     #{
     #    "name": "state_postal",
-    #    "description": "State Postal Code",
+    #    "human_name": "State Postal Code",
     #    "acs_sumlev": "040",
     #},
     {
         "name": "county",
-        "description": "County",
+        "human_name": "County",
         "acs_sumlev": "050"
     },
     {
         "name": "school_district",
-        "description": "School District",
+        "human_name": "School District",
         "acs_sumlev": "950,960,970",
     },
     {
         "name": "congress_district",
-        "description": "Congressional District Number",
+        "human_name": "Congressional District Number",
         "acs_sumlev": "500", # Assuming US Congressional District
     },
     {
         "name": "census_tract",
-        "description": "Census Tract",
+        "human_name": "Census Tract",
         "acs_sumlev": "140",
     },
     {
         "name": "census_blockgroup",
-        "description": "Census Block Group",
+        "human_name": "Census Block Group",
         "acs_sumlev": "150",
     },
     {
         "name": "census_block",
-        "description": "Census Block",
+        "human_name": "Census Block",
         "acs_sumlev": "101",
     },
 ]

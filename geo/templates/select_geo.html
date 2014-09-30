@@ -1,39 +1,33 @@
-{% extends 'base.html' %}
+{% extends 'wizard_base.html' %}
 {% block title %}Select geography - Geomancer {% endblock %}
-{% block content %}
-<div class="row">
-    <div class="col-sm-12">
-        {% include "progress_steps.html" %}
-        {% include "errors.html" %}
-        <h2>2. Select geography</h2>
-        <h4>Select the column that holds geographic data</h4>
-        <form role="form" id="geotypes-form" action="{{ url_for('views.select_tables') }}" method="POST">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th width="30%">Geography type</th>
-                        <th width="15%">Column name</th>
-                        <th width="55%">Sample values</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for index,name,values in sample_data %}
-                    <tr>
-                        <td data-column_index="{{ index }}">
-                            <label>
-                                <input type="radio" name="columns" class="geography" />
-                            </label>
-                        </td>
-                        <td>{{ name }}</td>
-                        <td>{{ values }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <button type="submit" class="btn btn-success submit-types">Next ></button>
-        </form>
-    </div>
-</div>
+{% block wizard_content %}
+<h2>2. Select geography</h2>
+<h4>Select the column that holds geographic data</h4>
+<form role="form" id="geotypes-form" action="{{ url_for('views.select_tables') }}" method="POST">
+    <table class="table">
+        <thead>
+            <tr>
+                <th width="30%">Geography type</th>
+                <th width="15%">Column name</th>
+                <th width="55%">Sample values</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for index,name,values in sample_data %}
+            <tr>
+                <td data-column_index="{{ index }}">
+                    <label>
+                        <input type="radio" name="columns" class="geography" />
+                    </label>
+                </td>
+                <td>{{ name }}</td>
+                <td>{{ values }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <button type="submit" class="btn btn-success submit-types">Next ></button>
+</form>
 {% endblock %}
 {% block extra_javascript %}
     <script type="text/javascript">
@@ -49,7 +43,7 @@
                         var item = '<select class="geo_dropdown" name="geotype_' + col_index + '">';
                         var table = parent.parent().parent().parent()
                         $.each(types, function(i, type){
-                            item += '<option value="' + type.name + '">' + type.description + '</option>';
+                            item += '<option value="' + type.name + '">' + type.human_name + '</option>';
                         })
                         $(parent).append(item);
                     })

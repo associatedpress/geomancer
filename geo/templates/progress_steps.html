@@ -1,8 +1,0 @@
-{% block content %}
-<ul class='nav nav-wizard'>
-  <li class='{% if request.path == "/" %} active {% endif %}'>1 - Upload data</li>
-  <li class='{% if request.path == url_for('views.select_geo') %} active {% endif %}'>2 - Select geography</li>
-  <li class='{% if request.path == url_for('views.select_tables') %} active {% endif %}'>3 - Add data</li>
-  <li class='{% if "/geomance/" in request.path %} active {% endif %}'>4 - Download</li>
-</ul>
-{% endblock %}
