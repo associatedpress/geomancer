@@ -3,20 +3,22 @@
 {% block content %}
 <div class="row">
     <div class="col-sm-12">
-        <a href="{{ url_for('views.upload') }}" class="btn btn-lg btn-primary" role="button">Get started &gt; </a>
-        <h3>What is Geomancer?</h3>
-        <p>Geomancer is an open-source tool for journalists to easily <strong>add context to existing data</strong>, by finding &amp; combining other relevant datasets by location.</p>
+        <div class='jumbotron'>
+            <h1>Geomancer</h1>
+            <p>Add demographic data to any spreadsheet.</p>
+
+            <a href="{{ url_for('views.upload') }}" class="btn btn-lg btn-success" role="button">Get started &gt; </a>
+        </div>
+
         <p>To get started, all you need is a dataset that includes a column with geographic information, like city or state.</p>
-        <!-- <br>
-        <p><strong>Examples of what you can do:</strong></p>
+        <p><strong>Examples:</strong></p>
         <ul>
-            <li>Add population totals to crime count data, in order to calculate crime rates</li>
+            <li>Add population totals to crime count data</li>
             <li></li>
             <li></li>
         </ul>
-        <br> -->
+        <br>
         <p>Geomancer is funded by a <a href="http://www.knightfoundation.org/grants/201342768/" target="blank">Prototype Grant</a> from the <a href='http://www.knightfoundation.org/'>Knight Foundation</a>.</p>
-
     </div>
 </div>
 
