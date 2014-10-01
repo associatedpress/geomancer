@@ -2,7 +2,6 @@
 {% block title %}Download - Geomancer {% endblock %}
 {% block wizard_content %}
 <h2>4. Merging data &hellip;</h2>
-{% include "errors.html" %}
 
 <div id='wait-info'>
     <div class='well'>
@@ -46,14 +45,14 @@
             var template = ''
             if(data.status == 'error'){
                 template = "\
-                    <div class='alert alert-warning'>\
+                    <div class='alert alert-danger'>\
                         <h4><i class='fa fa-bug'></i> Oh, no! We had a problem merging your data.</h4>\
                         <p>" + data.result + "</p>\
                         <p>Please <a href='/'>try again.</a><br />If this error persists <a href='mailto:info@datamade.us'>contact us.</a></p>\
                     </div>";
             } else if(data.result == ''){
                 template = "\
-                    <div class='alert alert-warning'>\
+                    <div class='alert alert-danger'>\
                         <h4><i class='fa fa-bug'></i> Oh, no! No data was returned.</h4>\
                         <p>Please <a href='/'>try again.</a><br />If this error persists <a href='mailto:info@datamade.us'>contact us.</a></p>\
                     </div>";
