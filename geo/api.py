@@ -56,22 +56,23 @@ def geomance_results(session_key):
     if rv.return_value is None:
         return jsonify(ready=False)
     redis.delete(session_key)
-    return jsonify(ready=True, result=rv.return_value)
+    result = rv.return_value
+    return jsonify(ready=True, result=result['result'], status=result['status'])
 
 @api.route('/api/geo-types/')
 def geo_types():
     """ 
     Return a list of supported geography types
-    Optionally include a 'name', 'description', or 'acs_sumlev' 
+    Optionally include a 'name', 'human_name', or 'acs_sumlev' 
     to limit response
     """
     types = []
     if request.args.get('name'):
         name = request.args['name'].lower()
         types = [r for r in GEO_TYPES if name in r['name'].lower()]
-    elif request.args.get('description'):
-        desc = request.args['description'].lower()
-        types = [r for r in GEO_TYPES if desc in r['description'].lower()]
+    elif request.args.get('human_name'):
+        desc = request.args['human_name'].lower()
+        types = [r for r in GEO_TYPES if desc in r['human_name'].lower()]
     elif request.args.get('acs_sumlev'):
         sumlev = request.args['acs_sumlev'].lower()
         types = [r for r in GEO_TYPES if sumlev in r['acs_sumlev'].lower()]
@@ -93,10 +94,10 @@ def data_attrs(geo_type):
     return resp
 
 @api.route('/api/data-map/')
-def data_map(geo_type):
+def data_map():
     """ 
     For a list of geographic identifiers, a geographic type and data attributes, 
-    return a set of data attributes for each gepgraphic identifier
+    return a set of data attributes for each geographic identifier
     """
     resp = make_response(json.dumps({}))
     resp.headers['Content-Type'] = 'application/json'

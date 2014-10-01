@@ -1,39 +1,68 @@
-{% extends 'base.html' %}
-{% block content %}
-<div class="row">
-    <div class="col-sm-10">
-        {% include "progress_steps.html" %}
-        <h2>2. Specify Geography</h2>
-        <form id="mance-form" role="form">
-            {% for field_name, info in fields.items() %}
-                <h4>Column to match on: <strong>{{field_name}}</strong></h4>
-                <table class='table table-bordered table-striped'>
-                    <thead>
-                        <tr>
-                            <th>Select</th>
-                            <th>Name</th>
-                            <th>Description</th>
-                            <th>Columns to add</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for key, val in data_types.items() %}
-                            <tr>
-                                <td><input type="checkbox" id="{{ info.column_index }}-{{ info.geo_type }}-{{ key }}" name="{{ info.column_index }}-{{ info.geo_type }}-{{ key }}" /></td>
-                                <td><label for='{{ info.column_index }}-{{ info.geo_type }}-{{ key }}'>{{val.human_name}}</label></td>
-                                <td>Sex by Age by Educational Attainment for the Population 18 Years and Over</td>
-                                <td>population_black, population_white, etc</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% endfor %}
-            <button type="submit" class="btn btn-success">Next ></button>
-        </form>
-    </div>
-</div>
+{% extends 'wizard_base.html' %}
+{% block title %}Add data - Geomancer {% endblock %}
+{% block wizard_content %}
+<h2>2. Add data</h2>
+<form id="mance-form" role="form">
+    {% for field_name, info in fields.items() %}
+        <h4>Column to match on: <strong>{{field_name}}</strong></h4>
+        <table class='table table-bordered table-striped'>
+            <thead>
+                <tr>
+                    <th>Select</th>
+                    <th>Name</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for key, val in data_types.items() %}
+                    <tr class="table-row" data-table_id="{{ val.table_id }}">
+                      <td>
+                          <input type="checkbox" class="table-select" data-table_id="{{ val.table_id }}"
+                              id="{{ info.column_index }}-{{ info.geo_type }}-{{ key }}"
+                              name="{{ info.column_index }}-{{ info.geo_type }}-{{ key }}" />
+                        </td>
+                        <td>
+                            {{val.human_name}}
+                        </td>
+                        <td>
+                            <a href="javascript://" class="column-select" data-table_id="{{ val.table_id }}">
+                                Select specific columns &gt;&gt;
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endfor %}
+    <button type="submit" class="btn btn-success">Next &gt;</button>
+</form>
+<div class="modal fade" id="column-modal"></div><!-- /.modal -->
 {% endblock %}
 {% block extra_javascript %}
+    <script type="text/javascript" src="{{ url_for('static', filename='js/ejs_production.js') }}"></script>
+    <script type="text/ejs" id="columnModalEJS">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span>
+                    </button>
+                    <h4 class="modal-title"><%= table_title %></h4>
+                </div>
+                <div class="modal-body">
+                    <% $.each(columns, function(i, column){ %>
+                      <p><strong><%= columns[i]['column_title'] %></strong></p>
+                    <% }) %>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary save-columns" data-dismiss="modal">
+                        Save choices
+                    </button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </script>
     <script type="text/javascript">
         $(document).ready(function(){
             $('#mance-form').on('submit', function(e){
@@ -61,9 +90,20 @@
                     contentType: 'application/json',
                 })
             })
+            $('.column-select').on('click', function(e){
+                var table_id = $(this).data('table_id');
+                $.when(load_table_columns(table_id)).then(
+                    function(resp){
+                        var template = new EJS({'text': $('#columnModalEJS').html()})
+                        var modal_contents = template.render(resp);
+                        $('#column-modal').html(modal_contents);
+                        $('#column-modal').modal();
+                    }
+                );
+            })
         })
-        function display_results(data){
-            console.log(data)
+        function load_table_columns(table_id){
+            return $.getJSON('http://api.censusreporter.org/1.0/table/' + table_id)
         }
         function parseParams(query){
             var re = /([^&=]+)=?([^&]*)/g;

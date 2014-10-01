@@ -1,36 +1,24 @@
 {% extends 'base.html' %}
+{% block title %}Geomancer{% endblock %}
 {% block content %}
 <div class="row">
-    <div class="col-sm-10">
-        {% include "progress_steps.html" %}
-        <h2>1. Upload a spreadsheet</h2>
-        {% include "errors.html" %}
+    <div class="col-sm-12">
+        <div class='jumbotron'>
+            <h1>Geomancer</h1>
+            <p>Add demographic data to any spreadsheet.</p>
 
-        <div class = "well">
-            <form role="form" class="form" method="POST" action="{{ url_for('views.select_geo') }}" enctype="multipart/form-data">
-                <div class="form-group">
-                    <input type="file" name="input_file" id="input_file" />
-                    <p class="help-block">
-                        Only <strong>.csv, .xls or .xlsx</strong> files.
-                    </p>
-                </div>
-                <button type="submit" class="btn btn-success">Next ></button>
-            </form>
+            <a href="{{ url_for('views.upload') }}" class="btn btn-lg btn-success" role="button">Get started &gt; </a>
         </div>
 
-        <h3>What is Geomancer?</h3>
-        <p>Geomancer is an open-source tool for journalists to easily <strong>add context to existing data</strong>, by finding &amp; combining other relevant datasets by location.</p>
         <p>To get started, all you need is a dataset that includes a column with geographic information, like city or state.</p>
-        <!-- <br>
-        <p><strong>Examples of what you can do:</strong></p>
+        <p><strong>Examples:</strong></p>
         <ul>
-            <li>Add population totals to crime count data, in order to calculate crime rates</li>
+            <li>Add population totals to crime count data</li>
             <li></li>
             <li></li>
-        </ul> 
-        <br> -->
+        </ul>
+        <br>
         <p>Geomancer is funded by a <a href="http://www.knightfoundation.org/grants/201342768/" target="blank">Prototype Grant</a> from the <a href='http://www.knightfoundation.org/'>Knight Foundation</a>.</p>
-
     </div>
 </div>
 

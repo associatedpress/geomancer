@@ -10,6 +10,9 @@ from geo.utils.lookups import ACS_DATA_TYPES, GEO_TYPES
 from geo.utils.census_reporter import CensusReporter, CensusReporterError
 from geo.app_config import RESULT_FOLDER
 from datetime import datetime
+import xlwt
+from openpyxl import Workbook
+from openpyxl.cell import get_column_letter
 
 redis = Redis()
 
@@ -83,42 +86,69 @@ def do_the_work(file_contents, field_defs, filename):
                 geoid_mapper[row_geoid].append(row_idx)
             except KeyError:
                 geoid_mapper[row_geoid] = [row_idx]
-    
-    try:
-        data = c.data_show(geo_ids=list(geo_ids), table_ids=list(table_ids))
-    except CensusReporterError, e:
-        return e.message
-    header = data['header']
-    contents.seek(0)
-    all_rows = list(reader)
-    included_idxs = set()
-    header_row = all_rows.pop(0)
-    output = []
-    for col in header:
-        header_row.append(col)
-    for geoid, row_ids in geoid_mapper.items():
-        for row_id in row_ids:
-            included_idxs.add(row_id)
-            row = all_rows[row_id]
-            row.extend(data[geoid])
+    if geo_ids:
+        try:
+            data = c.data_show(geo_ids=list(geo_ids), table_ids=list(table_ids))
+        except CensusReporterError, e:
+            raise e
+        header = data['header']
+        contents.seek(0)
+        all_rows = list(reader)
+        included_idxs = set()
+        header_row = all_rows.pop(0)
+        output = []
+        for col in header:
+            header_row.append(col)
+        output.append(header_row)
+        for geoid, row_ids in geoid_mapper.items():
+            for row_id in row_ids:
+                included_idxs.add(row_id)
+                row = all_rows[row_id]
+                row.extend(data[geoid])
+                output.append(row)
+        all_row_idxs = set(list(range(len(all_rows))))
+        missing_rows = all_row_idxs.difference(included_idxs)
+        for idx in missing_rows:
+            row = all_rows[idx]
+            row.extend(['' for i in header])
             output.append(row)
-    all_row_idxs = set(list(range(len(all_rows))))
-    missing_rows = all_row_idxs.difference(included_idxs)
-    for idx in missing_rows:
-        row = all_rows[idx]
-        row.extend(['' for i in header])
-        output.append(row)
-    name, ext = os.path.splitext(filename)
-    fname = '%s_%s%s' % (name, datetime.now().isoformat(), ext)
-    f = open('%s/%s' % (RESULT_FOLDER, fname), 'wb')
-    writer = UnicodeCSVWriter(f)
-    writer.writerow(header_row)
-    writer.writerows(output)
-    
-    download_path = '/download/%s' % fname
-    
-    return download_path
+        name, ext = os.path.splitext(filename)
+        fname = '%s_%s%s' % (name, datetime.now().isoformat(), ext)
+        fpath = '%s/%s' % (RESULT_FOLDER, fname)
+        if ext == '.xlsx':
+            writeXLSX(fpath, output)
+        elif ext == '.xls':
+            writeXLS(fpath, output)
+        else:
+            writeCSV(fpath, output)
+        
+        return '/download/%s' % fname
+    else:
+        raise CensusReporterError('No geographies matched')
 
+def writeXLS(fpath, output):
+    with open(fpath, 'wb') as f:
+        workbook = xlwt.Workbook(encoding='utf-8')
+        sheet = workbook.add_sheet('Geomancer Output')
+        for r, row in enumerate(output):
+            for c, col in enumerate(output[0]):
+                sheet.write(r, c, row[c])
+        workbook.save(fpath)
+
+def writeXLSX(fpath, output):
+    with open(fpath, 'wb') as f:
+        workbook = Workbook()
+        sheet = workbook.active
+        sheet.title = 'Geomancer Output'
+        numcols = len(output[0])
+        for r, row in enumerate(output):
+            sheet.append([row[col_idx] for col_idx in range(numcols)])
+        workbook.save(fpath)
+
+def writeCSV(fpath, output):
+    with open(fpath, 'wb') as f:
+        writer = UnicodeCSVWriter(f)
+        writer.writerows(output)
 
 
 def queue_daemon(app, rv_ttl=500):
@@ -127,8 +157,9 @@ def queue_daemon(app, rv_ttl=500):
         func, key, args, kwargs = loads(msg[1])
         try:
             rv = func(*args, **kwargs)
+            rv = {'status': 'ok', 'result': rv}
         except Exception, e:
-            rv = e.message
+            rv = {'status': 'error', 'result': e.message}
         if rv is not None:
             redis.set(key, dumps(rv))
             redis.expire(key, rv_ttl)

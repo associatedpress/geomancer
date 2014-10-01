@@ -1,0 +1,26 @@
+{% extends 'wizard_base.html' %}
+{% block title %}Upload data - Geomancer{% endblock %}
+{% block wizard_content %}
+    <h2>1. Upload a spreadsheet</h2>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class = "well">
+                <form role="form" class="form" method="POST" action="{{ url_for('views.upload') }}" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <input type="file" name="input_file" id="input_file" />
+                        <p class="help-block">
+                            Only <strong>.csv, .xls or .xlsx</strong> files.
+                        </p>
+                    </div>
+                    <button type="submit" class="btn btn-success">Next ></button>
+                </form>
+            </div>
+
+        </div>
+        <div class="col-sm-4">
+            <p class="help-block"><strong>Spreadsheet Format Guide:</strong></p>
+            <img src="{{ url_for('static', filename='geomancer_format.jpg') }}" id="format-example" style="max-width: 320px">
+
+        </div>
+    </div>
+{% endblock %}

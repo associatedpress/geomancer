@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+    <div class="col-sm-12">
+        <ul class='nav nav-wizard'>
+            <li class='{% if request.path == url_for('views.upload') %} active {% endif %}'>1 - Upload data</li>
+            <li class='{% if request.path == url_for('views.select_geo') %} active {% endif %}'>2 - Select geography</li>
+            <li class='{% if request.path == url_for('views.select_tables') %} active {% endif %}'>3 - Add data</li>
+            <li class='{% if "/geomance/" in request.path %} active {% endif %}'>4 - Download</li>
+        </ul>
+        {% if errors %}
+            <br />
+            <div class="alert alert-dismissable alert-danger">
+                {% for error in errors %}
+                    <p>{{error}}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% block wizard_content %}{% endblock %}
+    </div>
+</div>
+{% endblock %}
+
