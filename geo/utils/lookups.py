@@ -76,44 +76,54 @@ ACS_DATA_TYPES = {
     "total_pop": {
         "human_name": "Total population",
         "table_id": "B01003",
+        "count" : 1,
     },
     "median_hh_income": {
         "human_name": "Median household income",
         "table_id": "B19013",
+        "count" : 1,
     },
     "per_capita_income": {
         "human_name": "Per capita income",
         "table_id": "B19301",
+        "count" : 1,
     },
     "pop_percent_by_race": {
         "human_name": "Population percentage by race",
         "table_id": "B02001", 
+        "count" : 10,
     },
     # This is going to need to be derived from something else
     # "percent_minority": "",
     "median_age": {
         "human_name": "Median age",
         "table_id": "B01002",
+        "count" : 4,
     },
     "education": {
         "human_name": "Educational attainment",
         "table_id": "B15002",
+        "count" : 35,
     },
     "median_val_oo_housing": {
         "human_name": "Median value owner occupied housing",
         "table_id": "B25077",
+        "count" : 1,
     },
     "group_quarters_pop": {
         "human_name": "Group quarters population",
         "table_id": "B26001",
+        "count" : 1,
     },
     "unmarried_hh_by_sex": {
         "human_name": "Unmarried-partner households by sex of partner",
         "table_id": "B11009",
+        "count" : 7,
     },
     "place_of_birth": {
         "human_name": "Place of birth (foreign-born population)",
         "table_id": "B05006",
+        "count" : 161,
     },
 }
 

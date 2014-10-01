@@ -9,24 +9,30 @@
             <thead>
                 <tr>
                     <th>Select</th>
-                    <th>Name</th>
-                    <th></th>
+                    <th>Data from 2013 American Community Survey (via <a href='http://censusreporter.org/'>Census Reporter</a>)</th>
+                    <th>Columns that will be added</th>
                 </tr>
             </thead>
             <tbody>
                 {% for key, val in data_types.items() %}
                     <tr class="table-row" data-table_id="{{ val.table_id }}">
-                      <td>
-                          <input type="checkbox" class="table-select" data-table_id="{{ val.table_id }}"
-                              id="{{ info.column_index }}-{{ info.geo_type }}-{{ key }}"
-                              name="{{ info.column_index }}-{{ info.geo_type }}-{{ key }}" />
+                        <td>
+                            <input type="checkbox" class="table-select" data-table_id="{{ val.table_id }}"
+                            id="{{ info.column_index }}-{{ info.geo_type }}-{{ key }}"
+                            name="{{ info.column_index }}-{{ info.geo_type }}-{{ key }}" />
                         </td>
                         <td>
-                            {{val.human_name}}
+                            <label for="{{ info.column_index }}-{{ info.geo_type }}-{{ key }}">
+                                {{val.human_name}}
+                            </label>
                         </td>
                         <td>
                             <a href="javascript://" class="column-select" data-table_id="{{ val.table_id }}">
-                                Select specific columns &gt;&gt;
+                                <i class='fa fa-info-circle'></i>
+                                {{val.count}}
+                                {%- if val.count == 1 %} column
+                                {%- else %} columns
+                                {%- endif %}
                             </a>
                         </td>
                     </tr>
@@ -40,6 +46,11 @@
 {% endblock %}
 {% block extra_javascript %}
     <script type="text/javascript" src="{{ url_for('static', filename='js/ejs_production.js') }}"></script>
+    <script>
+        function repeatStr ( str, num ) {
+            return new Array( num + 1 ).join( str );
+        }
+    </script>
     <script type="text/ejs" id="columnModalEJS">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -52,12 +63,12 @@
                 </div>
                 <div class="modal-body">
                     <% $.each(columns, function(i, column){ %>
-                      <p><strong><%= columns[i]['column_title'] %></strong></p>
+                      <p><%= repeatStr("&nbsp;", parseInt(columns[i]['indent']) * 4) %><strong><%= columns[i]['column_title'] %></strong></p>
                     <% }) %>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary save-columns" data-dismiss="modal">
-                        Save choices
+                        Close
                     </button>
                 </div>
             </div><!-- /.modal-content -->

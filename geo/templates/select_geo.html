@@ -17,11 +17,15 @@
             <tr>
                 <td data-column_index="{{ index }}">
                     <label>
-                        <input type="radio" name="columns" class="geography" />
+                        <input id="column_{{ index }}" type="radio" name="columns" class="geography" />
                     </label>
                 </td>
-                <td>{{ name }}</td>
-                <td>{{ values }}</td>
+                <td>
+                    <label for="column_{{ index }}">{{ name }}</label>
+                </td>
+                <td>
+                    <label for="column_{{ index }}">{{ values }}</label>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
