@@ -1,6 +1,7 @@
 from flask import Blueprint, make_response, request, redirect, url_for, session, \
     render_template, current_app, send_from_directory
 import json
+import sys
 import os
 import gzip
 from uuid import uuid4
@@ -10,10 +11,9 @@ from csvkit.unicsv import UnicodeCSVReader
 from csvkit.cleanup import RowChecker
 from cStringIO import StringIO
 from geo.utils.lookups import GEO_TYPES, ACS_DATA_TYPES
+from geo.app_config import ALLOWED_EXTENSIONS, MAX_CONTENT_LENGTH
 
 views = Blueprint('views', __name__)
-
-ALLOWED_EXTENSIONS = set(['csv', 'xls', 'xlsx'])
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -38,40 +38,47 @@ def upload():
     context = {}
     if request.method == 'POST':
         f = request.files['input_file']
-        if f and allowed_file(f.filename):
-            inp = StringIO(f.read())
-            file_format = convert.guess_format(f.filename)
-            try:
-                converted = convert.convert(inp, file_format)
-            except UnicodeDecodeError:
-                context['errors'] = ['We had a problem with reading your file. \
-                    This could have to do with the file encoding or format']
-                converted = None
-            f.seek(0)
-            if converted:
-                outp = StringIO(converted)
-                reader = UnicodeCSVReader(outp)
-                session['header_row'] = reader.next()
-                rows = []
-                columns = [[] for c in session['header_row']]
-                column_ids = range(len(session['header_row']))
-                for row in range(10):
+        if f:
+            if allowed_file(f.filename):
+                inp = StringIO(f.read())
+                if sys.getsizeof(inp.getvalue()) <= MAX_CONTENT_LENGTH:
+                    inp.seek(0)
+                    file_format = convert.guess_format(f.filename)
                     try:
-                        rows.append(reader.next())
-                    except StopIteration:
-                        break
-                for i, row in enumerate(rows):
-                    for j,d in enumerate(row):
-                        columns[j].append(row[column_ids[j]])
-                columns = [', '.join(c) for c in columns]
-                sample_data = []
-                for index,_ in enumerate(session['header_row']):
-                    sample_data.append((index, session['header_row'][index], columns[index]))
-                session['sample_data'] = sample_data
-                outp.seek(0)
-                session['file'] = outp.getvalue()
-                session['filename'] = f.filename
-                return redirect(url_for('views.select_geo'))
+                        converted = convert.convert(inp, file_format)
+                    except UnicodeDecodeError:
+                        context['errors'] = ['We had a problem with reading your file. \
+                            This could have to do with the file encoding or format']
+                        converted = None
+                    f.seek(0)
+                    if converted:
+                        outp = StringIO(converted)
+                        reader = UnicodeCSVReader(outp)
+                        session['header_row'] = reader.next()
+                        rows = []
+                        columns = [[] for c in session['header_row']]
+                        column_ids = range(len(session['header_row']))
+                        for row in range(10):
+                            try:
+                                rows.append(reader.next())
+                            except StopIteration:
+                                break
+                        for i, row in enumerate(rows):
+                            for j,d in enumerate(row):
+                                columns[j].append(row[column_ids[j]])
+                        columns = [', '.join(c) for c in columns]
+                        sample_data = []
+                        for index,_ in enumerate(session['header_row']):
+                            sample_data.append((index, session['header_row'][index], columns[index]))
+                        session['sample_data'] = sample_data
+                        outp.seek(0)
+                        session['file'] = outp.getvalue()
+                        session['filename'] = f.filename
+                        return redirect(url_for('views.select_geo'))
+                else:
+                   context['errors'] = ['Uploaded file must be 10mb or less.'] 
+            else:
+                context['errors'] = ['Only .xls or .xlsx and .csv files are allowed.']
         else:
             context['errors'] = ['You must provide a file to upload.']
     return render_template('upload.html', **context)
