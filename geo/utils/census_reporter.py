@@ -129,14 +129,6 @@ class CensusReporter(Mancer):
 
     def search(self, geo_ids=None, columns=None):
         """ 
-        Fetch data from given ACS release based upon the table_ids and geo_ids
-        Census Reporter only has acs2012_1yr, acs2012_3yr, acs2012_5yr releases
-        'table_ids' is a list of tables to fetch
-        'geo_ids' is a list of geo_ids to fetch the data for
-        'show_detail' is a boolean which, when False will just include the table 
-            demoinator column. When True, it means the results will include all
-            data in a demormalized form from the given table
-
         Response should look like:
         {
             'header': [

@@ -18,14 +18,14 @@ class USASpending(Mancer):
     Subclassing Mancer
     """
     
-    def geo_lookup(self):
+    def geo_lookup(self, search_term, geo_type=None):
         """ 
         May not need this
         """
         pass
 
-    def search(self):
-        """ 
-
+    def search(self, geo_ids=None, columns=None):
+        """
+        Yay!
         """
         pass

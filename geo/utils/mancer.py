@@ -63,10 +63,14 @@ class Mancer(scrapelib.Scraper):
 
         return {'term': search_term, 'geoid': search_term}
 
-    def search(self):
-        """ 
-        This method should send the search request to the API endpoint(s) and
-        construct a response that looks like this:
+    def search(self, geo_ids=None, columns=None):
+        """
+        This method should send the search request to the API endpoint(s).
+        'geo_ids' is a list of geo_ids returned by the geo_lookup method
+        'columns' is a list of columns to return. Child classes should 
+        be capable of looking these up in a way that makes sense to the API.
+        
+        Response looks like this:
         {
             'header': [
                 '<data source name 1>',
