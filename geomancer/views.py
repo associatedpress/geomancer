@@ -10,8 +10,8 @@ from csvkit import convert
 from csvkit.unicsv import UnicodeCSVReader
 from csvkit.cleanup import RowChecker
 from cStringIO import StringIO
-from geo.utils.lookups import GEO_TYPES, ACS_DATA_TYPES
-from geo.app_config import ALLOWED_EXTENSIONS, MAX_CONTENT_LENGTH
+from geomancer.utils.lookups import GEO_TYPES, ACS_DATA_TYPES
+from geomancer.app_config import ALLOWED_EXTENSIONS, MAX_CONTENT_LENGTH
 
 views = Blueprint('views', __name__)
 

@@ -1,4 +1,4 @@
-from geo import create_app
+from geomancer import create_app
 
 app = create_app()
 

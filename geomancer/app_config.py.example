@@ -8,6 +8,6 @@ MAX_CONTENT_LENGTH = 10 * 1024 * 1024 # 10mb
 ALLOWED_EXTENSIONS = set(['csv', 'xls', 'xlsx'])
 
 MANCERS = (
-    ('Census Reporter', 'geo.utils.census_reporter.CensusReporter'),
-    ('USA Spending', 'geo.utils.usa_spending.USASpending'),
+    ('Census Reporter', 'geomancer.utils.census_reporter.CensusReporter'),
+    ('USA Spending', 'geomancer.utils.usa_spending.USASpending'),
 )

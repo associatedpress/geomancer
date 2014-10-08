@@ -2,8 +2,8 @@ import scrapelib
 from urllib import urlencode
 import json
 import os
-from geo.utils.mancer import Mancer
-from geo.utils.helpers import encoded_dict
+from geomancer.utils.mancer import Mancer
+from geomancer.utils.helpers import encoded_dict
 from string import punctuation
 import re
 

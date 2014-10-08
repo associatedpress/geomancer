@@ -1,5 +1,5 @@
-from geo.worker import queue_daemon
-from geo import create_app
+from geomancer.worker import queue_daemon
+from geomancer import create_app
 
 app = create_app()
 

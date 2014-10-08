@@ -1,7 +1,7 @@
 from flask import Blueprint, make_response, request, jsonify, \
     session as flask_session
-from geo.worker import DelayedResult, do_the_work
-from geo.utils.lookups import GEO_TYPES
+from geomancer.worker import DelayedResult, do_the_work
+from geomancer.utils.lookups import GEO_TYPES
 import json
 from redis import Redis
 

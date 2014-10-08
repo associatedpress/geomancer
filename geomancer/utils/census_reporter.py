@@ -2,9 +2,9 @@ import scrapelib
 from urllib import urlencode
 import json
 import os
-from geo.utils.helpers import encoded_dict
-from geo.utils.mancer import Mancer, MancerError
-from geo.app_config import CACHE_DIR
+from geomancer.utils.helpers import encoded_dict
+from geomancer.utils.mancer import Mancer, MancerError
+from geomancer.app_config import CACHE_DIR
 from string import punctuation
 import re
 

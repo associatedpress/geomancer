@@ -6,10 +6,10 @@ import sys
 import os
 from cStringIO import StringIO
 from csvkit.unicsv import UnicodeCSVReader, UnicodeCSVWriter
-from geo.utils.lookups import ACS_DATA_TYPES, GEO_TYPES
-from geo.utils.census_reporter import CensusReporter
-from geo.utils.mancer import MancerError
-from geo.app_config import RESULT_FOLDER
+from geomancer.utils.lookups import ACS_DATA_TYPES, GEO_TYPES
+from geomancer.utils.census_reporter import CensusReporter
+from geomancer.utils.mancer import MancerError
+from geomancer.app_config import RESULT_FOLDER
 from datetime import datetime
 import xlwt
 from openpyxl import Workbook
