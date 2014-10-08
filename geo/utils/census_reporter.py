@@ -2,8 +2,8 @@ import scrapelib
 from urllib import urlencode
 import json
 import os
-from geo.app_config import CACHE_DIR
 from geo.utils.helpers import encoded_dict
+from geo.utils.mancer import Mancer
 from string import punctuation
 import re
 
@@ -48,32 +48,14 @@ class CensusReporterError(Exception):
         self.message = message
         self.body = body
 
-class CensusReporter(scrapelib.Scraper):
+class CensusReporter(Mancer):
     """ 
-    Subclassing scrapelib here mainly to take advantage of pluggable caching backend.
+    Subclassing the main Mancer class
     """
     
-    def __init__(self,
-                 raise_errors=True,
-                 requests_per_minute=0,
-                 retry_attempts=5,
-                 retry_wait_seconds=1,
-                 header_func=None, 
-                 cache_dir=CACHE_DIR):
-        self.base_url = 'http://api.censusreporter.org/1.0'
-        
-        super(CensusReporter, self).__init__(raise_errors=raise_errors,
-                                             requests_per_minute=requests_per_minute,
-                                             retry_attempts=retry_attempts,
-                                             retry_wait_seconds=retry_wait_seconds,
-                                             header_func=header_func)
-        
-        # We might want to talk about configuring an S3 backed cache for this
-        # so we don't run the risk of running out of disk space. 
-        self.cache_storage = scrapelib.cache.FileCache(cache_dir)
-        self.cache_write_only = False
-
-    def geo_search(self, search_term, sumlevs=None):
+    base_url = 'http://api.censusreporter.org/1.0'
+    
+    def geo_lookup(self, search_term, sumlevs=None):
         """ 
         Search for geoids based upon name of geography
         'sumlevs' is an optional comma seperated string with ACS Summary levels
@@ -97,7 +79,7 @@ class CensusReporter(scrapelib.Scraper):
         results = json.loads(response)
         return results
 
-    def data_show(self, acs='latest', table_ids=None, geo_ids=None, show_detail=False):
+    def search(self, acs='latest', table_ids=None, geo_ids=None, show_detail=False):
         """ 
         Fetch data from given ACS release based upon the table_ids and geo_ids
         Census Reporter only has acs2012_1yr, acs2012_3yr, acs2012_5yr releases

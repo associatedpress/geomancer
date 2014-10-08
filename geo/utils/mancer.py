@@ -1,0 +1,76 @@
+import scrapelib
+from urllib import urlencode
+import json
+import os
+from geo.app_config import CACHE_DIR
+from geo.utils.helpers import encoded_dict
+from string import punctuation
+import re
+
+class MancerError(Exception):
+    def __init__(self, message, body=None):
+        Exception.__init__(self, message)
+        self.message = message
+        self.body = body
+
+class Mancer(scrapelib.Scraper):
+    """ 
+    Subclassing scrapelib here mainly to take advantage of pluggable caching backend.
+    """
+    
+    def __init__(self,
+                 raise_errors=True,
+                 requests_per_minute=0,
+                 retry_attempts=5,
+                 retry_wait_seconds=1,
+                 header_func=None, 
+                 cache_dir=CACHE_DIR):
+        
+        super(Mancer, self).__init__(raise_errors=raise_errors,
+                                             requests_per_minute=requests_per_minute,
+                                             retry_attempts=retry_attempts,
+                                             retry_wait_seconds=retry_wait_seconds,
+                                             header_func=header_func)
+        
+        # We might want to talk about configuring an S3 backed cache for this
+        # so we don't run the risk of running out of disk space. 
+        self.cache_storage = scrapelib.cache.FileCache(cache_dir)
+        self.cache_write_only = False
+
+    def geo_lookup(self):
+        """ 
+        Method for looking up geographies through specific APIs, if needed
+        Should be implemented by subclasses
+        """
+        raise NotImplementedError
+
+    def search(self):
+        """ 
+        This method should send the search request to the API endpoint(s) and
+        construct a response that looks like this:
+        {
+            'header': [
+                '<data source name 1>',
+                '<data source name 2>',
+                '...etc...'
+            ],
+            '<geographic id 1>': [
+                <value 1>,
+                <value 2>,
+                <value 3>,
+                <value 4>,
+                ...etc...,
+            ],
+            '<geographic id 2>': [
+                <value 1>,
+                <value 2>,
+                <value 3>,
+                <value 4>,
+                ...etc...,
+            ],
+        }
+        
+        One should be able to call the python zip function on the header list 
+        and any of the lists with data about the geographies and have it work.
+        """
+        raise NotImplementedError

@@ -72,7 +72,7 @@ def do_the_work(file_contents, field_defs, filename):
             sumlevs = [g['acs_sumlev'] for g in GEO_TYPES if g['name'] == geo_type]
             try:
                 if val and sumlevs:
-                    geoid_search = c.geo_search(val, sumlevs=sumlevs)
+                    geoid_search = c.geo_lookup(val, sumlevs=sumlevs)
                 else:
                     continue
             except CensusReporterError, e:
@@ -88,7 +88,7 @@ def do_the_work(file_contents, field_defs, filename):
                 geoid_mapper[row_geoid] = [row_idx]
     if geo_ids:
         try:
-            data = c.data_show(geo_ids=list(geo_ids), table_ids=list(table_ids))
+            data = c.search(geo_ids=list(geo_ids), table_ids=list(table_ids))
         except CensusReporterError, e:
             raise e
         header = data['header']
