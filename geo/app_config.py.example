@@ -4,3 +4,8 @@ SECRET_KEY = 'your secret key here'
 CACHE_DIR = '/tmp'
 REDIS_QUEUE_KEY = 'geomancer'
 RESULT_FOLDER = abspath(join(dirname(__file__), 'result_folder'))
+
+MANCERS = (
+    ('Census Reporter', 'geo.utils.census_reporter.CensusReporter'),
+    ('USA Spending', 'geo.utils.usa_spending.USASpending'),
+)
