@@ -37,12 +37,31 @@ class Mancer(scrapelib.Scraper):
         self.cache_storage = scrapelib.cache.FileCache(cache_dir)
         self.cache_write_only = False
 
-    def geo_lookup(self):
+    def geo_lookup(self, search_term, geo_type=None):
         """ 
         Method for looking up geographies through specific APIs, if needed
         Should be implemented by subclasses
+
+        'search_term' is the string that will be used to search
+        'geo_type' is one of the 13 geographic types that we support
+            ('city', 'state', 'congress_district', ...etc...)
+            This can be used by subclasses to narrow the search in a way that 
+            is specific to that API
+        
+        Returns a response that maps the incoming search term to the
+        geographic identifier to be used with the search method:
+
+        {
+          'term': <search_term>,
+          'geoid': '<full_geoid>',
+        }
+        
+        Default behavior is to just echo back the search_term as the geoid.
+        This makes it possible to create a common interface for all subclasses
+        without needing to figure out if you need to search or not.
         """
-        raise NotImplementedError
+
+        return {'term': search_term, 'geoid': search_term}
 
     def search(self):
         """ 

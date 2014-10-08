@@ -26,6 +26,6 @@ class USASpending(Mancer):
 
     def search(self):
         """ 
-        Yay!
+
         """
         pass

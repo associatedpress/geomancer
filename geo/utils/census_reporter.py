@@ -7,39 +7,76 @@ from geo.utils.mancer import Mancer
 from string import punctuation
 import re
 
-SUMLEV_NAMES = {
-    "010": {"name": "nation", "plural": ""},
-    "020": {"name": "region", "plural": "regions"},
-    "030": {"name": "division", "plural": "divisions"},
-    "040": {"name": "state", "plural": "states", "tiger_table": "state"},
-    "050": {"name": "county", "plural": "counties", "tiger_table": "county"},
-    "060": {"name": "county subdivision", "plural": "county subdivisions", "tiger_table": "cousub"},
-    "101": {"name": "block", "plural": "blocks", "tiger_table": "tabblock"},
-    "140": {"name": "census tract", "plural": "census tracts", "tiger_table": "tract"},
-    "150": {"name": "block group", "plural": "block groups", "tiger_table": "bg"},
-    "160": {"name": "place", "plural": "places", "tiger_table": "place"},
-    "170": {"name": "consolidated city", "plural": "consolidated cities", "tiger_table": "concity"},
-    "230": {"name": "Alaska native regional corporation", "plural": "Alaska native regional corporations", "tiger_table": "anrc"},
-    "250": {"name": "native area", "plural": "native areas", "tiger_table": "aiannh"},
-    "251": {"name": "tribal subdivision", "plural": "tribal subdivisions", "tiger_table": "aits"},
-    "256": {"name": "tribal census tract", "plural": "tribal census tracts", "tiger_table": "ttract"},
-    "300": {"name": "MSA", "plural": "MSAs", "tiger_table": "metdiv"},
-    "310": {"name": "CBSA", "plural": "CBSAs", "tiger_table": "cbsa"},
-    "314": {"name": "metropolitan division", "plural": "metropolitan divisions", "tiger_table": "metdiv"},
-    "330": {"name": "CSA", "plural": "CSAs", "tiger_table": "csa"},
-    "335": {"name": "combined NECTA", "plural": "combined NECTAs", "tiger_table": "cnecta"},
-    "350": {"name": "NECTA", "plural": "NECTAs", "tiger_table": "necta"},
-    "364": {"name": "NECTA division", "plural": "NECTA divisions", "tiger_table": "nectadiv"},
-    "400": {"name": "urban area", "plural": "urban areas", "tiger_table": "uac"},
-    "500": {"name": "congressional district", "plural": "congressional districts", "tiger_table": "cd"},
-    "610": {"name": "state senate district", "plural": "state senate districts", "tiger_table": "sldu"},
-    "620": {"name": "state house district", "plural": "state house districts", "tiger_table": "sldl"},
-    "795": {"name": "PUMA", "plural": "PUMAs", "tiger_table": "puma"},
-    "850": {"name": "ZCTA3", "plural": "ZCTA3s"},
-    "860": {"name": "ZCTA5", "plural": "ZCTA5s", "tiger_table": "zcta5"},
-    "950": {"name": "elementary school district", "plural": "elementary school districts", "tiger_table": "elsd"},
-    "960": {"name": "secondary school district", "plural": "secondary school districts", "tiger_table": "scsd"},
-    "970": {"name": "unified school district", "plural": "unified school districts", "tiger_table": "unsd"},
+SUMLEV_LOOKUP = {
+    "city": "160,170,060",
+    "state": "040",
+    "postal": "160,170,060",
+    "state_fips": "040",
+    "state_county_fips":"050",
+    "zip_5": "850,860",
+    "zip_9": "850,860",
+    #"state_postal": "040",
+    "county": "050",
+    "school_district": "950,960,970",
+    "congress_district": "500", # Assuming US Congressional District
+    "census_tract": "140",
+    "census_blockgroup": "150",
+    "census_block": "101",
+}
+
+ACS_DATA_TYPES = {
+    "total_pop": {
+        "human_name": "Total population",
+        "table_id": "B01003",
+        "count" : 1,
+    },
+    "median_hh_income": {
+        "human_name": "Median household income",
+        "table_id": "B19013",
+        "count" : 1,
+    },
+    "per_capita_income": {
+        "human_name": "Per capita income",
+        "table_id": "B19301",
+        "count" : 1,
+    },
+    "pop_percent_by_race": {
+        "human_name": "Population percentage by race",
+        "table_id": "B02001", 
+        "count" : 10,
+    },
+    # This is going to need to be derived from something else
+    # "percent_minority": "",
+    "median_age": {
+        "human_name": "Median age",
+        "table_id": "B01002",
+        "count" : 4,
+    },
+    "education": {
+        "human_name": "Educational attainment",
+        "table_id": "B15002",
+        "count" : 35,
+    },
+    "median_val_oo_housing": {
+        "human_name": "Median value owner occupied housing",
+        "table_id": "B25077",
+        "count" : 1,
+    },
+    "group_quarters_pop": {
+        "human_name": "Group quarters population",
+        "table_id": "B26001",
+        "count" : 1,
+    },
+    "unmarried_hh_by_sex": {
+        "human_name": "Unmarried-partner households by sex of partner",
+        "table_id": "B11009",
+        "count" : 7,
+    },
+    "place_of_birth": {
+        "human_name": "Place of birth (foreign-born population)",
+        "table_id": "B05006",
+        "count" : 161,
+    },
 }
 
 class CensusReporterError(Exception):
@@ -55,16 +92,24 @@ class CensusReporter(Mancer):
     
     base_url = 'http://api.censusreporter.org/1.0'
     
-    def geo_lookup(self, search_term, sumlevs=None):
+    def geo_lookup(self, search_term, geo_type=None):
         """ 
         Search for geoids based upon name of geography
         'sumlevs' is an optional comma seperated string with ACS Summary levels
+
+        Returns a response that maps the incoming search term to the geoid:
+
+        {
+          'term': <search_term>,
+          'geoid': '<full_geoid>',
+        }
+
         """
         regex = re.compile('[%s]' % re.escape(punctuation))
         search_term = regex.sub('', search_term)
         q_dict = {'q': search_term}
-        if sumlevs:
-            q_dict['sumlevs'] = ','.join(sumlevs)
+        if geo_type:
+            q_dict['sumlevs'] = SUMLEV_LOOKUP[geo_type]
         q_dict = encoded_dict(q_dict)
         params = urlencode(q_dict)
         try:
@@ -77,9 +122,12 @@ class CensusReporter(Mancer):
             raise CensusReporterError('Census Reporter API returned a %s status' \
                 % response.status_code, body=body)
         results = json.loads(response)
-        return results
+        return {
+            'term': search_term,
+            'geoid': results['results'][0]['full_geoid']
+        }
 
-    def search(self, acs='latest', table_ids=None, geo_ids=None, show_detail=False):
+    def search(self, geo_ids=None, columns=None):
         """ 
         Fetch data from given ACS release based upon the table_ids and geo_ids
         Census Reporter only has acs2012_1yr, acs2012_3yr, acs2012_5yr releases
@@ -116,13 +164,14 @@ class CensusReporter(Mancer):
         should be able to call the python 'zip' function on with the 'header' key.
         """
 
+        table_ids = [ACS_DATA_TYPES[c]['table_id'] for c in columns]
         query = {
             'table_ids': ','.join(table_ids),
             'geo_ids': ','.join(geo_ids),
         }
         params = urlencode(query)
         try:
-            response = self.urlopen('%s/data/show/%s?%s' % (self.base_url, acs, params))
+            response = self.urlopen('%s/data/show/latest?%s' % (self.base_url, params))
         except scrapelib.HTTPError, e:
             try:
                 body = json.loads(e.body.json()['error'])

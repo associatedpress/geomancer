@@ -58,27 +58,24 @@ def do_the_work(file_contents, field_defs, filename):
     c = CensusReporter()
     result = None
     geo_ids = set()
-    table_ids = set()
+    columns = set()
     geoid_mapper = {}
-    output_filepath = 'output.csv'
 
     for row_idx, row in enumerate(reader):
         col_idxs = [int(k) for k in field_defs.keys()]
         for idx in col_idxs:
             val = row[idx]
             geo_type = field_defs[idx]['type']
-            for column in field_defs[idx]['append_columns']:
-                table_ids.add(ACS_DATA_TYPES[column]['table_id'])
-            sumlevs = [g['acs_sumlev'] for g in GEO_TYPES if g['name'] == geo_type]
+            [columns.add(f) for f in field_defs[idx]['append_columns']]
             try:
-                if val and sumlevs:
-                    geoid_search = c.geo_lookup(val, sumlevs=sumlevs)
+                if val:
+                    geoid_search = c.geo_lookup(val, geo_type=geo_type)
                 else:
                     continue
             except CensusReporterError, e:
                 return e.message
             try:
-                row_geoid = geoid_search['results'][0]['full_geoid']
+                row_geoid = geoid_search['geoid']
                 geo_ids.add(row_geoid)
             except IndexError:
                 continue
@@ -88,7 +85,7 @@ def do_the_work(file_contents, field_defs, filename):
                 geoid_mapper[row_geoid] = [row_idx]
     if geo_ids:
         try:
-            data = c.search(geo_ids=list(geo_ids), table_ids=list(table_ids))
+            data = c.search(geo_ids=list(geo_ids), columns=list(columns))
         except CensusReporterError, e:
             raise e
         header = data['header']
