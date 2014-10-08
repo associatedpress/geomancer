@@ -26,6 +26,7 @@
                                 {{val.human_name}}
                             </label>
                         </td>
+                        {% if val.count %}
                         <td>
                             <a href="javascript://" class="column-select" data-table_id="{{ val.table_id }}">
                                 <i class='fa fa-info-circle'></i>
@@ -35,6 +36,7 @@
                                 {%- endif %}
                             </a>
                         </td>
+                        {% endif %}
                     </tr>
                 {% endfor %}
             </tbody>

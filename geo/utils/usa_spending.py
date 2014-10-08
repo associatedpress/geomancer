@@ -18,6 +18,10 @@ class USASpending(Mancer):
     Subclassing Mancer
     """
     
+    @staticmethod
+    def column_info():
+        return []
+
     def geo_lookup(self, search_term, geo_type=None):
         """ 
         May not need this

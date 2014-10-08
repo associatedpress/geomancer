@@ -7,7 +7,8 @@ import os
 from cStringIO import StringIO
 from csvkit.unicsv import UnicodeCSVReader, UnicodeCSVWriter
 from geo.utils.lookups import ACS_DATA_TYPES, GEO_TYPES
-from geo.utils.census_reporter import CensusReporter, CensusReporterError
+from geo.utils.census_reporter import CensusReporter
+from geo.utils.mancer import MancerError
 from geo.app_config import RESULT_FOLDER
 from datetime import datetime
 import xlwt
@@ -72,7 +73,7 @@ def do_the_work(file_contents, field_defs, filename):
                     geoid_search = c.geo_lookup(val, geo_type=geo_type)
                 else:
                     continue
-            except CensusReporterError, e:
+            except MancerError, e:
                 return e.message
             try:
                 row_geoid = geoid_search['geoid']
@@ -86,7 +87,7 @@ def do_the_work(file_contents, field_defs, filename):
     if geo_ids:
         try:
             data = c.search(geo_ids=list(geo_ids), columns=list(columns))
-        except CensusReporterError, e:
+        except MancerError, e:
             raise e
         header = data['header']
         contents.seek(0)
@@ -121,7 +122,7 @@ def do_the_work(file_contents, field_defs, filename):
         
         return '/download/%s' % fname
     else:
-        raise CensusReporterError('No geographies matched')
+        raise MancerError('No geographies matched')
 
 def writeXLS(fpath, output):
     with open(fpath, 'wb') as f:

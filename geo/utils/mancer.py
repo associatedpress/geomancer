@@ -37,6 +37,35 @@ class Mancer(scrapelib.Scraper):
         self.cache_storage = scrapelib.cache.FileCache(cache_dir)
         self.cache_write_only = False
 
+    @staticmethod
+    def column_info():
+        """ 
+        This returns a list of dicts containing info about datasets that can be
+        returned by the API. This needs to be a static method so that the
+        application layer can use it to compile a list of columns that can be
+        appended to incoming spreadsheets.  
+        
+        Should look like this:
+
+        [
+            {
+              'table_id': '<unique_id>', 
+              'human_name': '<human_friendly_name>',
+              'description': '<free form text description>',
+              'source_url': '<where to find source on the web>',
+            },
+            {
+              'table_id': '<unique_id>', 
+              'human_name': '<human_friendly_name>',
+              'description': '<free form text description>',
+              'source_url': '<where to find source on the web>',
+            },
+            ...etc...
+        ]
+        """
+
+        raise NotImplementedError
+
     def geo_lookup(self, search_term, geo_type=None):
         """ 
         Method for looking up geographies through specific APIs, if needed

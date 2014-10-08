@@ -3,7 +3,8 @@ from urllib import urlencode
 import json
 import os
 from geo.utils.helpers import encoded_dict
-from geo.utils.mancer import Mancer
+from geo.utils.mancer import Mancer, MancerError
+from geo.app_config import CACHE_DIR
 from string import punctuation
 import re
 
@@ -79,18 +80,43 @@ ACS_DATA_TYPES = {
     },
 }
 
-class CensusReporterError(Exception):
-    def __init__(self, message, body=None):
-        Exception.__init__(self, message)
-        self.message = message
-        self.body = body
-
 class CensusReporter(Mancer):
     """ 
     Subclassing the main Mancer class
     """
     
     base_url = 'http://api.censusreporter.org/1.0'
+    
+    @staticmethod
+    def column_info():
+        base_url = 'http://api.censusreporter.org/1.0'
+        table_ids = [
+            "B01003",
+            "B19013",
+            "B19301",
+            "B02001",
+            "B01002",
+            "B15002",
+            "B25077",
+            "B26001",
+            "B11009",
+            "B05006"
+        ]
+        scraper = scrapelib.Scraper()
+        scraper.cache_storage = scrapelib.cache.FileCache(CACHE_DIR)
+        scraper.cache_write_only = False
+        columns = []
+        for table in table_ids:
+            info = scraper.urlopen('%s/table/%s' % (base_url, table))
+            table_info = json.loads(info)
+            d = {
+                'table_id': table,
+                'human_name': table_info['table_title'],
+                'description': '',
+                'source_url': 'http://censusreporter.org/tables/%s/' % table
+            }
+            columns.append(d)
+        return columns
     
     def geo_lookup(self, search_term, geo_type=None):
         """ 
@@ -119,7 +145,7 @@ class CensusReporter(Mancer):
                 body = json.loads(e.body.json()['error'])
             except ValueError:
                 body = None
-            raise CensusReporterError('Census Reporter API returned a %s status' \
+            raise MancerError('Census Reporter API returned a %s status' \
                 % response.status_code, body=body)
         results = json.loads(response)
         return {
@@ -169,7 +195,7 @@ class CensusReporter(Mancer):
                 body = json.loads(e.body.json()['error'])
             except ValueError:
                 body = None
-            raise CensusReporterError('Census Reporter API returned a %s status' \
+            raise MancerError('Census Reporter API returned a %s status' \
                 % response.status_code, body=body)
         raw_results = json.loads(response)
         results = {'header': []}
