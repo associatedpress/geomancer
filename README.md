@@ -17,6 +17,7 @@ Read more: [AP wins Knight grant to build data journalism tool](http://www.ap.or
 
 ```bash
 $ pip install -r requirements.txt
+$ cp app_config.py.example app_config.py
 ```
 
 ### Running Geomancer
