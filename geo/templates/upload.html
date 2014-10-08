@@ -9,7 +9,7 @@
                     <div class="form-group">
                         <input type="file" name="input_file" id="input_file" />
                         <p class="help-block">
-                            You can upload spreadsheets (.xls or .xlsx) and delimited text files (.csv). <a href='/data-formats' target="_blank">Learn more</a>
+                            You can upload spreadsheets (.xls or .xlsx) and delimited text files (.csv) up to 100mb in size.
                         </p>
                     </div>
                     <button type="submit" class="btn btn-success">Next ></button>
@@ -17,9 +17,12 @@
             </div>
 
         </div>
-        <div class="col-sm-4">
-            <h3>Spreadsheet format guide</h3>
-            <img src="{{ url_for('static', filename='geomancer_format.jpg') }}" id="format-example" style="max-width: 320px">
+        <div class="col-sm-5">
+            <p>Spreadsheet format guide (<a href='/data-formats' target="_blank">learn more</a>)</p>
+            
+            <a href='/data-formats' target="_blank">
+                <img src="{{ url_for('static', filename='geomancer_format.jpg') }}" id="format-example" class='img-responsive img-thumbnail'>
+            </a>
 
         </div>
     </div>
