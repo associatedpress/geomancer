@@ -19,10 +19,20 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
+# primary pages
 @views.route('/', methods=['GET', 'POST'])
 def index():
     return render_template('index.html')
 
+@views.route('/about', methods=['GET', 'POST'])
+def about():
+    return render_template('about.html')
+
+@views.route('/data-formats', methods=['GET', 'POST'])
+def data_formats():
+    return render_template('data-formats.html')
+
+# routes for geomancin'
 @views.route('/upload/', methods=['GET', 'POST'])
 def upload():
     context = {}

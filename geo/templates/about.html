@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}About - Geomancer{% endblock %}
+{% block content %}
+
+<div class='col-md-3'>
+  <div class='well'>
+    <h3>About</h3>
+    <ol>
+      <li><a href='#what-is-this'>What is this?</a></li>
+      <li><a href='#limitations'>Limitations</a></li>
+      <li><a href='#code'>We're open source!</a></li>
+      <li><a href='#team-and-credits'>Team and credits</a></li>
+      <li><a href='#contact-us'>Contact us</a></li>
+    </ol>
+  </div>
+</div>
+<div class="col-md-9">
+  <h3 id='what-is-this'>What is this?</h3>
+  <p>Geomancer is a project with a simple goal: to create a prototype tool that will help journalists easily mash up data based on shared geography. It’s such a common task for data-savvy journalists that it’s easy to underestimate the difficulty. But on deadline, it can become daunting. It requires locating the right data set to provide context, getting it into shape and into place to join it with the data in hand and then merging the two data sets — all before the reporter can even get started with the analysis.</p>
+
+  <p>We aim to take some of that complexity out of the way by providing an intuitive interface to discover available data sets for a given geography and supplement the data in hand with the relevant values. We’ll know it’s working when it appears too easy.</p>
+
+  <p>Read more: <a href='http://www.ap.org/content/press-release/2013/ap-wins-knight-grant-to-build-data-journalism-tool'>AP wins Knight grant to build data journalism tool</a>.</p>
+  
+  <h3 id='code'>We're open source!</h3>
+
+  <p>All of the code for this project is open source. You can find, view and fork it <a href='https://github.com/associatedpress/geomancer/'>on GitHub</a>.</p>
+
+  <p>Technologies used:</p>
+
+  <ul>
+      <li><a href='http://flask.pocoo.org/'>Flask</a> - web framework</li>
+      <li><a href='http://getbootstrap.com'>Bootstrap</a> - HTML/CSS layout</li>
+      <li><a href='https://csvkit.readthedocs.org'>csvkit</a> - suite of utilities for converting to and working with CSV</li>
+      <li><a href='https://github.com/sunlightlabs/scrapelib'>scrapelib</a> - a library for efficiently fetching data from web sites</li>
+      <li><a href='http://redis.io/'>redis</a> - a key-value cache and store system</li>
+  </ul>
+
+  <h3 id='team-and-credits'>Team and credits</h3>
+
+  <p>Geomancer is a project of the Assocaited Press and was implemented by <a href='http://datamade.us'>DataMade</a>, a civic technology company. We are: </p>
+  <ul>
+  	<li>Troy Thibodeaux, Associated Press</li>
+    <li>Derek Eder, DataMade</li>
+    <li>Cathy Deng, DataMade</li>
+    <li>Eric van Zanten, DataMade</li>
+  </ul>
+
+  <h3 id='contact-us'>Contact us</h3>
+
+  <p>
+    Having trouble using Geomancer? <a href='http://datamade.us/contact-us/'>Contact us</a>.
+  </p>
+
+  <p>
+    Notice a bug or want to contribute to this project? <a href='https://github.com/associatedpress/geomancer'>Get involved on Github</a> or join our <a href='#'>Google group</a>.
+  </p>
+</div>
+
+{% endblock %}

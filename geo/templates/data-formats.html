@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}About - Geomancer{% endblock %}
+{% block content %}
+
+<div class='col-md-3'>
+  <div class='well'>
+    <h3>Data formats</h3>
+    <ol>
+      <li><a href='#file-types'>File types and size limits</a></li>
+      <li><a href='#spreadsheets'>Spreadsheets</a></li>
+      <li><a href='#csv'>Text delimited data files (CSV)</a></li>
+    </ol>
+  </div>
+</div>
+<div class="col-md-9">
+  <h3 id='file-types'>File types and size limits</h3>
+  <p>You can import a file of up to 100mb of these file types:</p>
+
+  <ul>
+    <li>comma-separated text (.csv)</li>
+    <li>spreadsheets (.xls, .xslx)</li>
+  </ul> 
+
+  <h3 id='spreadsheets'>Spreadsheets</h3>
+  <p>Only the first sheet will be imported in to Geomancer. Also, please make sure that the first row contains header information with column names.</p>
+
+  <h3 id='csv'>Text delimited data files (CSV)</h3>
+  <p><a href='http://en.wikipedia.org/wiki/Comma-separated_values'>Comma-separated value (.csv) files</a> are a standard way to represent tabular data. Cell values with comma, newline or quotes must be quoted and quotes escaped by doubling. For example: "17"" LCD display".</p>
+
+  <p>By convention, the first row acts as header and defines the names of the columns in the data. However, you can specify which row is the header during import.</p>
+
+  <hr />
+  <p>Many of these guidlines were lifted from Google Fusion Tables, which has <a href='https://support.google.com/fusiontables/answer/171181'>excellent documentation</a>.</p>
+</div>
+
+{% endblock %}
