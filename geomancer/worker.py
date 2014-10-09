@@ -66,14 +66,13 @@ def do_the_work(file_contents, field_defs, filename):
         mancer_cols = [k['table_id'] for k in m.column_info()]
         for k, v in field_defs.items():
             field_cols = v['append_columns']
-            print field_cols
-            print mancer_cols
             for f in field_cols:
                 if f in mancer_cols:
                     mancer_mapper[f] = {
                         'mancer': m,
                         'geo_id_map': {},
                         'geo_ids': set(),
+                        'geo_type': v['type']
                     }
 
     for row_idx, row in enumerate(reader):
@@ -100,10 +99,12 @@ def do_the_work(file_contents, field_defs, filename):
     for column, defs in mancer_mapper.items():
         geo_ids = defs['geo_ids']
         geoid_mapper = defs['geo_id_map']
+        geo_type = defs['geo_type']
         if geo_ids:
             mancer = defs['mancer']()
             try:
-                data = mancer.search(geo_ids=list(geo_ids), columns=[column])
+                gids = [(geo_type, g,) for g in list(geo_ids)]
+                data = mancer.search(geo_ids=gids, columns=[column])
             except MancerError, e:
                 raise e
             header = data['header']

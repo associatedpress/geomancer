@@ -92,6 +92,7 @@ class Mancer(scrapelib.Scraper):
         {
           'term': <search_term>,
           'geoid': '<full_geoid>',
+          'geo_type': '<geo_type>',
         }
         
         Default behavior is to just echo back the search_term as the geoid.
@@ -104,9 +105,18 @@ class Mancer(scrapelib.Scraper):
     def search(self, geo_ids=None, columns=None):
         """
         This method should send the search request to the API endpoint(s).
-        'geo_ids' is a list of geo_ids returned by the geo_lookup method
-        'columns' is a list of columns to return. Child classes should 
-        be capable of looking these up in a way that makes sense to the API.
+        'geo_ids' is a list of tuples with the geography type and geo_id
+        returned by the geo_lookup method like so:
+
+        [
+            ('state', 'IL',),
+            ('state', 'CA',),
+            ...etc...
+        ]
+
+        'columns' is a list of columns to
+        return. Child classes should be capable of looking these up in a way
+        that makes sense to the API.
         
         Response looks like this:
         {

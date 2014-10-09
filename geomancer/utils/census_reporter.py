@@ -138,7 +138,7 @@ class CensusReporter(Mancer):
         
         query = {
             'table_ids': ','.join(columns),
-            'geo_ids': ','.join(geo_ids),
+            'geo_ids': ','.join([g[1] for g in geo_ids]),
         }
         params = urlencode(query)
         try:
