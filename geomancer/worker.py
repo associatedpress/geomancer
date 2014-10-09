@@ -6,10 +6,10 @@ import sys
 import os
 from cStringIO import StringIO
 from csvkit.unicsv import UnicodeCSVReader, UnicodeCSVWriter
-from geomancer.utils.lookups import ACS_DATA_TYPES, GEO_TYPES
 from geomancer.utils.census_reporter import CensusReporter
 from geomancer.utils.mancer import MancerError
-from geomancer.app_config import RESULT_FOLDER
+from geomancer.utils.helpers import import_class
+from geomancer.app_config import RESULT_FOLDER, MANCERS
 from datetime import datetime
 import xlwt
 from openpyxl import Workbook
@@ -59,70 +59,87 @@ def do_the_work(file_contents, field_defs, filename):
     c = CensusReporter()
     result = None
     geo_ids = set()
-    columns = set()
-    geoid_mapper = {}
+    mancer_mapper = {}
+
+    for mance in MANCERS:
+        m = import_class(mance[1])
+        mancer_cols = [k['table_id'] for k in m.column_info()]
+        for k, v in field_defs.items():
+            field_cols = v['append_columns']
+            print field_cols
+            print mancer_cols
+            for f in field_cols:
+                if f in mancer_cols:
+                    mancer_mapper[f] = {
+                        'mancer': m,
+                        'geo_id_map': {},
+                        'geo_ids': set(),
+                    }
 
     for row_idx, row in enumerate(reader):
         col_idxs = [int(k) for k in field_defs.keys()]
         for idx in col_idxs:
             val = row[idx]
             geo_type = field_defs[idx]['type']
-            [columns.add(f) for f in field_defs[idx]['append_columns']]
-            try:
-                if val:
-                    geoid_search = c.geo_lookup(val, geo_type=geo_type)
-                else:
-                    continue
-            except MancerError, e:
-                return e.message
-            try:
+            for column in field_defs[idx]['append_columns']:
+                mancer = mancer_mapper[column]['mancer']()
+                try:
+                    if val:
+                        geoid_search = mancer.geo_lookup(val, geo_type=geo_type)
+                    else:
+                        continue
+                except MancerError, e:
+                    return e.message
                 row_geoid = geoid_search['geoid']
-                geo_ids.add(row_geoid)
-            except IndexError:
-                continue
+                mancer_mapper[column]['geo_ids'].add(row_geoid)
+                try:
+                    mancer_mapper[column]['geo_id_map'][row_geoid].append(row_idx)
+                except KeyError:
+                    mancer_mapper[column]['geo_id_map'][row_geoid] = [row_idx]
+
+    for column, defs in mancer_mapper.items():
+        geo_ids = defs['geo_ids']
+        geoid_mapper = defs['geo_id_map']
+        if geo_ids:
+            mancer = defs['mancer']()
             try:
-                geoid_mapper[row_geoid].append(row_idx)
-            except KeyError:
-                geoid_mapper[row_geoid] = [row_idx]
-    if geo_ids:
-        try:
-            data = c.search(geo_ids=list(geo_ids), columns=list(columns))
-        except MancerError, e:
-            raise e
-        header = data['header']
-        contents.seek(0)
-        all_rows = list(reader)
-        included_idxs = set()
-        header_row = all_rows.pop(0)
-        output = []
-        for col in header:
-            header_row.append(col)
-        output.append(header_row)
-        for geoid, row_ids in geoid_mapper.items():
-            for row_id in row_ids:
-                included_idxs.add(row_id)
-                row = all_rows[row_id]
-                row.extend(data[geoid])
+                data = mancer.search(geo_ids=list(geo_ids), columns=[column])
+            except MancerError, e:
+                raise e
+            header = data['header']
+            contents.seek(0)
+            all_rows = list(reader)
+            included_idxs = set()
+            header_row = all_rows.pop(0)
+            output = []
+            for col in header:
+                header_row.append(col)
+            output.append(header_row)
+            for geoid, row_ids in geoid_mapper.items():
+                for row_id in row_ids:
+                    included_idxs.add(row_id)
+                    row = all_rows[row_id]
+                    row.extend(data[geoid])
+                    output.append(row)
+            all_row_idxs = set(list(range(len(all_rows))))
+            missing_rows = all_row_idxs.difference(included_idxs)
+            for idx in missing_rows:
+                row = all_rows[idx]
+                row.extend(['' for i in header])
                 output.append(row)
-        all_row_idxs = set(list(range(len(all_rows))))
-        missing_rows = all_row_idxs.difference(included_idxs)
-        for idx in missing_rows:
-            row = all_rows[idx]
-            row.extend(['' for i in header])
-            output.append(row)
-        name, ext = os.path.splitext(filename)
-        fname = '%s_%s%s' % (name, datetime.now().isoformat(), ext)
-        fpath = '%s/%s' % (RESULT_FOLDER, fname)
-        if ext == '.xlsx':
-            writeXLSX(fpath, output)
-        elif ext == '.xls':
-            writeXLS(fpath, output)
+            name, ext = os.path.splitext(filename)
+            fname = '%s_%s%s' % (name, datetime.now().isoformat(), ext)
+            fpath = '%s/%s' % (RESULT_FOLDER, fname)
+            if ext == '.xlsx':
+                writeXLSX(fpath, output)
+            elif ext == '.xls':
+                writeXLS(fpath, output)
+            else:
+                writeCSV(fpath, output)
+            
+            return '/download/%s' % fname
         else:
-            writeCSV(fpath, output)
-        
-        return '/download/%s' % fname
-    else:
-        raise MancerError('No geographies matched')
+            raise MancerError('No geographies matched')
 
 def writeXLS(fpath, output):
     with open(fpath, 'wb') as f:

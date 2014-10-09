@@ -4,3 +4,4 @@ redis==2.10.1
 scrapelib==0.10.0
 gunicorn==19.1.1
 xlwt==0.7.5
+lxml==3.4.0

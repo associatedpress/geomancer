@@ -17,7 +17,10 @@ class Mancer(scrapelib.Scraper):
     """ 
     Subclassing scrapelib here mainly to take advantage of pluggable caching backend.
     """
+    base_url = None
     
+    description = None
+
     def __init__(self,
                  raise_errors=True,
                  requests_per_minute=0,
@@ -37,6 +40,7 @@ class Mancer(scrapelib.Scraper):
         self.cache_storage = scrapelib.cache.FileCache(cache_dir)
         self.cache_write_only = False
 
+
     @staticmethod
     def column_info():
         """ 
@@ -53,15 +57,20 @@ class Mancer(scrapelib.Scraper):
               'human_name': '<human_friendly_name>',
               'description': '<free form text description>',
               'source_url': '<where to find source on the web>',
+              'geo_types': ['list', 'of', 'geographic', 'area', 'types', 'data', 'is', 'available', 'for'],
+              'count': '<number of columns this will add to spreadsheet>'
             },
             {
               'table_id': '<unique_id>', 
               'human_name': '<human_friendly_name>',
               'description': '<free form text description>',
               'source_url': '<where to find source on the web>',
+              'geo_types': ['examples', 'zip_5', 'state', 'city', 'congress_district'],
+              'count': '<number of columns this will add to spreadsheet>',
             },
             ...etc...
         ]
+
         """
 
         raise NotImplementedError

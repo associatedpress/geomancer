@@ -10,8 +10,9 @@ from csvkit import convert
 from csvkit.unicsv import UnicodeCSVReader
 from csvkit.cleanup import RowChecker
 from cStringIO import StringIO
-from geomancer.utils.lookups import GEO_TYPES, ACS_DATA_TYPES
-from geomancer.app_config import ALLOWED_EXTENSIONS, MAX_CONTENT_LENGTH
+from geomancer.utils.helpers import import_class
+from geomancer.app_config import ALLOWED_EXTENSIONS, \
+    MAX_CONTENT_LENGTH, MANCERS
 
 views = Blueprint('views', __name__)
 
@@ -97,14 +98,23 @@ def select_tables():
     reader = UnicodeCSVReader(inp)
     header = reader.next()
     fields = {}
+    geo_type = None
     for k,v in request.form.items():
         if k.startswith("geotype"):
+            geo_type = v
             index = int(k.split('_')[1])
             fields[header[index]] = {
                 'geo_type': v,
                 'column_index': index
             }
-    context = {'fields': fields, 'data_types': ACS_DATA_TYPES}
+    data_types = {}
+    for mancer in MANCERS:
+        m = import_class(mancer[1])
+        info = m.column_info()
+        for col in info:
+            if geo_type in col['geo_types']:
+                data_types[col['table_id']] = col
+    context = {'fields': fields, 'data_types': data_types}
     return render_template('select_tables.html', **context)
 
 @views.route('/geomance/<session_key>/')

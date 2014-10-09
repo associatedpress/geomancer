@@ -1,7 +1,8 @@
 from flask import Blueprint, make_response, request, jsonify, \
     session as flask_session
 from geomancer.worker import DelayedResult, do_the_work
-from geomancer.utils.lookups import GEO_TYPES
+from geomancer.utils.helpers import import_class
+from geomancer.app_config import MANCERS
 import json
 from redis import Redis
 
@@ -62,34 +63,53 @@ def geomance_results(session_key):
 @api.route('/api/geo-types/')
 def geo_types():
     """ 
-    Return a list of supported geography types
-    Optionally include a 'name', 'human_name', or 'acs_sumlev' 
-    to limit response
+    Return a list of tables grouped by geo_type
     """
-    types = []
-    if request.args.get('name'):
-        name = request.args['name'].lower()
-        types = [r for r in GEO_TYPES if name in r['name'].lower()]
-    elif request.args.get('human_name'):
-        desc = request.args['human_name'].lower()
-        types = [r for r in GEO_TYPES if desc in r['human_name'].lower()]
-    elif request.args.get('acs_sumlev'):
-        sumlev = request.args['acs_sumlev'].lower()
-        types = [r for r in GEO_TYPES if sumlev in r['acs_sumlev'].lower()]
+    types = {}
+    columns = []
+    geo_types = []
+    geo_type = request.args.get('geo_type')
+    for mancer in MANCERS:
+        m = import_class(mancer[1])
+        for col in m.column_info():
+            geo_types.extend(col['geo_types'])
+        columns.extend(m.column_info())
+    if geo_type:
+        types[geo_type] = [{'human_name': c['human_name'], 
+                     'table_id': c['table_id'], 
+                     'description': c['description'], 
+                     'source_url': c['source_url']} \
+                     for c in columns if geo_type in c['geo_types']]
     else:
-        types = GEO_TYPES
+        for t in geo_types:
+            types[t] = [{'human_name': c['human_name'], 
+                         'table_id': c['table_id'], 
+                         'description': c['description'], 
+                         'source_url': c['source_url']} \
+                         for c in columns if t in c['geo_types']]
     resp = make_response(json.dumps(types))
     resp.headers['Content-Type'] = 'application/json'
     return resp
     
 
-@api.route('/api/<geo_type>/')
-def data_attrs(geo_type):
+@api.route('/api/data-info/')
+def data_attrs():
     """ 
     For a given geographic type, return a list of available data attributes
     for that geography.
     """
-    resp = make_response(json.dumps({}))
+    geo_type = request.args.get('geo_type')
+    attributes = []
+    for mancer in MANCERS:
+        m = import_class(mancer[1])
+        info = m.column_info()
+        d = {'source': mancer[0], 'tables': [], 'description': m.description}
+        if geo_type:
+            d['tables'].extend([c for c in info if geo_type in c['geo_types']])
+        else:
+            d['tables'].extend(info)
+        attributes.append(d)
+    resp = make_response(json.dumps(attributes))
     resp.headers['Content-Type'] = 'application/json'
     return resp
 

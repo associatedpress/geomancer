@@ -47,12 +47,22 @@
                         var item = '<select class="geo_dropdown" name="geotype_' + col_index + '">';
                         var table = parent.parent().parent().parent()
                         $.each(types, function(i, type){
-                            item += '<option value="' + type.name + '">' + type.human_name + '</option>';
+                            var nice_name = ''
+                            $.each(i.split('_'), function(i, part){
+                                nice_name += toTitleCase(part);
+                                nice_name += ' '
+                            })
+                            item += '<option value="' + i + '">' + nice_name + '</option>';
                         })
                         $(parent).append(item);
                     })
                 }
             })
         })
+        function toTitleCase(str){
+            return str.replace(/\w\S*/g, function(txt){
+                return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+            });
+        }
     </script>
 {% endblock %}

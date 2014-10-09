@@ -17,7 +17,10 @@ class USASpending(Mancer):
     """ 
     Subclassing Mancer
     """
-    
+
+    base_url = "http://www.usaspending.gov"
+    description = """ """
+
     @staticmethod
     def column_info():
         return []
