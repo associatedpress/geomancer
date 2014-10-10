@@ -152,7 +152,7 @@ class CensusReporter(Mancer):
                 % response.status_code, body=body)
         raw_results = json.loads(response)
         results = {'header': []}
-        for geo_id in geo_ids:
+        for geo_type,geo_id in geo_ids:
             results[geo_id] = []
             for table_id in columns:
                 table_info = raw_results['tables'][table_id]

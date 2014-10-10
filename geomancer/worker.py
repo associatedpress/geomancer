@@ -74,7 +74,6 @@ def do_the_work(file_contents, field_defs, filename):
                         'geo_ids': set(),
                         'geo_type': v['type']
                     }
-
     for row_idx, row in enumerate(reader):
         col_idxs = [int(k) for k in field_defs.keys()]
         for idx in col_idxs:
@@ -95,9 +94,15 @@ def do_the_work(file_contents, field_defs, filename):
                     mancer_mapper[column]['geo_id_map'][row_geoid].append(row_idx)
                 except KeyError:
                     mancer_mapper[column]['geo_id_map'][row_geoid] = [row_idx]
-
+    all_data = {'header': []}
+    output = []
+    contents.seek(0)
+    all_rows = list(reader)
+    included_idxs = set()
+    header_row = all_rows.pop(0)
     for column, defs in mancer_mapper.items():
         geo_ids = defs['geo_ids']
+        all_data.update({gid:[] for gid in geo_ids})
         geoid_mapper = defs['geo_id_map']
         geo_type = defs['geo_type']
         if geo_ids:
@@ -107,40 +112,45 @@ def do_the_work(file_contents, field_defs, filename):
                 data = mancer.search(geo_ids=gids, columns=[column])
             except MancerError, e:
                 raise e
-            header = data['header']
-            contents.seek(0)
-            all_rows = list(reader)
-            included_idxs = set()
-            header_row = all_rows.pop(0)
-            output = []
-            for col in header:
-                header_row.append(col)
-            output.append(header_row)
-            for geoid, row_ids in geoid_mapper.items():
-                for row_id in row_ids:
-                    included_idxs.add(row_id)
-                    row = all_rows[row_id]
-                    row.extend(data[geoid])
-                    output.append(row)
-            all_row_idxs = set(list(range(len(all_rows))))
-            missing_rows = all_row_idxs.difference(included_idxs)
-            for idx in missing_rows:
-                row = all_rows[idx]
-                row.extend(['' for i in header])
-                output.append(row)
-            name, ext = os.path.splitext(filename)
-            fname = '%s_%s%s' % (name, datetime.now().isoformat(), ext)
-            fpath = '%s/%s' % (RESULT_FOLDER, fname)
-            if ext == '.xlsx':
-                writeXLSX(fpath, output)
-            elif ext == '.xls':
-                writeXLS(fpath, output)
-            else:
-                writeCSV(fpath, output)
-            
-            return '/download/%s' % fname
+            all_data['header'].extend(data['header'])
+            for gid in geo_ids:
+                all_data[gid].extend(data[gid])
         else:
             raise MancerError('No geographies matched')
+        for col in all_data['header']:
+            header_row.append(col)
+        i = 1
+        try:
+            output[0] = header_row
+        except IndexError:
+            output.append(header_row)
+        for geoid, row_ids in geoid_mapper.items():
+            for row_id in row_ids:
+                included_idxs.add(row_id)
+                row = all_rows[row_id]
+                row.extend(all_data[geoid])
+                try:
+                    output[i] = row
+                    i += 1
+                except IndexError:
+                    output.append(row)
+        all_row_idxs = set(list(range(len(all_rows))))
+        missing_rows = all_row_idxs.difference(included_idxs)
+        for idx in missing_rows:
+            row = all_rows[idx]
+            row.extend(['' for i in header])
+            output.append(row)
+        name, ext = os.path.splitext(filename)
+        fname = '%s_%s%s' % (name, datetime.now().isoformat(), ext)
+        fpath = '%s/%s' % (RESULT_FOLDER, fname)
+        if ext == '.xlsx':
+            writeXLSX(fpath, output)
+        elif ext == '.xls':
+            writeXLS(fpath, output)
+        else:
+            writeCSV(fpath, output)
+    
+    return '/download/%s' % fname
 
 def writeXLS(fpath, output):
     with open(fpath, 'wb') as f:
