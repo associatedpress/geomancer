@@ -2,8 +2,8 @@ import scrapelib
 from urllib import urlencode
 import json
 import os
-from geomancer.utils.helpers import encoded_dict
-from geomancer.utils.mancer import Mancer, MancerError
+from geomancer.helpers import encoded_dict
+from geomancer.mancers.mancer import Mancer, MancerError
 from geomancer.app_config import CACHE_DIR
 from string import punctuation
 import re

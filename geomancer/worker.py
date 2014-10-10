@@ -6,9 +6,9 @@ import sys
 import os
 from cStringIO import StringIO
 from csvkit.unicsv import UnicodeCSVReader, UnicodeCSVWriter
-from geomancer.utils.census_reporter import CensusReporter
-from geomancer.utils.mancer import MancerError
-from geomancer.utils.helpers import import_class
+from geomancer.mancers.census_reporter import CensusReporter
+from geomancer.mancers.mancer import MancerError
+from geomancer.helpers import import_class
 from geomancer.app_config import RESULT_FOLDER, MANCERS
 from datetime import datetime
 import xlwt

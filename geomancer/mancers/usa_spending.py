@@ -3,8 +3,8 @@ import us
 from urllib import urlencode
 import json
 import os
-from geomancer.utils.mancer import Mancer
-from geomancer.utils.helpers import encoded_dict
+from geomancer.mancers.mancer import Mancer
+from geomancer.helpers import encoded_dict
 from lxml import etree
 import re
 from collections import OrderedDict

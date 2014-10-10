@@ -1,7 +1,7 @@
 from flask import Blueprint, make_response, request, jsonify, \
     session as flask_session
 from geomancer.worker import DelayedResult, do_the_work
-from geomancer.utils.helpers import import_class
+from geomancer.helpers import import_class
 from geomancer.app_config import MANCERS
 import json
 from collections import OrderedDict

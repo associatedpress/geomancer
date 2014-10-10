@@ -3,7 +3,7 @@ from urllib import urlencode
 import json
 import os
 from geomancer.app_config import CACHE_DIR
-from geomancer.utils.helpers import encoded_dict
+from geomancer.helpers import encoded_dict
 from string import punctuation
 import re
 

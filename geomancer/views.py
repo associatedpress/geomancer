@@ -10,7 +10,7 @@ from csvkit import convert
 from csvkit.unicsv import UnicodeCSVReader
 from csvkit.cleanup import RowChecker
 from cStringIO import StringIO
-from geomancer.utils.helpers import import_class
+from geomancer.helpers import import_class
 from geomancer.app_config import ALLOWED_EXTENSIONS, \
     MAX_CONTENT_LENGTH, MANCERS
 
