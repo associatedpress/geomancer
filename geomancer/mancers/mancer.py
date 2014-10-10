@@ -18,7 +18,7 @@ class Mancer(scrapelib.Scraper):
     Subclassing scrapelib here mainly to take advantage of pluggable caching backend.
     """
     base_url = None
-    
+    info_url = None
     description = None
 
     def __init__(self,

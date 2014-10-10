@@ -39,7 +39,10 @@ class USASpending(Mancer):
     """
 
     base_url = "http://www.usaspending.gov"
-    description = """ """
+    info_url = 'http://www.usaspending.gov'
+    description = """ 
+        Data from the U.S. Office of Management and Budget on federal contracts awarded.
+    """
 
     @staticmethod
     def column_info():

@@ -108,14 +108,26 @@ def select_geo():
                         'geo_type': v,
                         'column_index': index
                     }
-            data_types = {}
-            for mancer in MANCERS:
-                m = import_class(mancer[1])
+            mancer_data = []
+            for name, mancer in MANCERS:
+                m = import_class(mancer)()
+                mancer_obj = {
+                    "name": name, 
+                    "base_url": m.base_url, 
+                    "info_url": m.info_url, 
+                    "description": m.description, 
+                    "data_types": {}
+                }
                 info = m.column_info()
                 for col in info:
                     if geo_type in col['geo_types']:
-                        data_types[col['table_id']] = col
-            session.update({'fields': fields, 'data_types': data_types})
+                        mancer_obj["data_types"][col['table_id']] = col
+
+                mancer_data.append(mancer_obj)
+
+            print mancer_data
+
+            session.update({'fields': fields, 'mancer_data': mancer_data})
             return redirect(url_for('views.select_tables'))
     return render_template('select_geo.html', **context)
 
@@ -127,7 +139,7 @@ def select_tables():
     if request.method == 'POST' and not request.form:
         valid = False
         context['errors'] = ['Select at least on table to join to your spreadsheet']
-    context.update({'fields': session['fields'], 'data_types': session['data_types']})
+    context.update({'fields': session['fields'], 'mancer_data': session['mancer_data']})
     return render_template('select_tables.html', **context)
 
 @views.route('/geomance/<session_key>/')

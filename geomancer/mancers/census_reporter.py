@@ -31,11 +31,9 @@ class CensusReporter(Mancer):
     
     base_url = 'http://api.censusreporter.org/1.0'
     
+    info_url = 'http://censusreporter.org'
     description = """ 
-        Census Reporter is a Knight News Challenge-funded project to make it easy
-        for journalists to write stories using US Census data. Expanding upon the
-        volunteer-built Census.ire.org, Census Reporter will simplify finding and
-        using data from the decennial census and the American Community Survey.
+        Demographic data from the 2013 American Community.
     """
 
     @staticmethod
