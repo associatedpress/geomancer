@@ -11,7 +11,6 @@ import re
 SUMLEV_LOOKUP = {
     "city": "160,170,060",
     "state": "040",
-    "postal": "160,170,060",
     "state_fips": "040",
     "state_county_fips":"050",
     "zip_5": "850,860",

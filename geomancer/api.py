@@ -4,6 +4,7 @@ from geomancer.worker import DelayedResult, do_the_work
 from geomancer.utils.helpers import import_class
 from geomancer.app_config import MANCERS
 import json
+from collections import OrderedDict
 from redis import Redis
 
 redis = Redis()
@@ -87,7 +88,9 @@ def geo_types():
                          'description': c['description'], 
                          'source_url': c['source_url']} \
                          for c in columns if t in c['geo_types']]
-    resp = make_response(json.dumps(types))
+    
+    ordered_types = OrderedDict(sorted(types.items()))
+    resp = make_response(json.dumps(ordered_types))
     resp.headers['Content-Type'] = 'application/json'
     return resp
     
