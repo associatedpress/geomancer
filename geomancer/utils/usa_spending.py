@@ -7,6 +7,7 @@ from geomancer.utils.mancer import Mancer
 from geomancer.utils.helpers import encoded_dict
 from lxml import etree
 import re
+from collections import OrderedDict
 
 TABLE_PARAMS = {
     'fpds': {
@@ -39,7 +40,6 @@ class USASpending(Mancer):
 
     base_url = "http://www.usaspending.gov"
     description = """ """
-    xml_schema = 'http://www.usaspending.gov/schemas/'
 
     @staticmethod
     def column_info():
@@ -119,44 +119,40 @@ class USASpending(Mancer):
             ],
         }
         """
+        result = {'header': []}
         for geo_type, geo_id in geo_ids:
-            for column in columns:
-                url = '%s/%s/%s.php' % (self.base_url, column, column)
-                param = TABLE_PARAMS[column][geo_type]
+            result[geo_id] = []
+            for col in columns:
+                table = OrderedDict()
+                url = '%s/%s/%s.php' % (self.base_url, col, col)
+                param = TABLE_PARAMS[col][geo_type]
                 query = {param: geo_id, 'detail': 's'}
                 params = urlencode(query)
                 response = self.urlopen('%s?%s' % (url, params))
-                result = getattr(self,'parse_%s' % column)(response)
-                print json.dumps(result, indent=4)
+                tree = etree.fromstring(str(response))
+                xml_schema = tree.nsmap[None]
+                tables = tree\
+                    .find('{%s}data' % xml_schema)\
+                    .find('{%s}record' % xml_schema)\
+                    .getchildren()
+                for t in tables:
+                    table_name = t.tag.replace('{%s}' % xml_schema, '')
+                    for column in t.iterchildren():
+                        key = column.tag.replace('{%s}' % xml_schema, '')
+                        value = column.text
+                        if column.attrib:
+                            for k,v in column.attrib.items():
+                                if k in ['rank', 'year']:
+                                    table['%s_%s_%s' % (table_name,k,v.zfill(2))] = value
+                                if k in ['total_obligatedAmount', 'id', 'name']: 
+                                    rank = column.attrib['rank']
+                                    table['%s_rank_%s_%s' % (table_name,rank.zfill(2),k)] = v
+                        else:
+                            table['%s_%s' % (table_name,key)] = value
+                if not result['header']:
+                    header = [' '.join(c.split('_')).title() for c in table.keys()]
+                    result['header'].extend(header)
+                result[geo_id].extend(table.values())
 
-    def parse_fpds(self, raw):
-        """
-        Parse Contracts response
-        """
-        tree = etree.fromstring(str(raw))
-        tables = tree\
-            .find('{%s}data' % self.xml_schema)\
-            .find('{%s}record' % self.xml_schema)\
-            .getchildren()
-        parsed = {}
-        for table in tables:
-            table_name = table.tag.replace('{%s}' % self.xml_schema, '')
-            parsed[table_name] = {}
-            for column in table.iterchildren():
-                key = column.tag.replace('{%s}' % self.xml_schema, '')
-                value = column.text
-                parsed[table_name][key] = {k:v for k,v in column.attrib.items()}
-                parsed[table_name][key]['value'] = value
-        return parsed
+        return result
     
-    def parse_faads(self, raw):
-        """
-        Parse Assistance response
-        """
-        return raw
-    
-    def parse_fsrs(self, raw):
-        """
-        Parse Sub-Awards response
-        """
-        return raw
