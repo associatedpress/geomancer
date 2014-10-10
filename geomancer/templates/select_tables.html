@@ -81,27 +81,37 @@
             $('#mance-form').on('submit', function(e){
                 e.preventDefault()
                 var data = parseParams($(this).serialize());
-                var d = {}
-                $.each(data, function(key, i){
-                    var vals = key.split('-');
-                    if (typeof d[vals[0]] === 'undefined'){
-                        d[vals[0]] = {
-                            'type': vals[1],
-                            'append_columns': []
+                console.log(data)
+                if($.isEmptyObject(data)){
+                    $('#errors').remove();
+                    var stuff = '<div id="errors"><br />';
+                    stuff += '<div class="alert alert-dismissable alert-danger">';
+                    stuff += '<p>Select at least one table to add to your spreadsheet</p>';
+                    stuff += '</div></div>';
+                    $('#navigation').append(stuff);
+                } else {
+                    var d = {}
+                    $.each(data, function(key, i){
+                        var vals = key.split('-');
+                        if (typeof d[vals[0]] === 'undefined'){
+                            d[vals[0]] = {
+                                'type': vals[1],
+                                'append_columns': []
+                            }
                         }
-                    }
-                    d[vals[0]]['append_columns'].push(vals[2])
-                });
-                $.ajax({
-                    url:"/api/geomance/",
-                    type: 'POST',
-                    data: JSON.stringify(d),
-                    success: function(resp){
-                        window.location = '/geomance/' + resp['session_key'];
-                    },
-                    processData: false,
-                    contentType: 'application/json',
-                })
+                        d[vals[0]]['append_columns'].push(vals[2])
+                    });
+                    $.ajax({
+                        url:"/api/geomance/",
+                        type: 'POST',
+                        data: JSON.stringify(d),
+                        success: function(resp){
+                            window.location = '/geomance/' + resp['session_key'];
+                        },
+                        processData: false,
+                        contentType: 'application/json',
+                    })
+                }
             })
             $('.column-select').on('click', function(e){
                 var table_id = $(this).data('table_id');

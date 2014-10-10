@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="row">
-    <div class="col-sm-12">
+    <div class="col-sm-12" id="navigation">
         <ul class='nav nav-wizard'>
             <li class='{% if request.path == url_for('views.upload') %} active {% endif %}'>1 - Upload data</li>
             <li class='{% if request.path == url_for('views.select_geo') %} active {% endif %}'>2 - Select geography</li>
@@ -16,6 +16,8 @@
                 {% endfor %}
             </div>
         {% endif %}
+    </div>
+    <div class="col-sm-12">
         {% block wizard_content %}{% endblock %}
     </div>
 </div>
