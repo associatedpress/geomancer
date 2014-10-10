@@ -84,37 +84,50 @@ def upload():
             context['errors'] = ['You must provide a file to upload.']
     return render_template('upload.html', **context)
 
-
-@views.route('/select-geography/', methods=['GET'])
+@views.route('/select-geography/', methods=['GET', 'POST'])
 def select_geo():
-    return render_template('select_geo.html')
-    
+    if not session.get('file'):
+        return redirect(url_for('views.index'))
+    context = {}
+    if request.method == 'POST':
+        inp = StringIO(session['file'])
+        reader = UnicodeCSVReader(inp)
+        header = reader.next()
+        fields = {}
+        geo_type = None
+        valid = True
+        if not request.form:
+            valid = False
+            context['errors'] = ['Select a field that contains a geography type']
+        if valid:
+            for k,v in request.form.items():
+                if k.startswith("geotype"):
+                    geo_type = v
+                    index = int(k.split('_')[1])
+                    fields[header[index]] = {
+                        'geo_type': v,
+                        'column_index': index
+                    }
+            data_types = {}
+            for mancer in MANCERS:
+                m = import_class(mancer[1])
+                info = m.column_info()
+                for col in info:
+                    if geo_type in col['geo_types']:
+                        data_types[col['table_id']] = col
+            session.update({'fields': fields, 'data_types': data_types})
+            return redirect(url_for('views.select_tables'))
+    return render_template('select_geo.html', **context)
 
-@views.route('/select-tables/', methods=['POST'])
+@views.route('/select-tables/', methods=['POST', 'GET'])
 def select_tables():
     if not session.get('file'):
-        redirect(url_for('views.index'))
-    inp = StringIO(session['file'])
-    reader = UnicodeCSVReader(inp)
-    header = reader.next()
-    fields = {}
-    geo_type = None
-    for k,v in request.form.items():
-        if k.startswith("geotype"):
-            geo_type = v
-            index = int(k.split('_')[1])
-            fields[header[index]] = {
-                'geo_type': v,
-                'column_index': index
-            }
-    data_types = {}
-    for mancer in MANCERS:
-        m = import_class(mancer[1])
-        info = m.column_info()
-        for col in info:
-            if geo_type in col['geo_types']:
-                data_types[col['table_id']] = col
-    context = {'fields': fields, 'data_types': data_types}
+        return redirect(url_for('views.index'))
+    context = {}
+    if request.method == 'POST' and not request.form:
+        valid = False
+        context['errors'] = ['Select at least on table to join to your spreadsheet']
+    context.update({'fields': session['fields'], 'data_types': session['data_types']})
     return render_template('select_tables.html', **context)
 
 @views.route('/geomance/<session_key>/')

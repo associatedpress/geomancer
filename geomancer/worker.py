@@ -118,7 +118,8 @@ def do_the_work(file_contents, field_defs, filename):
         else:
             raise MancerError('No geographies matched')
         for col in all_data['header']:
-            header_row.append(col)
+            if col not in header_row:
+                header_row.append(col)
         i = 1
         try:
             output[0] = header_row
