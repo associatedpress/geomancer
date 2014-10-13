@@ -179,6 +179,7 @@ def writeCSV(fpath, output):
 
 
 def queue_daemon(app, rv_ttl=500):
+    print 'Mancing commencing...'
     while 1:
         msg = redis.blpop(app.config['REDIS_QUEUE_KEY'])
         func, key, args, kwargs = loads(msg[1])

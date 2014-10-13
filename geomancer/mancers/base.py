@@ -6,6 +6,7 @@ from geomancer.app_config import CACHE_DIR
 from geomancer.helpers import encoded_dict
 from string import punctuation
 import re
+from urlparse import urlparse
 
 class MancerError(Exception):
     def __init__(self, message, body=None):
@@ -36,10 +37,19 @@ class BaseMancer(scrapelib.Scraper):
                                              header_func=header_func)
         
         # We might want to talk about configuring an S3 backed cache for this
-        # so we don't run the risk of running out of disk space. 
-        self.cache_storage = scrapelib.cache.FileCache(cache_dir)
+        # so we don't run the risk of running out of disk space.
+        self.cache_dir = cache_dir
+        self.cache_storage = scrapelib.cache.FileCache(self.cache_dir)
         self.cache_write_only = False
 
+    def flush_cache(self):
+        host = urlparse(self.base_url).netloc
+        count = 0
+        for f in os.listdir(self.cache_dir):
+            if f.startswith(host):
+                os.remove(os.path.join(self.cache_dir, f))
+                count += 1
+        return count
 
     @staticmethod
     def column_info():
