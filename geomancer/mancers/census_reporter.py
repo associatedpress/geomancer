@@ -3,7 +3,7 @@ from urllib import urlencode
 import json
 import os
 from geomancer.helpers import encoded_dict
-from geomancer.mancers.mancer import Mancer, MancerError
+from geomancer.mancers.base import BaseBaseMancer, MancerError
 from geomancer.app_config import CACHE_DIR
 from string import punctuation
 import re
@@ -24,9 +24,9 @@ SUMLEV_LOOKUP = {
     "census_block": "101",
 }
 
-class CensusReporter(Mancer):
+class CensusReporter(BaseMancer):
     """ 
-    Subclassing the main Mancer class
+    Subclassing the main BaseMancer class
     """
     
     base_url = 'http://api.censusreporter.org/1.0'

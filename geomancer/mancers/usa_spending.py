@@ -3,7 +3,7 @@ import us
 from urllib import urlencode
 import json
 import os
-from geomancer.mancers.mancer import Mancer
+from geomancer.mancers.base import BaseMancer
 from geomancer.helpers import encoded_dict
 from lxml import etree
 import re
@@ -33,9 +33,9 @@ class USASpendingError(Exception):
         self.message = message
         self.body = body
 
-class USASpending(Mancer):
+class USASpending(BaseMancer):
     """ 
-    Subclassing Mancer
+    Subclassing BaseMancer
     """
 
     base_url = "http://www.usaspending.gov"
