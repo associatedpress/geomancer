@@ -13,7 +13,7 @@ class MancerError(Exception):
         self.message = message
         self.body = body
 
-class Mancer(scrapelib.Scraper):
+class BaseMancer(scrapelib.Scraper):
     """ 
     Subclassing scrapelib here mainly to take advantage of pluggable caching backend.
     """
@@ -29,7 +29,7 @@ class Mancer(scrapelib.Scraper):
                  header_func=None, 
                  cache_dir=CACHE_DIR):
         
-        super(Mancer, self).__init__(raise_errors=raise_errors,
+        super(BaseMancer, self).__init__(raise_errors=raise_errors,
                                              requests_per_minute=requests_per_minute,
                                              retry_attempts=retry_attempts,
                                              retry_wait_seconds=retry_wait_seconds,

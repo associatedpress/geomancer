@@ -7,7 +7,7 @@ import os
 from cStringIO import StringIO
 from csvkit.unicsv import UnicodeCSVReader, UnicodeCSVWriter
 from geomancer.mancers.census_reporter import CensusReporter
-from geomancer.mancers.mancer import MancerError
+from geomancer.mancers.base import MancerError
 from geomancer.helpers import import_class
 from geomancer.app_config import RESULT_FOLDER, MANCERS
 from datetime import datetime
