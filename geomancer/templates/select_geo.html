@@ -3,7 +3,7 @@
 {% block wizard_content %}
 <h2>2. Select geography</h2>
 <h4>Select the column that holds geographic data</h4>
-<form role="form" id="geotypes-form" action="{{ url_for('views.select_tables') }}" method="POST">
+<form role="form" id="geotypes-form" action="{{ url_for('views.select_geo') }}" method="POST">
     <table class="table">
         <thead>
             <tr>
@@ -17,7 +17,7 @@
             <tr>
                 <td data-column_index="{{ index }}">
                     <label>
-                        <input id="column_{{ index }}" type="radio" name="columns" class="geography" />
+                        <input id="column_{{ index }}" type="radio" class="geography" />
                     </label>
                 </td>
                 <td>
@@ -47,12 +47,22 @@
                         var item = '<select class="geo_dropdown" name="geotype_' + col_index + '">';
                         var table = parent.parent().parent().parent()
                         $.each(types, function(i, type){
-                            item += '<option value="' + type.name + '">' + type.human_name + '</option>';
+                            var nice_name = ''
+                            $.each(i.split('_'), function(i, part){
+                                nice_name += toTitleCase(part);
+                                nice_name += ' '
+                            })
+                            item += '<option value="' + i + '">' + nice_name + '</option>';
                         })
                         $(parent).append(item);
                     })
                 }
             })
         })
+        function toTitleCase(str){
+            return str.replace(/\w\S*/g, function(txt){
+                return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+            });
+        }
     </script>
 {% endblock %}

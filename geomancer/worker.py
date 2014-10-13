@@ -6,9 +6,10 @@ import sys
 import os
 from cStringIO import StringIO
 from csvkit.unicsv import UnicodeCSVReader, UnicodeCSVWriter
-from geo.utils.lookups import ACS_DATA_TYPES, GEO_TYPES
-from geo.utils.census_reporter import CensusReporter, CensusReporterError
-from geo.app_config import RESULT_FOLDER
+from geomancer.mancers.census_reporter import CensusReporter
+from geomancer.mancers.base import MancerError
+from geomancer.helpers import import_class
+from geomancer.app_config import RESULT_FOLDER, MANCERS
 from datetime import datetime
 import xlwt
 from openpyxl import Workbook
@@ -58,54 +59,82 @@ def do_the_work(file_contents, field_defs, filename):
     c = CensusReporter()
     result = None
     geo_ids = set()
-    table_ids = set()
-    geoid_mapper = {}
-    output_filepath = 'output.csv'
+    mancer_mapper = {}
 
+    for mance in MANCERS:
+        m = import_class(mance[1])
+        mancer_cols = [k['table_id'] for k in m.column_info()]
+        for k, v in field_defs.items():
+            field_cols = v['append_columns']
+            for f in field_cols:
+                if f in mancer_cols:
+                    mancer_mapper[f] = {
+                        'mancer': m,
+                        'geo_id_map': {},
+                        'geo_ids': set(),
+                        'geo_type': v['type']
+                    }
     for row_idx, row in enumerate(reader):
         col_idxs = [int(k) for k in field_defs.keys()]
         for idx in col_idxs:
             val = row[idx]
             geo_type = field_defs[idx]['type']
             for column in field_defs[idx]['append_columns']:
-                table_ids.add(ACS_DATA_TYPES[column]['table_id'])
-            sumlevs = [g['acs_sumlev'] for g in GEO_TYPES if g['name'] == geo_type]
+                mancer = mancer_mapper[column]['mancer']()
+                try:
+                    if val:
+                        geoid_search = mancer.geo_lookup(val, geo_type=geo_type)
+                    else:
+                        continue
+                except MancerError, e:
+                    return e.message
+                row_geoid = geoid_search['geoid']
+                mancer_mapper[column]['geo_ids'].add(row_geoid)
+                try:
+                    mancer_mapper[column]['geo_id_map'][row_geoid].append(row_idx)
+                except KeyError:
+                    mancer_mapper[column]['geo_id_map'][row_geoid] = [row_idx]
+    all_data = {'header': []}
+    output = []
+    contents.seek(0)
+    all_rows = list(reader)
+    included_idxs = set()
+    header_row = all_rows.pop(0)
+    for column, defs in mancer_mapper.items():
+        geo_ids = defs['geo_ids']
+        all_data.update({gid:[] for gid in geo_ids})
+        geoid_mapper = defs['geo_id_map']
+        geo_type = defs['geo_type']
+        if geo_ids:
+            mancer = defs['mancer']()
             try:
-                if val and sumlevs:
-                    geoid_search = c.geo_search(val, sumlevs=sumlevs)
-                else:
-                    continue
-            except CensusReporterError, e:
-                return e.message
-            try:
-                row_geoid = geoid_search['results'][0]['full_geoid']
-                geo_ids.add(row_geoid)
-            except IndexError:
-                continue
-            try:
-                geoid_mapper[row_geoid].append(row_idx)
-            except KeyError:
-                geoid_mapper[row_geoid] = [row_idx]
-    if geo_ids:
+                gids = [(geo_type, g,) for g in list(geo_ids)]
+                data = mancer.search(geo_ids=gids, columns=[column])
+            except MancerError, e:
+                raise e
+            all_data['header'].extend(data['header'])
+            for gid in geo_ids:
+                all_data[gid].extend(data[gid])
+        else:
+            raise MancerError('No geographies matched')
+        for col in all_data['header']:
+            if col not in header_row:
+                header_row.append(col)
+        i = 1
         try:
-            data = c.data_show(geo_ids=list(geo_ids), table_ids=list(table_ids))
-        except CensusReporterError, e:
-            raise e
-        header = data['header']
-        contents.seek(0)
-        all_rows = list(reader)
-        included_idxs = set()
-        header_row = all_rows.pop(0)
-        output = []
-        for col in header:
-            header_row.append(col)
-        output.append(header_row)
+            output[0] = header_row
+        except IndexError:
+            output.append(header_row)
         for geoid, row_ids in geoid_mapper.items():
             for row_id in row_ids:
                 included_idxs.add(row_id)
                 row = all_rows[row_id]
-                row.extend(data[geoid])
-                output.append(row)
+                row.extend(all_data[geoid])
+                try:
+                    output[i] = row
+                    i += 1
+                except IndexError:
+                    output.append(row)
         all_row_idxs = set(list(range(len(all_rows))))
         missing_rows = all_row_idxs.difference(included_idxs)
         for idx in missing_rows:
@@ -121,10 +150,8 @@ def do_the_work(file_contents, field_defs, filename):
             writeXLS(fpath, output)
         else:
             writeCSV(fpath, output)
-        
-        return '/download/%s' % fname
-    else:
-        raise CensusReporterError('No geographies matched')
+    
+    return '/download/%s' % fname
 
 def writeXLS(fpath, output):
     with open(fpath, 'wb') as f:
@@ -152,6 +179,7 @@ def writeCSV(fpath, output):
 
 
 def queue_daemon(app, rv_ttl=500):
+    print 'Mancing commencing...'
     while 1:
         msg = redis.blpop(app.config['REDIS_QUEUE_KEY'])
         func, key, args, kwargs = loads(msg[1])

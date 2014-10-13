@@ -5,40 +5,47 @@
 <form id="mance-form" role="form">
     {% for field_name, info in fields.items() %}
         <h4>Column to match on: <strong>{{field_name}}</strong></h4>
-        <table class='table table-bordered table-striped'>
-            <thead>
-                <tr>
-                    <th>Select</th>
-                    <th>Data from 2013 American Community Survey (via <a href='http://censusreporter.org/'>Census Reporter</a>)</th>
-                    <th>Columns that will be added</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for key, val in data_types.items() %}
-                    <tr class="table-row" data-table_id="{{ val.table_id }}">
-                        <td>
-                            <input type="checkbox" class="table-select" data-table_id="{{ val.table_id }}"
-                            id="{{ info.column_index }}-{{ info.geo_type }}-{{ key }}"
-                            name="{{ info.column_index }}-{{ info.geo_type }}-{{ key }}" />
-                        </td>
-                        <td>
-                            <label for="{{ info.column_index }}-{{ info.geo_type }}-{{ key }}">
-                                {{val.human_name}}
-                            </label>
-                        </td>
-                        <td>
-                            <a href="javascript://" class="column-select" data-table_id="{{ val.table_id }}">
-                                <i class='fa fa-info-circle'></i>
-                                {{val.count}}
-                                {%- if val.count == 1 %} column
-                                {%- else %} columns
-                                {%- endif %}
-                            </a>
-                        </td>
+
+        {% for mancer in mancer_data %}
+            <h3>{{mancer.name}} <small><a href='{{mancer.info_url}}'>Source</a></small></h3>
+            <p>{{mancer.description}}</p>
+            <table class='table table-bordered table-striped'>
+                <thead>
+                    <tr>
+                        <th>Select</th>
+                        <th>Data from {{mancer.name}}</th>
+                        <th>Columns that will be added</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {% for key, val in mancer['data_types'].items() %}
+                        <tr class="table-row" data-table_id="{{ val.table_id }}">
+                            <td>
+                                <input type="checkbox" class="table-select" data-table_id="{{ val.table_id }}"
+                                id="{{ info.column_index }}-{{ info.geo_type }}-{{ key }}"
+                                name="{{ info.column_index }}-{{ info.geo_type }}-{{ key }}" />
+                            </td>
+                            <td>
+                                <label for="{{ info.column_index }}-{{ info.geo_type }}-{{ key }}">
+                                    {{val.human_name}}
+                                </label>
+                            </td>
+                            <td>
+                                {% if val.count %}
+                                <a href="javascript://" class="column-select" data-table_id="{{ val.table_id }}">
+                                    <i class='fa fa-info-circle'></i>
+                                    {{val.count}}
+                                    {%- if val.count == 1 %} column
+                                    {%- else %} columns
+                                    {%- endif %}
+                                </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endfor %} 
     {% endfor %}
     <button type="submit" class="btn btn-success">Next &gt;</button>
 </form>
@@ -79,27 +86,37 @@
             $('#mance-form').on('submit', function(e){
                 e.preventDefault()
                 var data = parseParams($(this).serialize());
-                var d = {}
-                $.each(data, function(key, i){
-                    var vals = key.split('-');
-                    if (typeof d[vals[0]] === 'undefined'){
-                        d[vals[0]] = {
-                            'type': vals[1],
-                            'append_columns': []
+                console.log(data)
+                if($.isEmptyObject(data)){
+                    $('#errors').remove();
+                    var stuff = '<div id="errors"><br />';
+                    stuff += '<div class="alert alert-dismissable alert-danger">';
+                    stuff += '<p>Select at least one table to add to your spreadsheet</p>';
+                    stuff += '</div></div>';
+                    $('#navigation').append(stuff);
+                } else {
+                    var d = {}
+                    $.each(data, function(key, i){
+                        var vals = key.split('-');
+                        if (typeof d[vals[0]] === 'undefined'){
+                            d[vals[0]] = {
+                                'type': vals[1],
+                                'append_columns': []
+                            }
                         }
-                    }
-                    d[vals[0]]['append_columns'].push(vals[2])
-                });
-                $.ajax({
-                    url:"/api/geomance/",
-                    type: 'POST',
-                    data: JSON.stringify(d),
-                    success: function(resp){
-                        window.location = '/geomance/' + resp['session_key'];
-                    },
-                    processData: false,
-                    contentType: 'application/json',
-                })
+                        d[vals[0]]['append_columns'].push(vals[2])
+                    });
+                    $.ajax({
+                        url:"/api/geomance/",
+                        type: 'POST',
+                        data: JSON.stringify(d),
+                        success: function(resp){
+                            window.location = '/geomance/' + resp['session_key'];
+                        },
+                        processData: false,
+                        contentType: 'application/json',
+                    })
+                }
             })
             $('.column-select').on('click', function(e){
                 var table_id = $(this).data('table_id');

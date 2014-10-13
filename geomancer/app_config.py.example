@@ -1,0 +1,13 @@
+from os.path import join, abspath, dirname
+
+SECRET_KEY = 'your secret key here'
+CACHE_DIR = '/tmp'
+REDIS_QUEUE_KEY = 'geomancer'
+RESULT_FOLDER = abspath(join(dirname(__file__), 'result_folder'))
+MAX_CONTENT_LENGTH = 10 * 1024 * 1024 # 10mb
+ALLOWED_EXTENSIONS = set(['csv', 'xls', 'xlsx'])
+
+MANCERS = (
+    ('Census Reporter', 'geomancer.mancers.census_reporter.CensusReporter'),
+    ('USA Spending', 'geomancer.mancers.usa_spending.USASpending'),
+)

@@ -1,6 +1,0 @@
-from os.path import join, abspath, dirname
-
-SECRET_KEY = 'something secret'
-CACHE_DIR = '/path/where/app/can/cache/responses'
-REDIS_QUEUE_KEY = 'something_simple'
-RESULT_FOLDER = abspath(join(dirname(__file__), 'result_folder'))
