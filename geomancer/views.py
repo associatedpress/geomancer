@@ -125,7 +125,6 @@ def select_geo():
 
                 mancer_data.append(mancer_obj)
 
-            print mancer_data
 
             session.update({'fields': fields, 'mancer_data': mancer_data})
             return redirect(url_for('views.select_tables'))

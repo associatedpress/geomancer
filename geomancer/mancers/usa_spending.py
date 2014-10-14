@@ -8,6 +8,7 @@ from geomancer.helpers import encoded_dict
 from lxml import etree
 import re
 from collections import OrderedDict
+from datetime import datetime
 
 TABLE_PARAMS = {
     'fpds': {
@@ -94,7 +95,6 @@ class USASpending(BaseMancer):
         """
         """
         result = {'header': []}
-        header_keys = set()
         table_ds = {}
         for geo_type, geo_id in geo_ids:
             result[geo_id] = []
@@ -113,15 +113,6 @@ class USASpending(BaseMancer):
                     .getchildren()
                 for t in tables:
                     table_name = t.tag.replace('{%s}' % xml_schema, '')
-                    real_rank_keys = []
-                    real_obl_keys = []
-                    fake_rank_keys = []
-                    fake_obl_keys = []
-                    if t.attrib.get('ranked_by'):
-                        fake_rank_keys = ['%s_rank_%s' % (table_name, str(i).zfill(2)) \
-                            for i in range(1,11)]
-                        fake_obl_keys = ['%s_rank_%s_total_obligatedAmount' % \
-                            (table_name, str(i).zfill(2)) for i in range(1,11)]
                     child_nodes = t.getchildren()
                     for column in child_nodes:
                         key = column.tag.replace('{%s}' % xml_schema, '')
@@ -131,35 +122,33 @@ class USASpending(BaseMancer):
                                 if k in ['rank', 'year']:
                                     header_val = '%s_%s_%s' % (table_name,k,v.zfill(2))
                                     table[header_val] = value
-                                    if k == 'rank':
-                                        real_rank_keys.append(header_val)
                                 if k in ['total_obligatedAmount', 'id', 'name']: 
                                     rank = column.attrib['rank']
                                     header_val = '%s_rank_%s_%s' % (table_name,rank.zfill(2),k)
                                     table[header_val] = v
-                                    if k == 'total_obligatedAmount':
-                                        real_obl_keys.append(header_val)
                         else:
-                            table['%s_%s' % (table_name,key)] = value
-                    if not set(fake_rank_keys).issubset(real_rank_keys):
-                        diff = set(fake_rank_keys).difference(real_rank_keys)
-                        for col_name in diff:
-                            table[col_name] = None
-                    if not set(fake_obl_keys).issubset(real_obl_keys):
-                        diff = set(fake_obl_keys).difference(real_obl_keys)
-                        for col_name in diff:
-                            table[col_name] = None
+                            header_val = '%s_%s' % (table_name,key)
+                            table[header_val] = value
                 table = OrderedDict(sorted(table.items()))
-                if len(result['header']) != len(table.keys()):
-                    positions = [(i, c) for i,c in enumerate(table.keys()) if c not in header_keys]
+                if not result['header']:
+                    result['header'] = table.keys()
+                else:
+                    diff = set(table.keys()).difference(set(result['header']))
+                    positions = [(i,c,) for i,c in enumerate(table.keys()) if c in diff]
                     for idx, col in positions:
-                        header_keys.add(col)
-                        result['header'].insert(i, ' '.join(col.split('_')).title())
-                        table[col] = table.get(col)
+                        result['header'].insert(idx,col)
                 table_ds[geo_id] = table
-        for key in header_keys:
-            for geo_type, geo_id in geo_ids:
-                table_ds[geo_id][key] = table_ds[geo_id].get(key)
-                result[geo_id] = table_ds[geo_id].values()
+        all_keys = []
+        for k, v in table_ds.items():
+            all_keys.extend(table_ds[k].keys())
+        for geo_type, geo_id in geo_ids:
+            d = {}
+            for key in all_keys:
+                try:
+                    d[key] = table_ds[geo_id][key]
+                except KeyError:
+                    d[key] = None
+            result[geo_id] = d.values()
+        result['header'] = [' '.join(col.split('_')).title() for col in result['header']]
         return result
     
