@@ -14,6 +14,7 @@ from datetime import datetime
 import xlwt
 from openpyxl import Workbook
 from openpyxl.cell import get_column_letter
+from itertools import izip_longest
 
 redis = Redis()
 
@@ -141,15 +142,15 @@ def do_the_work(file_contents, field_defs, filename):
             row = all_rows[idx]
             row.extend(['' for i in header])
             output.append(row)
-        name, ext = os.path.splitext(filename)
-        fname = '%s_%s%s' % (name, datetime.now().isoformat(), ext)
-        fpath = '%s/%s' % (RESULT_FOLDER, fname)
-        if ext == '.xlsx':
-            writeXLSX(fpath, output)
-        elif ext == '.xls':
-            writeXLS(fpath, output)
-        else:
-            writeCSV(fpath, output)
+    name, ext = os.path.splitext(filename)
+    fname = '%s_%s%s' % (name, datetime.now().isoformat(), ext)
+    fpath = '%s/%s' % (RESULT_FOLDER, fname)
+    if ext == '.xlsx':
+        writeXLSX(fpath, output)
+    elif ext == '.xls':
+        writeXLS(fpath, output)
+    else:
+        writeCSV(fpath, output)
     
     return '/download/%s' % fname
 
@@ -176,7 +177,6 @@ def writeCSV(fpath, output):
     with open(fpath, 'wb') as f:
         writer = UnicodeCSVWriter(f)
         writer.writerows(output)
-
 
 def queue_daemon(app, rv_ttl=500):
     print 'Mancing commencing...'
