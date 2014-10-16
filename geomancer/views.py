@@ -120,7 +120,8 @@ def select_geo():
                 }
                 info = m.column_info()
                 for col in info:
-                    if geo_type in col['geo_types']:
+                    col_types = [i.machine_name for i in col['geo_types']]
+                    if geo_type in col_types:
                         mancer_obj["data_types"][col['table_id']] = col
 
                 mancer_data.append(mancer_obj)

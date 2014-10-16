@@ -4,6 +4,8 @@ import json
 import os
 from geomancer.helpers import encoded_dict
 from geomancer.mancers.base import BaseMancer, MancerError
+from geomancer.mancers.geotype import City, State, StateFIPS, StateCountyFIPS, \
+    Zip5, Zip9, County, SchoolDistrict, CongressionalDistrict, CensusTract
 from geomancer.app_config import CACHE_DIR
 from string import punctuation
 import re
@@ -20,8 +22,6 @@ SUMLEV_LOOKUP = {
     "school_district": "950,960,970",
     "congress_district": "500", # Assuming US Congressional District
     "census_tract": "140",
-    "census_blockgroup": "150",
-    "census_block": "101",
 }
 
 class CensusReporter(BaseMancer):
@@ -63,7 +63,9 @@ class CensusReporter(BaseMancer):
                 'human_name': table_info['table_title'],
                 'description': '',
                 'source_url': 'http://censusreporter.org/tables/%s/' % table,
-                'geo_types': SUMLEV_LOOKUP.keys(),
+                'geo_types': [City(), State(), StateFIPS(), StateCountyFIPS(), Zip5(), 
+                    Zip9(), County(), SchoolDistrict(), 
+                    CongressionalDistrict(), CensusTract()],
                 'count': len(table_info['columns'].keys())
             }
             columns.append(d)
@@ -72,7 +74,6 @@ class CensusReporter(BaseMancer):
     def geo_lookup(self, search_term, geo_type=None):
         """ 
         Search for geoids based upon name of geography
-        'sumlevs' is an optional comma seperated string with ACS Summary levels
 
         Returns a response that maps the incoming search term to the geoid:
 
@@ -82,6 +83,11 @@ class CensusReporter(BaseMancer):
         }
 
         """
+        if geo_type in ['census_tract', 'state_fips', 'state_county_fips']:
+            return {
+                'term': search_term,
+                'geoid': '%s00US%s' % (SUMLEV_LOOKUP['geo_type'], search_term)
+            }
         regex = re.compile('[%s]' % re.escape(punctuation))
         search_term = regex.sub('', search_term)
         q_dict = {'q': search_term}
@@ -170,7 +176,7 @@ class CensusReporter(BaseMancer):
                     table_info = raw_results['tables'][table_id]
                     title = table_info['title']
                     detail_ids = [k for k in table_info['columns'].keys() \
-                        if table_info['columns'][k].get('indent') is not None]
+                        if table_info['columns'][k].get('indent')]
                     denominator = table_info['denominator_column_id']
                     for detail_id in detail_ids:
                         table_title = table_info['title']

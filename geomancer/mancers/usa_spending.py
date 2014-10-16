@@ -4,6 +4,8 @@ from urllib import urlencode
 import json
 import os
 from geomancer.mancers.base import BaseMancer
+from geomancer.mancers.geotype import City, State, Zip5, County, \
+    CongressionalDistrict
 from geomancer.helpers import encoded_dict
 from lxml import etree
 import re
@@ -47,7 +49,7 @@ class USASpending(BaseMancer):
               'human_name': 'Federal Contracts',
               'description': '',
               'source_url': 'http://www.usaspending.gov/data',
-              'geo_types': ['state','zip_5', 'congress_district'],
+              'geo_types': [State(), Zip5(), CongressionalDistrict()],
               'count': 1 # probably a lot more
             },
             {
@@ -55,7 +57,7 @@ class USASpending(BaseMancer):
               'human_name': 'Federal Assistance',
               'description': '',
               'source_url': 'http://www.usaspending.gov/data',
-              'geo_types': ['state','city','county'],
+              'geo_types': [State(), City(), County()],
               'count': 1 # probably a lot more
             },
             {
@@ -63,7 +65,7 @@ class USASpending(BaseMancer):
               'human_name': 'Federal sub-awards',
               'description': '',
               'source_url': 'http://www.usaspending.gov/data',
-              'geo_types': ['state','zip_5', 'congress_district'],
+              'geo_types': [State(), Zip5(), CongressionalDistrict()],
               'count': 1 # probably a lot more
             },
         ]

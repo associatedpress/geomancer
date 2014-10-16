@@ -3,6 +3,7 @@ from flask import Blueprint, make_response, request, jsonify, \
 from geomancer.worker import DelayedResult, do_the_work
 from geomancer.helpers import import_class
 from geomancer.app_config import MANCERS
+from geomancer.mancers.geotype import GeoTypeEncoder
 import json
 from collections import OrderedDict
 from redis import Redis
@@ -70,27 +71,25 @@ def geo_types():
     columns = []
     geo_types = []
     geo_type = request.args.get('geo_type')
+    type_details = {}
     for mancer in MANCERS:
         m = import_class(mancer[1])
         for col in m.column_info():
             geo_types.extend(col['geo_types'])
         columns.extend(m.column_info())
-    if geo_type:
-        types[geo_type] = [{'human_name': c['human_name'], 
+    for t in geo_types:
+        types[t.machine_name] = {}
+        types[t.machine_name]['info'] = t
+        types[t.machine_name]['tables'] = [{'human_name': c['human_name'], 
                      'table_id': c['table_id'], 
                      'description': c['description'], 
                      'source_url': c['source_url']} \
-                     for c in columns if geo_type in c['geo_types']]
-    else:
-        for t in geo_types:
-            types[t] = [{'human_name': c['human_name'], 
-                         'table_id': c['table_id'], 
-                         'description': c['description'], 
-                         'source_url': c['source_url']} \
-                         for c in columns if t in c['geo_types']]
-    
+                     for c in columns if t.machine_name in \
+                     [i.machine_name  for i in c['geo_types']]]
+    if geo_type:
+        types = types[geo_type]
     ordered_types = OrderedDict(sorted(types.items()))
-    resp = make_response(json.dumps(ordered_types))
+    resp = make_response(json.dumps(ordered_types, cls=GeoTypeEncoder))
     resp.headers['Content-Type'] = 'application/json'
     return resp
     
