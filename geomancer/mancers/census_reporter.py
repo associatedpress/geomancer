@@ -68,7 +68,7 @@ class CensusReporter(BaseMancer):
             }
             columns.append(d)
         return columns
-    
+
     def geo_lookup(self, search_term, geo_type=None):
         """ 
         Search for geoids based upon name of geography
@@ -87,6 +87,8 @@ class CensusReporter(BaseMancer):
         q_dict = {'q': search_term}
         if geo_type:
             q_dict['sumlevs'] = SUMLEV_LOOKUP[geo_type]
+            if geo_type == 'zip_5':
+                q_dict['q'] = search_term.zfill(5)
         q_dict = encoded_dict(q_dict)
         params = urlencode(q_dict)
         try:
@@ -99,10 +101,21 @@ class CensusReporter(BaseMancer):
             raise MancerError('Census Reporter API returned a %s status' \
                 % response.status_code, body=body)
         results = json.loads(response)
-        return {
-            'term': search_term,
-            'geoid': results['results'][0]['full_geoid']
-        }
+        try:
+            results = {
+                'term': search_term,
+                'geoid': results['results'][0]['full_geoid']
+            }
+        except IndexError:
+            results = {
+                'term': search_term,
+                'geoid': None,
+            }
+        return results
+   
+    def _chunk_geoids(self, geo_ids):
+        for i in xrange(0, len(geo_ids), 100):
+            yield geo_ids[i:i+100]
 
     def search(self, geo_ids=None, columns=None):
         """ 
@@ -132,41 +145,43 @@ class CensusReporter(BaseMancer):
         The keys are CensusReporter 'geo_ids' and the value is a list that you
         should be able to call the python 'zip' function on with the 'header' key.
         """
-        
-        query = {
-            'table_ids': ','.join(columns),
-            'geo_ids': ','.join([g[1] for g in geo_ids]),
-        }
-        params = urlencode(query)
-        try:
-            response = self.urlopen('%s/data/show/latest?%s' % (self.base_url, params))
-        except scrapelib.HTTPError, e:
-            try:
-                body = json.loads(e.body.json()['error'])
-            except ValueError:
-                body = None
-            raise MancerError('Census Reporter API returned a %s status' \
-                % response.status_code, body=body)
-        raw_results = json.loads(response)
         results = {'header': []}
-        for geo_type,geo_id in geo_ids:
-            results[geo_id] = []
-            for table_id in columns:
-                table_info = raw_results['tables'][table_id]
-                title = table_info['title']
-                detail_ids = [k for k in table_info['columns'].keys() \
-                    if table_info['columns'][k].get('indent') is not None]
-                denominator = table_info['denominator_column_id']
-                for detail_id in detail_ids:
-                    table_title = table_info['title']
-                    column_title = None
-                    detail_title = table_info['columns'][detail_id]['name']
-                    column_title = '%s, %s' % (table_title, detail_title,)
-                    if column_title not in results['header']:
-                        results['header'].extend([column_title, '%s (error margin)' % column_title])
-                    detail_info = raw_results['data'][geo_id][table_id]
-                    results[geo_id].extend([
-                        detail_info['estimate'][detail_id], 
-                        detail_info['error'][detail_id],
-                    ])
+        for gids in self._chunk_geoids(geo_ids):
+            query = {
+                'table_ids': ','.join(columns),
+                'geo_ids': ','.join([g[1] for g in gids]),
+            }
+            params = urlencode(query)
+            try:
+                response = self.urlopen('%s/data/show/latest?%s' % (self.base_url, params))
+            except scrapelib.HTTPError, e:
+                try:
+                    body = json.loads(e.body.json()['error'])
+                except ValueError:
+                    body = None
+                except AttributeError:
+                    body = e.body
+                raise MancerError('Census Reporter API returned an error', body=body)
+            raw_results = json.loads(response)
+            for geo_type, geo_id in gids:
+                if not results.get(geo_id):
+                    results[geo_id] = []
+                for table_id in columns:
+                    table_info = raw_results['tables'][table_id]
+                    title = table_info['title']
+                    detail_ids = [k for k in table_info['columns'].keys() \
+                        if table_info['columns'][k].get('indent') is not None]
+                    denominator = table_info['denominator_column_id']
+                    for detail_id in detail_ids:
+                        table_title = table_info['title']
+                        column_title = None
+                        detail_title = table_info['columns'][detail_id]['name']
+                        column_title = '%s, %s' % (table_title, detail_title,)
+                        if column_title not in results['header']:
+                            results['header'].extend([column_title, '%s (error margin)' % column_title])
+                        detail_info = raw_results['data'][geo_id][table_id]
+                        results[geo_id].extend([
+                            detail_info['estimate'][detail_id], 
+                            detail_info['error'][detail_id],
+                        ])
         return results

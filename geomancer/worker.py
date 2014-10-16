@@ -88,13 +88,14 @@ def do_the_work(file_contents, field_defs, filename):
                     else:
                         continue
                 except MancerError, e:
-                    return e.message
+                    return 'Error message: %s, Body: %s' % (e.message, e.body)
                 row_geoid = geoid_search['geoid']
-                mancer_mapper[column]['geo_ids'].add(row_geoid)
-                try:
-                    mancer_mapper[column]['geo_id_map'][row_geoid].append(row_idx)
-                except KeyError:
-                    mancer_mapper[column]['geo_id_map'][row_geoid] = [row_idx]
+                if row_geoid:
+                    mancer_mapper[column]['geo_ids'].add(row_geoid)
+                    try:
+                        mancer_mapper[column]['geo_id_map'][row_geoid].append(row_idx)
+                    except KeyError:
+                        mancer_mapper[column]['geo_id_map'][row_geoid] = [row_idx]
     all_data = {'header': []}
     output = []
     contents.seek(0)

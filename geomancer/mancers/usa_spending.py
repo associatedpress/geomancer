@@ -92,8 +92,6 @@ class USASpending(BaseMancer):
             return {'term': search_term, 'geoid': search_term.zfill(5)}
 
     def search(self, geo_ids=None, columns=None):
-        """
-        """
         result = {'header': []}
         table_ds = {}
         for geo_type, geo_id in geo_ids:
