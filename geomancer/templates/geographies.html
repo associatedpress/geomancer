@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Geographies - Geomancer{% endblock %}
+{% block content %}
+
+<div class='col-md-4'>
+  <div class='well'>
+    <h3>Geographies</h3>
+    <ul>
+      {% for key, val in geographies.items() %}
+        <li><a href="#{{val['info']['machine_name']}}">{{val['info']['human_name']}}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+<div class="col-md-8">
+  <p><strong>Geomancer</strong> supports {{ geographies | length }} kinds of geographies.</p>
+
+  {% for key, val in geographies.items() %}
+    <h3 id="{{val['info']['machine_name']}}">{{val['info']['human_name']}}</h3>
+    <table class='table'>
+      <tbody>
+        <tr>
+          <td><strong>Formatting notes</strong></td>
+          <td>{{val['info']['formatting_notes']}}</td>
+        </tr>
+        <tr>
+          <td><strong>Example</strong></td>
+          <td>{{val['info']['formatting_example']}}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4>Data available for this geography</h4>
+    <table class='table table-bordered table-striped'>
+      <thead>
+        <tr>
+          <th>Data available</th>
+          <th>Source</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for table in val['tables'] %}
+        <tr>
+          <td>{{table['human_name']}}</td>
+          <td><a href="{{table['source_url']}}">{{table['source_name']}}</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endfor %}
+</div>
+
+{% endblock %}

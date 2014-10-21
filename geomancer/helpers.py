@@ -1,3 +1,6 @@
+from geomancer.app_config import MANCERS
+from collections import OrderedDict
+
 def encoded_dict(in_dict):
     out_dict = {}
     for k, v in in_dict.iteritems():
@@ -13,3 +16,28 @@ def import_class(cl):
     classname = cl[d+1:len(cl)]
     m = __import__(cl[0:d], globals(), locals(), [classname])
     return getattr(m, classname)
+
+def get_geo_types(geo_type=None):
+    types = {}
+    columns = []
+    geo_types = []
+    type_details = {}
+
+    for mancer in MANCERS:
+        m = import_class(mancer)()
+        for col in m.column_info():
+            geo_types.extend(col['geo_types'])
+        columns.extend(m.column_info())
+    for t in geo_types:
+        types[t.machine_name] = {}
+        types[t.machine_name]['info'] = t
+        types[t.machine_name]['tables'] = [{'human_name': c['human_name'], 
+                     'table_id': c['table_id'], 
+                     'source_name': c['source_name'], 
+                     'source_url': c['source_url']} \
+                     for c in columns if t.machine_name in \
+                     [i.machine_name  for i in c['geo_types']]]
+
+    if geo_type:
+        types = types[geo_type]
+    return OrderedDict(sorted(types.items()))

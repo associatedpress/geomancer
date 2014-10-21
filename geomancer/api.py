@@ -1,11 +1,10 @@
 from flask import Blueprint, make_response, request, jsonify, \
     session as flask_session
 from geomancer.worker import DelayedResult, do_the_work
-from geomancer.helpers import import_class
+from geomancer.helpers import import_class, get_geo_types
 from geomancer.app_config import MANCERS
 from geomancer.mancers.geotype import GeoTypeEncoder
 import json
-from collections import OrderedDict
 from redis import Redis
 
 redis = Redis()
@@ -67,28 +66,11 @@ def geo_types():
     """ 
     Return a list of tables grouped by geo_type
     """
-    types = {}
-    columns = []
-    geo_types = []
-    geo_type = request.args.get('geo_type')
-    type_details = {}
-    for mancer in MANCERS:
-        m = import_class(mancer[1])
-        for col in m.column_info():
-            geo_types.extend(col['geo_types'])
-        columns.extend(m.column_info())
-    for t in geo_types:
-        types[t.machine_name] = {}
-        types[t.machine_name]['info'] = t
-        types[t.machine_name]['tables'] = [{'human_name': c['human_name'], 
-                     'table_id': c['table_id'], 
-                     'description': c['description'], 
-                     'source_url': c['source_url']} \
-                     for c in columns if t.machine_name in \
-                     [i.machine_name  for i in c['geo_types']]]
-    if geo_type:
-        types = types[geo_type]
-    ordered_types = OrderedDict(sorted(types.items()))
+    ordered_types = None
+    if request.args.get('geo_type'):
+        ordered_types = get_geo_types(request.args.get('geo_type'))
+    else:
+        ordered_types = get_geo_types()
     resp = make_response(json.dumps(ordered_types, cls=GeoTypeEncoder))
     resp.headers['Content-Type'] = 'application/json'
     return resp
@@ -103,9 +85,9 @@ def data_attrs():
     geo_type = request.args.get('geo_type')
     attributes = []
     for mancer in MANCERS:
-        m = import_class(mancer[1])
+        m = import_class(mancer)()
         info = m.column_info()
-        d = {'source': mancer[0], 'tables': [], 'description': m.description}
+        d = {'source': m.name, 'tables': [], 'description': m.description}
         if geo_type:
             d['tables'].extend([c for c in info if geo_type in c['geo_types']])
         else:

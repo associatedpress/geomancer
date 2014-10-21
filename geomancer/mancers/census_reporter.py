@@ -29,16 +29,14 @@ class CensusReporter(BaseMancer):
     Subclassing the main BaseMancer class
     """
     
+    name = 'Census Reporter'
     base_url = 'http://api.censusreporter.org/1.0'
-    
     info_url = 'http://censusreporter.org'
     description = """ 
         Demographic data from the 2013 American Community.
     """
 
-    @staticmethod
-    def column_info():
-        base_url = 'http://api.censusreporter.org/1.0'
+    def column_info(self):
         table_ids = [
             "B01003",
             "B19013",
@@ -56,12 +54,13 @@ class CensusReporter(BaseMancer):
         scraper.cache_write_only = False
         columns = []
         for table in table_ids:
-            info = scraper.urlopen('%s/table/%s' % (base_url, table))
+            info = scraper.urlopen('%s/table/%s' % (self.base_url, table))
             table_info = json.loads(info)
             d = {
                 'table_id': table,
                 'human_name': table_info['table_title'],
                 'description': '',
+                'source_name': self.name,
                 'source_url': 'http://censusreporter.org/tables/%s/' % table,
                 'geo_types': [City(), State(), StateFIPS(), StateCountyFIPS(), Zip5(), 
                     Zip9(), County(), SchoolDistrict(), 

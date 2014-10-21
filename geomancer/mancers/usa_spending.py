@@ -35,19 +35,20 @@ class USASpending(BaseMancer):
     Subclassing BaseMancer
     """
 
+    name = 'USA Spending'
     base_url = "http://www.usaspending.gov"
     info_url = 'http://www.usaspending.gov'
     description = """ 
         Data from the U.S. Office of Management and Budget on federal contracts awarded.
     """
 
-    @staticmethod
-    def column_info():
+    def column_info(self):
         return [
             {
               'table_id': 'fpds', 
               'human_name': 'Federal Contracts',
               'description': '',
+              'source_name': self.name,
               'source_url': 'http://www.usaspending.gov/data',
               'geo_types': [State(), Zip5(), CongressionalDistrict()],
               'count': 1 # probably a lot more
@@ -56,6 +57,7 @@ class USASpending(BaseMancer):
               'table_id': 'faads', 
               'human_name': 'Federal Assistance',
               'description': '',
+              'source_name': self.name,
               'source_url': 'http://www.usaspending.gov/data',
               'geo_types': [State(), City(), County()],
               'count': 1 # probably a lot more
@@ -64,6 +66,7 @@ class USASpending(BaseMancer):
               'table_id': 'fsrs', 
               'human_name': 'Federal sub-awards',
               'description': '',
+              'source_name': self.name,
               'source_url': 'http://www.usaspending.gov/data',
               'geo_types': [State(), Zip5(), CongressionalDistrict()],
               'count': 1 # probably a lot more

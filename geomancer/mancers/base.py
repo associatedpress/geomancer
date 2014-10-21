@@ -66,6 +66,7 @@ class BaseMancer(scrapelib.Scraper):
               'table_id': '<unique_id>', 
               'human_name': '<human_friendly_name>',
               'description': '<free form text description>',
+              'source_name': '<name of data source>',
               'source_url': '<where to find source on the web>',
               'geo_types': ['list', 'of', 'geographic', 'area', 'types', 'data', 'is', 'available', 'for'],
               'count': '<number of columns this will add to spreadsheet>'
@@ -74,6 +75,7 @@ class BaseMancer(scrapelib.Scraper):
               'table_id': '<unique_id>', 
               'human_name': '<human_friendly_name>',
               'description': '<free form text description>',
+              'source_name': '<name of data source>',
               'source_url': '<where to find source on the web>',
               'geo_types': ['examples', 'zip_5', 'state', 'city', 'congress_district'],
               'count': '<number of columns this will add to spreadsheet>',

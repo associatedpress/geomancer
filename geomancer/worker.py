@@ -62,8 +62,8 @@ def do_the_work(file_contents, field_defs, filename):
     geo_ids = set()
     mancer_mapper = {}
 
-    for mance in MANCERS:
-        m = import_class(mance[1])
+    for mancer in MANCERS:
+        m = import_class(mancer)()
         mancer_cols = [k['table_id'] for k in m.column_info()]
         for k, v in field_defs.items():
             field_cols = v['append_columns']
