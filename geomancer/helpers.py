@@ -1,5 +1,6 @@
 from geomancer.app_config import MANCERS
 from collections import OrderedDict
+import operator
 
 def encoded_dict(in_dict):
     out_dict = {}
@@ -40,4 +41,5 @@ def get_geo_types(geo_type=None):
 
     if geo_type:
         types = types[geo_type]
+
     return OrderedDict(sorted(types.items()))

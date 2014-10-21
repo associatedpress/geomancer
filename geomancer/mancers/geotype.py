@@ -22,39 +22,39 @@ class GeoTypeEncoder(JSONEncoder):
         return o.as_dict()
 
 class City(GeoType):
-    human_name = 'City or U.S. Census Place'
+    human_name = 'City or Census Place'
     machine_name = 'city'
     formatting_notes = 'City name followed by state name, postal abbreviation or \
         AP abbreviation.' 
     formatting_example = 'Chicago, Ill., Chicago, IL or Chicago, Illinois'
 
 class State(GeoType):
-    human_name = 'U.S. State'
+    human_name = 'State'
     machine_name = 'state'
     formatting_notes = 'State name, postal abbreviation, or AP abbreviation.'
     formatting_example = 'IL, Ill., or Illinois'
 
 class StateFIPS(GeoType):
-    human_name = 'U.S. State FIPS code'
+    human_name = 'State FIPS code'
     machine_name = 'state_fips'
     formatting_notes = 'Federal Information Processing code for a U.S. State.'
-    formatting_example = '17 (Illinois)'
+    formatting_example = '17'
 
 class StateCountyFIPS(GeoType):
-    human_name = 'U.S. State + County FIPS code'
+    human_name = 'State + County FIPS code'
     machine_name = 'state_county_fips'
     formatting_notes = 'Federal Information Processing code for a U.S. County \
         which includes the FIPS code for the state.' 
-    formatting_example = '17031 (Cook County, Illinois)'
+    formatting_example = '17031'
 
 class Zip5(GeoType):
-    human_name = '5-digit Zip Code'
+    human_name = '5 digit zip code'
     machine_name = 'zip_5'
     formatting_notes = 'Five-digit U.S. Postal Service Zip Code.' 
     formatting_example = '60601'
 
 class Zip9(GeoType):
-    human_name = '9-digit Zip Code'
+    human_name = '9 digit zip code'
     machine_name = 'zip_9'
     formatting_notes = 'Five-digit U.S. Postal Service Zip Code plus a four digit \
         geographic identifier.'
@@ -67,20 +67,20 @@ class County(GeoType):
     formatting_example = 'Cook County, IL'
 
 class SchoolDistrict(GeoType):
-    human_name = 'school_district'
+    human_name = 'School district'
     machine_name = 'school_district'
     formatting_notes = 'Name of a Elementary, Secondary or Unified School District.'
     formatting_example = 'Chicago Public School District 299, IL'
 
 class CongressionalDistrict(GeoType):
-    human_name = 'U.S. Congressional District'
+    human_name = 'Congressional District'
     machine_name = 'congress_district'
     formatting_notes = 'U.S Congressional District.' 
     formatting_example = 'Congressional District 7, IL'
 
 class CensusTract(GeoType):
-    human_name = 'U.S. Census Tract'
+    human_name = 'Census Tract'
     machine_name = 'census_tract'
     formatting_notes = 'U.S Census Tract' 
-    formatting_example = '17031330100 (Census Tract 3301, Cook, IL)'
+    formatting_example = '17031330100'
 

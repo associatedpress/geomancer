@@ -13,7 +13,7 @@
   </div>
 </div>
 <div class="col-md-8">
-  <p><strong>Geomancer</strong> supports {{ geographies | length }} kinds of geographies.</p>
+  <p><strong>Geomancer</strong> has data for {{ geographies | length }} kinds of geographies. Take a look at the types below, along with the kinds of data we support.</p>
 
   {% for key, val in geographies.items() %}
     <h3 id="{{val['info']['machine_name']}}">{{val['info']['human_name']}}</h3>
@@ -30,7 +30,7 @@
       </tbody>
     </table>
 
-    <h4>Data available for this geography</h4>
+    <p>Data available for {{val['info']['human_name']}}</p>
     <table class='table table-bordered table-striped'>
       <thead>
         <tr>
