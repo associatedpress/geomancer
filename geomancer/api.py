@@ -1,7 +1,7 @@
 from flask import Blueprint, make_response, request, jsonify, \
     session as flask_session
 from geomancer.worker import DelayedResult, do_the_work
-from geomancer.helpers import import_class, get_geo_types
+from geomancer.helpers import import_class, get_geo_types, get_data_sources
 from geomancer.app_config import MANCERS
 from geomancer.mancers.geotype import GeoTypeEncoder
 import json
@@ -60,6 +60,20 @@ def geomance_results(session_key):
     redis.delete(session_key)
     result = rv.return_value
     return jsonify(ready=True, result=result['result'], status=result['status'])
+
+@api.route('/api/data-sources/')
+def data_sources():
+    """ 
+    Return a list of data sources
+    """
+    mancers = None
+    if request.args.get('geo_type'):
+        mancers = get_data_sources(request.args.get('geo_type'))
+    else:
+        mancers = get_data_sources()
+    resp = make_response(json.dumps(mancers, cls=GeoTypeEncoder))
+    resp.headers['Content-Type'] = 'application/json'
+    return resp
 
 @api.route('/api/geo-types/')
 def geo_types():

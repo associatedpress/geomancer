@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Data sources - Geomancer{% endblock %}
+{% block content %}
+
+<div class='col-md-4'>
+  <div class='well'>
+    <h3>Data sources</h3>
+    <ul>
+      {% for val in data_sources %}
+        <li><a href="#{{ val.name }}">{{ val.name }}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+<div class="col-md-8">
+  <p><strong>Geomancer</strong> has data from {{ data_sources | length }} sources. Take a look at them below, along with the types of geographies we support.</p>
+
+  {% for val in data_sources %}
+    <h3 id="{{ val.name }}">{{ val.name }}</h3>
+  {% endfor %}
+</div>
+
+{% endblock %}

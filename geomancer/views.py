@@ -11,7 +11,7 @@ from csvkit import convert
 from csvkit.unicsv import UnicodeCSVReader
 from csvkit.cleanup import RowChecker
 from cStringIO import StringIO
-from geomancer.helpers import import_class, get_geo_types
+from geomancer.helpers import import_class, get_geo_types, get_data_sources
 from geomancer.app_config import ALLOWED_EXTENSIONS, \
     MAX_CONTENT_LENGTH, MANCERS
 
@@ -38,6 +38,11 @@ def data_formats():
 def geographies():
     geographies = get_geo_types()
     return render_template('geographies.html', geographies=geographies)
+
+@views.route('/data-sources', methods=['GET', 'POST'])
+def data_sources():
+    data_sources = get_data_sources()
+    return render_template('data-sources.html', data_sources=data_sources)
 
 # routes for geomancin'
 @views.route('/upload/', methods=['GET', 'POST'])

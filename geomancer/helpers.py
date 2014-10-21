@@ -44,3 +44,27 @@ def get_geo_types(geo_type=None):
         types = types[geo_type]
 
     return OrderedDict(sorted(types.items()))
+
+def get_data_sources(geo_type=None):
+    mancer_data = []
+    for mancer in MANCERS:
+        m = import_class(mancer)()
+        mancer_obj = {
+            "name": m.name, 
+            "base_url": m.base_url, 
+            "info_url": m.info_url, 
+            "description": m.description, 
+            "data_types": {}
+        }
+        info = m.column_info()
+        for col in info:
+            if geo_type:
+                col_types = [i.machine_name for i in col['geo_types']]
+                if geo_type in col_types:
+                    mancer_obj["data_types"][col['table_id']] = col
+            else:
+                mancer_obj["data_types"][col['table_id']] = col
+
+        mancer_data.append(mancer_obj)
+
+    return mancer_data
