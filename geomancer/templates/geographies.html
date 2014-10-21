@@ -35,14 +35,23 @@
       <thead>
         <tr>
           <th>Data available</th>
+          <th>Columns</th>
           <th>Source</th>
         </tr>
       </thead>
       <tbody>
         {% for table in val['tables'] %}
         <tr>
-          <td>{{table['human_name']}}</td>
-          <td><a href="{{table['source_url']}}">{{table['source_name']}}</a></td>
+          <td style='width: 60%;'>{{ table.human_name }}</td>
+          <td>
+              {% if table.count %}
+                {{ table.count }}
+                {%- if table.count == 1 %} column
+                {%- else %} columns
+                {%- endif %}
+              {% endif %}
+          </td>
+          <td><a href="{{ table.source_url }}">{{ table.source_name }}</a></td>
         </tr>
         {% endfor %}
       </tbody>
