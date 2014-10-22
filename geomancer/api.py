@@ -71,7 +71,7 @@ def data_sources():
         mancers = get_data_sources(request.args.get('geo_type'))
     else:
         mancers = get_data_sources()
-    resp = make_response(json.dumps(mancers))
+    resp = make_response(json.dumps(mancers, cls=GeoTypeEncoder))
     resp.headers['Content-Type'] = 'application/json'
     return resp
 
@@ -85,6 +85,6 @@ def geo_types():
         ordered_types = get_geo_types(request.args.get('geo_type'))
     else:
         ordered_types = get_geo_types()
-    resp = make_response(json.dumps(ordered_types))
+    resp = make_response(json.dumps(ordered_types, cls=GeoTypeEncoder))
     resp.headers['Content-Type'] = 'application/json'
     return resp
