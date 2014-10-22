@@ -18,6 +18,8 @@ class BaseMancer(scrapelib.Scraper):
     """ 
     Subclassing scrapelib here mainly to take advantage of pluggable caching backend.
     """
+    name = None
+    machine_name = None
     base_url = None
     info_url = None
     description = None

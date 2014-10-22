@@ -55,6 +55,7 @@ def get_data_sources(geo_type=None):
         m = import_class(mancer)()
         mancer_obj = {
             "name": m.name, 
+            "machine_name": m.machine_name, 
             "base_url": m.base_url, 
             "info_url": m.info_url, 
             "description": m.description, 

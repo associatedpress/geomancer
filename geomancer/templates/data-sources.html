@@ -6,17 +6,41 @@
   <div class='well'>
     <h3>Data sources</h3>
     <ul>
-      {% for val in data_sources %}
-        <li><a href="#{{ val.name }}">{{ val.name }}</a></li>
+      {% for d in data_sources %}
+        <li><a href="#{{ d.machine_name }}">{{ d.name }}</a></li>
       {% endfor %}
     </ul>
   </div>
 </div>
 <div class="col-md-8">
-  <p><strong>Geomancer</strong> has data from {{ data_sources | length }} sources. Take a look at them below, along with the types of geographies we support.</p>
+  <p><strong>Geomancer</strong> currently has data from {{ data_sources | length }} sources. <a href='#'>Learn how to add your own data source</a>.</p>
 
-  {% for val in data_sources %}
-    <h3 id="{{ val.name }}">{{ val.name }}</h3>
+  {% for d in data_sources %}
+    <h3 id="{{ d.machine_name }}">
+      {{ d.name }}
+      <small><a href='{{ d.info_url }}'>{{ d.info_url }}</a></small>
+    </h3>
+    <p>{{ d.description }}</p>
+    <table class='table table-bordered table-striped'>
+      <thead>
+        <tr>
+          <th>Data available</th>
+          <th>Geographies</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for k, table in d.data_types.items() %}
+        <tr>
+          <td>{{ table.human_name }}</td>
+          <td>
+            {% for geo in table.geo_types %}
+              <a href="{{ url_for('views.geographies') + '#' + geo.machine_name }}">{{geo.human_name}}</a><br />
+            {% endfor %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   {% endfor %}
 </div>
 

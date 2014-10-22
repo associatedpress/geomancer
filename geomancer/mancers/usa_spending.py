@@ -36,6 +36,7 @@ class USASpending(BaseMancer):
     """
 
     name = 'USA Spending'
+    machine_name = 'usa_spending'
     base_url = "http://www.usaspending.gov"
     info_url = 'http://www.usaspending.gov'
     description = """ 

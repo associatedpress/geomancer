@@ -7,7 +7,7 @@
         <h4>Column to match on: <strong>{{field_name}}</strong></h4>
 
         {% for mancer in mancer_data %}
-            <h3>{{mancer.name}} <small><a href='{{mancer.info_url}}'>Source</a></small></h3>
+            <h3>{{mancer.name}} <small><a href='{{mancer.info_url}}' target='_blank'>{{mancer.info_url}}</a></small></h3>
             <p>{{mancer.description}}</p>
             <table class='table table-bordered table-striped'>
                 <thead>

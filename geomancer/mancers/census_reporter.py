@@ -30,6 +30,7 @@ class CensusReporter(BaseMancer):
     """
     
     name = 'Census Reporter'
+    machine_name = 'census_reporter'
     base_url = 'http://api.censusreporter.org/1.0'
     info_url = 'http://censusreporter.org'
     description = """ 
