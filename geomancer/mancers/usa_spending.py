@@ -4,10 +4,13 @@ from urllib import urlencode
 import json
 import os
 from geomancer.mancers.base import BaseMancer
+from geomancer.mancers.geotype import City, State, Zip5, County, \
+    CongressionalDistrict
 from geomancer.helpers import encoded_dict
 from lxml import etree
 import re
 from collections import OrderedDict
+from datetime import datetime
 
 TABLE_PARAMS = {
     'fpds': {
@@ -27,48 +30,46 @@ TABLE_PARAMS = {
     },
 }
 
-class USASpendingError(Exception):
-    def __init__(self, message, body=None):
-        Exception.__init__(self, message)
-        self.message = message
-        self.body = body
-
 class USASpending(BaseMancer):
     """ 
     Subclassing BaseMancer
     """
 
+    name = 'USA Spending'
+    machine_name = 'usa_spending'
     base_url = "http://www.usaspending.gov"
     info_url = 'http://www.usaspending.gov'
     description = """ 
         Data from the U.S. Office of Management and Budget on federal contracts awarded.
     """
 
-    @staticmethod
-    def column_info():
+    def column_info(self):
         return [
             {
               'table_id': 'fpds', 
               'human_name': 'Federal Contracts',
               'description': '',
+              'source_name': self.name,
               'source_url': 'http://www.usaspending.gov/data',
-              'geo_types': ['state','zip_5', 'congress_district'],
+              'geo_types': [State(), Zip5(), CongressionalDistrict()],
               'count': 1 # probably a lot more
             },
             {
               'table_id': 'faads', 
               'human_name': 'Federal Assistance',
               'description': '',
+              'source_name': self.name,
               'source_url': 'http://www.usaspending.gov/data',
-              'geo_types': ['state','city','county'],
+              'geo_types': [State(), City(), County()],
               'count': 1 # probably a lot more
             },
             {
               'table_id': 'fsrs', 
               'human_name': 'Federal sub-awards',
               'description': '',
+              'source_name': self.name,
               'source_url': 'http://www.usaspending.gov/data',
-              'geo_types': ['state','zip_5', 'congress_district'],
+              'geo_types': [State(), Zip5(), CongressionalDistrict()],
               'count': 1 # probably a lot more
             },
         ]
@@ -97,32 +98,8 @@ class USASpending(BaseMancer):
             return {'term': search_term, 'geoid': search_term.zfill(5)}
 
     def search(self, geo_ids=None, columns=None):
-        """
-        Yay!
-
-        {
-            'header': [
-                '<data source name 1>',
-                '<data source name 2>',
-                '...etc...'
-            ],
-            '<geographic id 1>': [
-                <value 1>,
-                <value 2>,
-                <value 3>,
-                <value 4>,
-                ...etc...,
-            ],
-            '<geographic id 2>': [
-                <value 1>,
-                <value 2>,
-                <value 3>,
-                <value 4>,
-                ...etc...,
-            ],
-        }
-        """
         result = {'header': []}
+        table_ds = {}
         for geo_type, geo_id in geo_ids:
             result[geo_id] = []
             for col in columns:
@@ -140,22 +117,42 @@ class USASpending(BaseMancer):
                     .getchildren()
                 for t in tables:
                     table_name = t.tag.replace('{%s}' % xml_schema, '')
-                    for column in t.iterchildren():
+                    child_nodes = t.getchildren()
+                    for column in child_nodes:
                         key = column.tag.replace('{%s}' % xml_schema, '')
                         value = column.text
                         if column.attrib:
                             for k,v in column.attrib.items():
                                 if k in ['rank', 'year']:
-                                    table['%s_%s_%s' % (table_name,k,v.zfill(2))] = value
+                                    header_val = '%s_%s_%s' % (table_name,k,v.zfill(2))
+                                    table[header_val] = value
                                 if k in ['total_obligatedAmount', 'id', 'name']: 
                                     rank = column.attrib['rank']
-                                    table['%s_rank_%s_%s' % (table_name,rank.zfill(2),k)] = v
+                                    header_val = '%s_rank_%s_%s' % (table_name,rank.zfill(2),k)
+                                    table[header_val] = v
                         else:
-                            table['%s_%s' % (table_name,key)] = value
+                            header_val = '%s_%s' % (table_name,key)
+                            table[header_val] = value
+                table = OrderedDict(sorted(table.items()))
                 if not result['header']:
-                    header = [' '.join(c.split('_')).title() for c in table.keys()]
-                    result['header'].extend(header)
-                result[geo_id].extend(table.values())
-
+                    result['header'] = table.keys()
+                else:
+                    diff = set(table.keys()).difference(set(result['header']))
+                    positions = [(i,c,) for i,c in enumerate(table.keys()) if c in diff]
+                    for idx, col in positions:
+                        result['header'].insert(idx,col)
+                table_ds[geo_id] = table
+        all_keys = []
+        for k, v in table_ds.items():
+            all_keys.extend(table_ds[k].keys())
+        for geo_type, geo_id in geo_ids:
+            d = {}
+            for key in all_keys:
+                try:
+                    d[key] = table_ds[geo_id][key]
+                except KeyError:
+                    d[key] = None
+            result[geo_id] = d.values()
+        result['header'] = [' '.join(col.split('_')).title() for col in result['header']]
         return result
     

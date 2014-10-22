@@ -14,6 +14,7 @@ from datetime import datetime
 import xlwt
 from openpyxl import Workbook
 from openpyxl.cell import get_column_letter
+from itertools import izip_longest
 
 redis = Redis()
 
@@ -61,8 +62,8 @@ def do_the_work(file_contents, field_defs, filename):
     geo_ids = set()
     mancer_mapper = {}
 
-    for mance in MANCERS:
-        m = import_class(mance[1])
+    for mancer in MANCERS:
+        m = import_class(mancer)()
         mancer_cols = [k['table_id'] for k in m.column_info()]
         for k, v in field_defs.items():
             field_cols = v['append_columns']
@@ -87,13 +88,14 @@ def do_the_work(file_contents, field_defs, filename):
                     else:
                         continue
                 except MancerError, e:
-                    return e.message
+                    return 'Error message: %s, Body: %s' % (e.message, e.body)
                 row_geoid = geoid_search['geoid']
-                mancer_mapper[column]['geo_ids'].add(row_geoid)
-                try:
-                    mancer_mapper[column]['geo_id_map'][row_geoid].append(row_idx)
-                except KeyError:
-                    mancer_mapper[column]['geo_id_map'][row_geoid] = [row_idx]
+                if row_geoid:
+                    mancer_mapper[column]['geo_ids'].add(row_geoid)
+                    try:
+                        mancer_mapper[column]['geo_id_map'][row_geoid].append(row_idx)
+                    except KeyError:
+                        mancer_mapper[column]['geo_id_map'][row_geoid] = [row_idx]
     all_data = {'header': []}
     output = []
     contents.seek(0)
@@ -141,15 +143,15 @@ def do_the_work(file_contents, field_defs, filename):
             row = all_rows[idx]
             row.extend(['' for i in header])
             output.append(row)
-        name, ext = os.path.splitext(filename)
-        fname = '%s_%s%s' % (name, datetime.now().isoformat(), ext)
-        fpath = '%s/%s' % (RESULT_FOLDER, fname)
-        if ext == '.xlsx':
-            writeXLSX(fpath, output)
-        elif ext == '.xls':
-            writeXLS(fpath, output)
-        else:
-            writeCSV(fpath, output)
+    name, ext = os.path.splitext(filename)
+    fname = '%s_%s%s' % (name, datetime.now().isoformat(), ext)
+    fpath = '%s/%s' % (RESULT_FOLDER, fname)
+    if ext == '.xlsx':
+        writeXLSX(fpath, output)
+    elif ext == '.xls':
+        writeXLS(fpath, output)
+    else:
+        writeCSV(fpath, output)
     
     return '/download/%s' % fname
 
@@ -176,7 +178,6 @@ def writeCSV(fpath, output):
     with open(fpath, 'wb') as f:
         writer = UnicodeCSVWriter(f)
         writer.writerows(output)
-
 
 def queue_daemon(app, rv_ttl=500):
     print 'Mancing commencing...'

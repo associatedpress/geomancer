@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Geographies - Geomancer{% endblock %}
+{% block content %}
+
+<div class='col-md-4'>
+  <div class='well'>
+    <h3>Geographies</h3>
+    <ul>
+      {% for g in geographies %}
+        <li><a href="#{{g['info']['machine_name']}}">{{g['info']['human_name']}}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+<div class="col-md-8">
+  <p><strong>Geomancer</strong> currently has data for {{ geographies | length }} kinds of geographies. Take a look at the types below, along with the kinds of data we support.</p>
+
+  {% for g in geographies %}
+    <h3 id="{{g['info']['machine_name']}}">{{g['info']['human_name']}}</h3>
+    <table class='table'>
+      <tbody>
+        <tr>
+          <td><strong>Formatting notes</strong></td>
+          <td>{{g['info']['formatting_notes']}}</td>
+        </tr>
+        <tr>
+          <td><strong>Example</strong></td>
+          <td>{{g['info']['formatting_example']}}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>Data available for {{g['info']['human_name']}}</p>
+    <table class='table table-bordered table-striped'>
+      <thead>
+        <tr>
+          <th>Data available</th>
+          <th>Source</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for table in g['tables'] %}
+        <tr>
+          <td>{{ table.human_name }}</td>
+          <td><a href="{{ table.source_url }}">{{ table.source_name }}</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endfor %}
+</div>
+
+{% endblock %}

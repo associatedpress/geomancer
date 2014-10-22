@@ -4,13 +4,14 @@ import json
 import sys
 import os
 import gzip
+import requests
 from uuid import uuid4
 from werkzeug import secure_filename
 from csvkit import convert
 from csvkit.unicsv import UnicodeCSVReader
 from csvkit.cleanup import RowChecker
 from cStringIO import StringIO
-from geomancer.helpers import import_class
+from geomancer.helpers import import_class, get_geo_types, get_data_sources
 from geomancer.app_config import ALLOWED_EXTENSIONS, \
     MAX_CONTENT_LENGTH, MANCERS
 
@@ -32,6 +33,16 @@ def about():
 @views.route('/data-formats', methods=['GET', 'POST'])
 def data_formats():
     return render_template('data-formats.html')
+
+@views.route('/geographies', methods=['GET', 'POST'])
+def geographies():
+    geographies = get_geo_types()
+    return render_template('geographies.html', geographies=geographies)
+
+@views.route('/data-sources', methods=['GET', 'POST'])
+def data_sources():
+    data_sources = get_data_sources()
+    return render_template('data-sources.html', data_sources=data_sources)
 
 # routes for geomancin'
 @views.route('/upload/', methods=['GET', 'POST'])
@@ -109,10 +120,10 @@ def select_geo():
                         'column_index': index
                     }
             mancer_data = []
-            for name, mancer in MANCERS:
+            for mancer in MANCERS:
                 m = import_class(mancer)()
                 mancer_obj = {
-                    "name": name, 
+                    "name": m.name, 
                     "base_url": m.base_url, 
                     "info_url": m.info_url, 
                     "description": m.description, 
@@ -120,12 +131,12 @@ def select_geo():
                 }
                 info = m.column_info()
                 for col in info:
-                    if geo_type in col['geo_types']:
+                    col_types = [i.machine_name for i in col['geo_types']]
+                    if geo_type in col_types:
                         mancer_obj["data_types"][col['table_id']] = col
 
                 mancer_data.append(mancer_obj)
 
-            print mancer_data
 
             session.update({'fields': fields, 'mancer_data': mancer_data})
             return redirect(url_for('views.select_tables'))
