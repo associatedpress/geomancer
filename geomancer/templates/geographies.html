@@ -6,8 +6,8 @@
   <div class='well'>
     <h3>Geographies</h3>
     <ul>
-      {% for key, val in geographies.items() %}
-        <li><a href="#{{val['info']['machine_name']}}">{{val['info']['human_name']}}</a></li>
+      {% for g in geographies %}
+        <li><a href="#{{g['info']['machine_name']}}">{{g['info']['human_name']}}</a></li>
       {% endfor %}
     </ul>
   </div>
@@ -15,22 +15,22 @@
 <div class="col-md-8">
   <p><strong>Geomancer</strong> has data for {{ geographies | length }} kinds of geographies. Take a look at the types below, along with the kinds of data we support.</p>
 
-  {% for key, val in geographies.items() %}
-    <h3 id="{{val['info']['machine_name']}}">{{val['info']['human_name']}}</h3>
+  {% for g in geographies %}
+    <h3 id="{{g['info']['machine_name']}}">{{g['info']['human_name']}}</h3>
     <table class='table'>
       <tbody>
         <tr>
           <td><strong>Formatting notes</strong></td>
-          <td>{{val['info']['formatting_notes']}}</td>
+          <td>{{g['info']['formatting_notes']}}</td>
         </tr>
         <tr>
           <td><strong>Example</strong></td>
-          <td>{{val['info']['formatting_example']}}</td>
+          <td>{{g['info']['formatting_example']}}</td>
         </tr>
       </tbody>
     </table>
 
-    <p>Data available for {{val['info']['human_name']}}</p>
+    <p>Data available for {{g['info']['human_name']}}</p>
     <table class='table table-bordered table-striped'>
       <thead>
         <tr>
@@ -40,7 +40,7 @@
         </tr>
       </thead>
       <tbody>
-        {% for table in val['tables'] %}
+        {% for table in g['tables'] %}
         <tr>
           <td style='width: 60%;'>{{ table.human_name }}</td>
           <td>

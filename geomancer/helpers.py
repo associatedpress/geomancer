@@ -43,7 +43,11 @@ def get_geo_types(geo_type=None):
     if geo_type:
         types = types[geo_type]
 
-    return OrderedDict(sorted(types.items()))
+    results = []
+    for k, v in OrderedDict(sorted(types.items())).items():
+        results.append(v)
+
+    return results
 
 def get_data_sources(geo_type=None):
     mancer_data = []

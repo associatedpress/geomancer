@@ -71,7 +71,7 @@ def data_sources():
         mancers = get_data_sources(request.args.get('geo_type'))
     else:
         mancers = get_data_sources()
-    resp = make_response(json.dumps(mancers, cls=GeoTypeEncoder))
+    resp = make_response(json.dumps(mancers))
     resp.headers['Content-Type'] = 'application/json'
     return resp
 
@@ -85,38 +85,6 @@ def geo_types():
         ordered_types = get_geo_types(request.args.get('geo_type'))
     else:
         ordered_types = get_geo_types()
-    resp = make_response(json.dumps(ordered_types, cls=GeoTypeEncoder))
-    resp.headers['Content-Type'] = 'application/json'
-    return resp
-    
-
-@api.route('/api/data-info/')
-def data_attrs():
-    """ 
-    For a given geographic type, return a list of available data attributes
-    for that geography.
-    """
-    geo_type = request.args.get('geo_type')
-    attributes = []
-    for mancer in MANCERS:
-        m = import_class(mancer)()
-        info = m.column_info()
-        d = {'source': m.name, 'tables': [], 'description': m.description}
-        if geo_type:
-            d['tables'].extend([c for c in info if geo_type in c['geo_types']])
-        else:
-            d['tables'].extend(info)
-        attributes.append(d)
-    resp = make_response(json.dumps(attributes))
-    resp.headers['Content-Type'] = 'application/json'
-    return resp
-
-@api.route('/api/data-map/')
-def data_map():
-    """ 
-    For a list of geographic identifiers, a geographic type and data attributes, 
-    return a set of data attributes for each geographic identifier
-    """
-    resp = make_response(json.dumps({}))
+    resp = make_response(json.dumps(ordered_types))
     resp.headers['Content-Type'] = 'application/json'
     return resp
