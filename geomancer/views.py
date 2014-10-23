@@ -30,9 +30,9 @@ def index():
 def about():
     return render_template('about.html')
 
-@views.route('/data-formats', methods=['GET', 'POST'])
-def data_formats():
-    return render_template('data-formats.html')
+@views.route('/upload-formats', methods=['GET', 'POST'])
+def upload_formats():
+    return render_template('upload-formats.html')
 
 @views.route('/contribute-data', methods=['GET', 'POST'])
 def contribute_data():
