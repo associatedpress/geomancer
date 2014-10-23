@@ -34,6 +34,10 @@ def about():
 def data_formats():
     return render_template('data-formats.html')
 
+@views.route('/contribute-data', methods=['GET', 'POST'])
+def contribute_data():
+    return render_template('contribute-data.html')
+
 @views.route('/geographies', methods=['GET', 'POST'])
 def geographies():
     geographies = get_geo_types()
