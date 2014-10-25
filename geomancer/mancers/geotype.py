@@ -66,20 +66,20 @@ class Zip9(GeoType):
     formatting_example = '60601-3013'
 
 class StateFIPS(GeoType):
-    human_name = 'FIPS code: State'
+    human_name = 'FIPS: State'
     machine_name = 'state_fips'
     formatting_notes = 'Federal Information Processing (FIPS) code for a U.S. State.'
     formatting_example = '17'
 
 class StateCountyFIPS(GeoType):
-    human_name = 'FIPS code: County'
+    human_name = 'FIPS: County'
     machine_name = 'state_county_fips'
     formatting_notes = 'Federal Information Processing (FIPS) code for a U.S. County \
         which includes the FIPS code for the state.' 
     formatting_example = '17031'
 
 class CensusTract(GeoType):
-    human_name = 'FIPS code: Census Tract'
+    human_name = 'FIPS: Census Tract'
     machine_name = 'census_tract'
     formatting_notes = 'Federal Information Processing (FIPS) code for a U.S Census Tract' 
     formatting_example = '17031330100'
