@@ -32,13 +32,17 @@ def get_geo_types(geo_type=None):
     for t in geo_types:
         types[t.machine_name] = {}
         types[t.machine_name]['info'] = t
-        types[t.machine_name]['tables'] = [{'human_name': c['human_name'], 
-                     'table_id': c['table_id'], 
-                     'source_name': c['source_name'], 
-                     'count': c['count'], 
-                     'source_url': c['source_url']} \
-                     for c in columns if t.machine_name in \
-                     [i.machine_name  for i in c['geo_types']]]
+
+        tables = [{'human_name': c['human_name'], 
+                 'table_id': c['table_id'], 
+                 'source_name': c['source_name'], 
+                 'count': c['count'], 
+                 'source_url': c['source_url']} \
+                 for c in columns if t.machine_name in \
+                 [i.machine_name  for i in c['geo_types']]]
+
+        tables_sorted = sorted(tables, key=lambda x: x['human_name'])
+        types[t.machine_name]['tables'] = tables_sorted
 
     if geo_type:
         types = types[geo_type]
