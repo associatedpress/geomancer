@@ -43,8 +43,10 @@ def get_geo_types(geo_type=None):
     if geo_type:
         types = types[geo_type]
 
+    types_sorted = sorted(types.values(), key=lambda x: x['info'].human_name)
+
     results = []
-    for k, v in OrderedDict(sorted(types.items())).items():
+    for v in types_sorted:
         results.append(v)
 
     return results
