@@ -48,13 +48,13 @@
                     <div class='alert alert-danger'>\
                         <h4><i class='fa fa-bug'></i> Oh, no! We had a problem merging your data.</h4>\
                         <p>" + data.result + "</p>\
-                        <p>Please <a href='/'>try again.</a><br />If this error persists <a href='mailto:info@datamade.us'>contact us.</a></p>\
+                        <p>Please <a href='/'>try again.</a><br />If this error persists <a href='https://groups.google.com/forum/#!forum/geomancer'>let us know on our Google Group</a>.</p>\
                     </div>";
             } else if(data.result == ''){
                 template = "\
                     <div class='alert alert-danger'>\
                         <h4><i class='fa fa-bug'></i> Oh, no! No data was returned.</h4>\
-                        <p>Please <a href='/'>try again.</a><br />If this error persists <a href='mailto:info@datamade.us'>contact us.</a></p>\
+                        <p>Please <a href='/upload'>try again.</a><br />If this error persists <a href='https://groups.google.com/forum/#!forum/geomancer'>let us know on our Google Group</a>.</p>\
                     </div>";
             } else {
                 template = "\
