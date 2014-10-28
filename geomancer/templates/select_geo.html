@@ -17,7 +17,7 @@
             <tr>
                 <td data-column_index="{{ index }}">
                     <label>
-                        <input id="column_{{ index }}" type="radio" class="geography" />
+                        <input id="column_{{ index }}" type="radio" class="geography" name="geo_type" />
                     </label>
                 </td>
                 <td>
@@ -35,7 +35,12 @@
 {% endblock %}
 {% block extra_javascript %}
     <script type="text/javascript">
+        var geo_types = [];
         $(document).ready(function(){
+            $.getJSON('{{ url_for("api.geo_types") }}', {}, function(types){
+                geo_types = types;
+            });
+
             $('.geography').on('click', function(e){
                 var parent = $(this).parent().parent()
                 var col_index = $(parent).data('column_index')
@@ -43,17 +48,36 @@
                     $(parent).find('.geo_dropdown').remove();
                 } else {
                     $('.geo_dropdown').remove();
-                    $.getJSON('{{ url_for("api.geo_types") }}', {}, function(types){
-                        var item = '<select class="geo_dropdown" name="geotype_' + col_index + '">';
-                        var table = parent.parent().parent().parent()
-                        $.each(types, function(i, type){
-                            item += '<option value="' + type.info.machine_name + '">' + type.info.human_name + '</option>';
-                        })
-                        $(parent).append(item);
+                    $('.geo_hint').remove();
+                    
+                    var dropdown = '<select class="geo_dropdown" name="geotype_' + col_index + '">';
+                    var table = parent.parent().parent().parent()
+                    $.each(geo_types, function(i, type){
+                        dropdown += '<option value="' + type.info.machine_name + '">' + type.info.human_name + '</option>';
                     })
+                    
+                    $(parent).append(dropdown);
+                    updateHint('.geo_dropdown');
+
+                    $('.geo_dropdown').on('change', function(e){
+                        updateHint(this);
+                    });
                 }
             })
         })
+
+        function updateHint(el){
+            $('.geo_hint').remove();
+            var selected_geo = $(el).val();
+            var parent = $(el).parent()
+            $.each(geo_types, function(i, type){
+                if (type.info.machine_name == selected_geo) {
+                    var hint = "<div class='well geo_hint'><p>" + type.info.formatting_notes + "</p><p><strong>Example</strong>: " + type.info.formatting_example + "</p></div>";
+                    $(parent).append(hint);
+                }
+            })
+        }
+
         function toTitleCase(str){
             return str.replace(/\w\S*/g, function(txt){
                 return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
