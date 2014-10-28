@@ -76,6 +76,10 @@ def get_data_sources(geo_type=None):
             else:
                 mancer_obj["data_types"][col['table_id']] = col
 
+            mancer_obj["data_types"][col['table_id']]['geo_types'] = sorted(mancer_obj["data_types"][col['table_id']]['geo_types'], key=lambda x: x.human_name)
+
+        mancer_obj["data_types"] = sorted(mancer_obj["data_types"].values(), key=lambda x: x['human_name'])
+
         mancer_data.append(mancer_obj)
 
     return mancer_data
