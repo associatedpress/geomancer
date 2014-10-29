@@ -3,6 +3,11 @@
 {% block wizard_content %}
     <h2>1. Upload a spreadsheet</h2>
     <div class="row">
+        <div class="col-sm-12">
+            <p>Pick a spreadsheet that includes a column about a location, like city, state or congressional district, and then pick additional data to add about that location. <br />Take a look at the <a href="{{ url_for('views.data_sources') }}">data sources</a> and <a href="{{ url_for('views.geographies') }}">geographies</a> we have, or learn how to <a href="{{ url_for('views.contribute_data') }}">add your own</a>.</p>
+        </div>
+    </div>
+    <div class="row">
         <div class="col-sm-6">
             <div class = "well">
                 <form role="form" class="form" method="POST" action="{{ url_for('views.upload') }}" enctype="multipart/form-data">
@@ -18,9 +23,9 @@
 
         </div>
         <div class="col-sm-5">
-            <p>Spreadsheet format (<a href='/data-formats' target="_blank">learn more</a>)</p>
+            <p>Spreadsheet format (<a href="{{ url_for('views.upload_formats') }}" target="_blank">learn more</a>)</p>
             
-            <a href='/data-formats' target="_blank">
+            <a href="{{ url_for('views.upload_formats') }}" target="_blank">
                 <img src="{{ url_for('static', filename='geomancer_format.jpg') }}" id="format-example" class='img-responsive img-thumbnail'>
             </a>
 

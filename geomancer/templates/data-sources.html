@@ -2,7 +2,7 @@
 {% block title %}Data sources - Geomancer{% endblock %}
 {% block content %}
 
-<div class='col-md-4'>
+<div class='col-md-3'>
   <div class='well'>
     <h3>Data sources</h3>
     <ul>
@@ -12,8 +12,8 @@
     </ul>
   </div>
 </div>
-<div class="col-md-8">
-  <p><strong>Geomancer</strong> currently has data from {{ data_sources | length }} sources. <a href='#'>Learn how to add your own data source</a>.</p>
+<div class="col-md-9">
+  <p><strong>Geomancer</strong> currently has data from {{ data_sources | length }} sources. <a href="{{ url_for('views.contribute_data') }}">Learn how to add your own data source</a>.</p>
 
   {% for d in data_sources %}
     <h3 id="{{ d.machine_name }}">
@@ -29,7 +29,7 @@
         </tr>
       </thead>
       <tbody>
-        {% for k, table in d.data_types.items() %}
+        {% for table in d.data_types %}
         <tr>
           <td>{{ table.human_name }}</td>
           <td>

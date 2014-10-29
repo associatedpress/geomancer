@@ -6,7 +6,6 @@ import sys
 import os
 from cStringIO import StringIO
 from csvkit.unicsv import UnicodeCSVReader, UnicodeCSVWriter
-from geomancer.mancers.census_reporter import CensusReporter
 from geomancer.mancers.base import MancerError
 from geomancer.helpers import import_class
 from geomancer.app_config import RESULT_FOLDER, MANCERS
@@ -57,11 +56,10 @@ def do_the_work(file_contents, field_defs, filename):
     contents = StringIO(file_contents)
     reader = UnicodeCSVReader(contents)
     header = reader.next()
-    c = CensusReporter()
     result = None
     geo_ids = set()
     mancer_mapper = {}
-
+    print field_defs
     for mancer in MANCERS:
         m = import_class(mancer)()
         mancer_cols = [k['table_id'] for k in m.column_info()]
@@ -81,7 +79,7 @@ def do_the_work(file_contents, field_defs, filename):
             val = row[idx]
             geo_type = field_defs[idx]['type']
             for column in field_defs[idx]['append_columns']:
-                mancer = mancer_mapper[column]['mancer']()
+                mancer = mancer_mapper[column]['mancer']
                 try:
                     if val:
                         geoid_search = mancer.geo_lookup(val, geo_type=geo_type)
@@ -102,13 +100,21 @@ def do_the_work(file_contents, field_defs, filename):
     all_rows = list(reader)
     included_idxs = set()
     header_row = all_rows.pop(0)
+
+    response = {
+        'download_url': None,
+        'num_rows': None,
+        'num_matches': {},
+        'cols_added': len(header_row)
+    }
+
     for column, defs in mancer_mapper.items():
         geo_ids = defs['geo_ids']
         all_data.update({gid:[] for gid in geo_ids})
         geoid_mapper = defs['geo_id_map']
         geo_type = defs['geo_type']
         if geo_ids:
-            mancer = defs['mancer']()
+            mancer = defs['mancer']
             try:
                 gids = [(geo_type, g,) for g in list(geo_ids)]
                 data = mancer.search(geo_ids=gids, columns=[column])
@@ -152,8 +158,12 @@ def do_the_work(file_contents, field_defs, filename):
         writeXLS(fpath, output)
     else:
         writeCSV(fpath, output)
-    
-    return '/download/%s' % fname
+
+    response['download_url'] = '/download/%s' % fname
+    response['num_rows'] = len(output)
+    response['cols_added'] = len(header_row) - response['cols_added']
+
+    return response
 
 def writeXLS(fpath, output):
     with open(fpath, 'wb') as f:
@@ -190,5 +200,6 @@ def queue_daemon(app, rv_ttl=500):
         except Exception, e:
             rv = {'status': 'error', 'result': e.message}
         if rv is not None:
+            print rv
             redis.set(key, dumps(rv))
             redis.expire(key, rv_ttl)
