@@ -158,7 +158,6 @@ class CensusReporter(BaseMancer):
                 'geo_ids': ','.join([g[1] for g in gids]),
             }
             params = urlencode(query)
-            print params
             try:
                 response = self.urlopen('%s/data/show/latest?%s' % (self.base_url, params))
             except scrapelib.HTTPError, e:
