@@ -60,7 +60,6 @@ def geomance_results(session_key):
         return jsonify(ready=False)
     redis.delete(session_key)
     result = rv.return_value
-    print result
     return jsonify(ready=True, result=result['result'], status=result['status'])
 
 @api.route('/api/data-sources/')

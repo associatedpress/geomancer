@@ -111,7 +111,7 @@ def do_the_work(file_contents, field_defs, filename):
 
     response = {
         'download_url': None,
-        'geo_col': field_defs[0]['type'],
+        'geo_col': field_defs.values()[0]['type'],
         'num_rows': len(all_rows),
         'num_matches': 0,
         'num_missing': 0,
