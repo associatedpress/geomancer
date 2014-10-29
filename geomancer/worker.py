@@ -59,7 +59,7 @@ def do_the_work(file_contents, field_defs, filename):
     result = None
     geo_ids = set()
     mancer_mapper = {}
-
+    print field_defs
     for mancer in MANCERS:
         m = import_class(mancer)()
         mancer_cols = [k['table_id'] for k in m.column_info()]
@@ -79,7 +79,7 @@ def do_the_work(file_contents, field_defs, filename):
             val = row[idx]
             geo_type = field_defs[idx]['type']
             for column in field_defs[idx]['append_columns']:
-                mancer = mancer_mapper[column]['mancer']()
+                mancer = mancer_mapper[column]['mancer']
                 try:
                     if val:
                         geoid_search = mancer.geo_lookup(val, geo_type=geo_type)
@@ -114,7 +114,7 @@ def do_the_work(file_contents, field_defs, filename):
         geoid_mapper = defs['geo_id_map']
         geo_type = defs['geo_type']
         if geo_ids:
-            mancer = defs['mancer']()
+            mancer = defs['mancer']
             try:
                 gids = [(geo_type, g,) for g in list(geo_ids)]
                 data = mancer.search(geo_ids=gids, columns=[column])
