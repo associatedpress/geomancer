@@ -205,7 +205,7 @@ def queue_daemon(app, rv_ttl=500):
         except Exception, e:
             if client:
                 client.captureException()
-            rv = {'status': 'error', 'result': e.message}
+            rv = {'status': 'error', 'result': e.body}
         if rv is not None:
             redis.set(key, dumps(rv))
             redis.expire(key, rv_ttl)
