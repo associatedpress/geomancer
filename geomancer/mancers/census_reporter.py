@@ -83,13 +83,13 @@ class CensusReporter(BaseMancer):
         }
 
         """
+        regex = re.compile('[%s]' % re.escape(punctuation))
+        search_term = regex.sub('', search_term)
         if geo_type in ['census_tract', 'state_fips', 'state_county_fips']:
             return {
                 'term': search_term,
                 'geoid': '%s00US%s' % (SUMLEV_LOOKUP[geo_type], search_term)
             }
-        regex = re.compile('[%s]' % re.escape(punctuation))
-        search_term = regex.sub('', search_term)
         q_dict = {'q': search_term}
         if geo_type:
             q_dict['sumlevs'] = SUMLEV_LOOKUP[geo_type]
