@@ -3,7 +3,7 @@ from json import JSONEncoder
 class GeoType(object):
     """ 
     Base class for defining geographic types.
-    All three static properties should be defined
+    All four static properties should be defined
     """
     human_name = None
     machine_name = None

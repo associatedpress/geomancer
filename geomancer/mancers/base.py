@@ -53,8 +53,7 @@ class BaseMancer(scrapelib.Scraper):
                 count += 1
         return count
 
-    @staticmethod
-    def column_info():
+    def column_info(self):
         """ 
         This returns a list of dicts containing info about datasets that can be
         returned by the API. This needs to be a static method so that the
@@ -70,8 +69,9 @@ class BaseMancer(scrapelib.Scraper):
               'description': '<free form text description>',
               'source_name': '<name of data source>',
               'source_url': '<where to find source on the web>',
-              'geo_types': ['list', 'of', 'geographic', 'area', 'types', 'data', 'is', 'available', 'for'],
-              'count': '<number of columns this will add to spreadsheet>'
+              'geo_types': ['list', 'of', 'instances', 'of', GeoType()],
+              'count': '<number of columns this will add to spreadsheet>',
+              'columns': ['list', 'of', 'column', 'names', 'that', 'will', 'be', 'appended']
             },
             {
               'table_id': '<unique_id>', 
@@ -79,8 +79,9 @@ class BaseMancer(scrapelib.Scraper):
               'description': '<free form text description>',
               'source_name': '<name of data source>',
               'source_url': '<where to find source on the web>',
-              'geo_types': ['examples', 'zip_5', 'state', 'city', 'congress_district'],
+              'geo_types': ['examples', Zip5(), State(), County()],
               'count': '<number of columns this will add to spreadsheet>',
+              'columns': ['list', 'of', 'column', 'names', 'that', 'will', 'be', 'appended']
             },
             ...etc...
         ]

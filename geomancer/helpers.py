@@ -75,8 +75,10 @@ def get_data_sources(geo_type=None):
                     mancer_obj["data_types"][col['table_id']] = col
             else:
                 mancer_obj["data_types"][col['table_id']] = col
-
-            mancer_obj["data_types"][col['table_id']]['geo_types'] = sorted(mancer_obj["data_types"][col['table_id']]['geo_types'], key=lambda x: x.human_name)
+            try:
+                mancer_obj["data_types"][col['table_id']]['geo_types'] = sorted(mancer_obj["data_types"][col['table_id']]['geo_types'], key=lambda x: x.human_name)
+            except KeyError:
+                pass
 
         mancer_obj["data_types"] = sorted(mancer_obj["data_types"].values(), key=lambda x: x['human_name'])
 

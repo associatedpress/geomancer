@@ -7,7 +7,7 @@
         <h4>Column to match on: <strong>{{field_name}}</strong></h4>
 
         {% for mancer in mancer_data %}
-            {% if mancer['data_types'].items() | length > 0 %}
+            {% if mancer['data_types'] | length > 0 %}
                 <h3>{{mancer.name}} <small><a href='{{mancer.info_url}}' target='_blank'>{{mancer.info_url}}</a></small></h3>
                 <p>{{mancer.description}}</p>
                 <table class='table table-bordered table-striped'>
@@ -19,15 +19,15 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for key, val in mancer['data_types'].items() %}
+                        {% for val in mancer['data_types'] %}
                             <tr class="table-row" data-table_id="{{ val.table_id }}">
                                 <td>
                                     <input type="checkbox" class="table-select" data-table_id="{{ val.table_id }}"
-                                    id="{{ info.column_index }}-{{ info.geo_type }}-{{ key }}"
-                                    name="{{ info.column_index }}-{{ info.geo_type }}-{{ key }}" />
+                                    id="{{ info.column_index }}-{{ info.geo_type }}-{{ val.table_id }}"
+                                    name="{{ info.column_index }}-{{ info.geo_type }}-{{ val.table_id }}" />
                                 </td>
                                 <td>
-                                    <label for="{{ info.column_index }}-{{ info.geo_type }}-{{ key }}">
+                                    <label for="{{ info.column_index }}-{{ info.geo_type }}-{{ val.table_id }}">
                                         {{val.human_name}}
                                     </label>
                                 </td>
@@ -68,11 +68,11 @@
                         <span aria-hidden="true">&times;</span>
                         <span class="sr-only">Close</span>
                     </button>
-                    <h4 class="modal-title"><%= table_title %></h4>
+                    <h4 class="modal-title"><%= human_name %></h4>
                 </div>
                 <div class="modal-body">
                     <% $.each(columns, function(i, column){ %>
-                      <p><%= repeatStr("&nbsp;", parseInt(columns[i]['indent']) * 4) %><strong><%= columns[i]['column_title'] %></strong></p>
+                      <li><%= column %></li>
                     <% }) %>
                 </div>
                 <div class="modal-footer">
@@ -125,7 +125,7 @@
                 $.when(load_table_columns(table_id)).then(
                     function(resp){
                         var template = new EJS({'text': $('#columnModalEJS').html()})
-                        var modal_contents = template.render(resp);
+                        var modal_contents = template.render(resp[0]);
                         $('#column-modal').html(modal_contents);
                         $('#column-modal').modal();
                     }
@@ -133,7 +133,7 @@
             })
         })
         function load_table_columns(table_id){
-            return $.getJSON('http://api.censusreporter.org/1.0/table/' + table_id)
+            return $.getJSON('/api/table-info/?table_id=' + table_id)
         }
         function parseParams(query){
             var re = /([^&=]+)=?([^&]*)/g;

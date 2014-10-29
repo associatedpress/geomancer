@@ -3,6 +3,15 @@ from geomancer.api import api
 from geomancer.views import views
 from geomancer.redis_session import RedisSessionInterface
 
+try:
+    from raven.contrib.flask import Sentry
+    from geomancer.app_config import SENTRY_DSN
+    sentry = Sentry(dsn=SENTRY_DSN)
+except ImportError:
+    sentry = None
+except KeyError:
+    sentry = None
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object('geomancer.app_config')
@@ -17,5 +26,8 @@ def create_app():
     @app.errorhandler(500)
     def page_not_found(e):
         return render_template('error.html'), 500
+
+    if sentry:
+        sentry.init_app(app)
 
     return app

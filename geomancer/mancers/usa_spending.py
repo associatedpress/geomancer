@@ -44,7 +44,7 @@ class USASpending(BaseMancer):
     """
 
     def column_info(self):
-        return [
+        cols = [
             {
               'table_id': 'fpds', 
               'human_name': 'Federal Contracts',
@@ -52,7 +52,8 @@ class USASpending(BaseMancer):
               'source_name': self.name,
               'source_url': 'http://www.usaspending.gov/data',
               'geo_types': [State(), Zip5(), CongressionalDistrict()],
-              'count': 1 # probably a lot more
+              'count': 1, # probably a lot more,
+              'columns': '',
             },
             {
               'table_id': 'faads', 
@@ -61,7 +62,8 @@ class USASpending(BaseMancer):
               'source_name': self.name,
               'source_url': 'http://www.usaspending.gov/data',
               'geo_types': [State(), City(), County()],
-              'count': 1 # probably a lot more
+              'count': 1, # probably a lot more
+              'columns': '',
             },
             {
               'table_id': 'fsrs', 
@@ -70,9 +72,49 @@ class USASpending(BaseMancer):
               'source_name': self.name,
               'source_url': 'http://www.usaspending.gov/data',
               'geo_types': [State(), Zip5(), CongressionalDistrict()],
-              'count': 1 # probably a lot more
+              'count': 1, # probably a lot more
+              'columns': '',
             },
         ]
+        for col in cols:
+            table_id = col['table_id']
+            url = '%s/%s/%s.php' % (self.base_url, table_id, table_id)
+            param = TABLE_PARAMS[table_id]['state']
+            query = {param: 'IL', 'detail': 's'}
+            params = urlencode(query)
+            table = self.fetch_xml(url, params)
+            col['count'] = len(table)
+            col['columns'] = [' '.join(c.split('_')).title() for c in table.keys()]
+        return cols
+
+    def fetch_xml(self, url, params):
+        table = OrderedDict()
+        response = self.urlopen('%s?%s' % (url, params))
+        tree = etree.fromstring(str(response))
+        xml_schema = tree.nsmap[None]
+        tables = tree\
+            .find('{%s}data' % xml_schema)\
+            .find('{%s}record' % xml_schema)\
+            .getchildren()
+        for t in tables:
+            table_name = t.tag.replace('{%s}' % xml_schema, '')
+            child_nodes = t.getchildren()
+            for column in child_nodes:
+                key = column.tag.replace('{%s}' % xml_schema, '')
+                value = column.text
+                if column.attrib:
+                    for k,v in column.attrib.items():
+                        if k in ['rank', 'year']:
+                            header_val = '%s_%s_%s' % (table_name,k,v.zfill(2))
+                            table[header_val] = value
+                        if k in ['total_obligatedAmount', 'id', 'name']: 
+                            rank = column.attrib['rank']
+                            header_val = '%s_rank_%s_%s' % (table_name,rank.zfill(2),k)
+                            table[header_val] = v
+                else:
+                    header_val = '%s_%s' % (table_name,key)
+                    table[header_val] = value
+        return OrderedDict(sorted(table.items()))
 
     def lookup_state(self, term):
         st = us.states.lookup(term)
@@ -103,37 +145,11 @@ class USASpending(BaseMancer):
         for geo_type, geo_id in geo_ids:
             result[geo_id] = []
             for col in columns:
-                table = OrderedDict()
                 url = '%s/%s/%s.php' % (self.base_url, col, col)
                 param = TABLE_PARAMS[col][geo_type]
                 query = {param: geo_id, 'detail': 's'}
                 params = urlencode(query)
-                response = self.urlopen('%s?%s' % (url, params))
-                tree = etree.fromstring(str(response))
-                xml_schema = tree.nsmap[None]
-                tables = tree\
-                    .find('{%s}data' % xml_schema)\
-                    .find('{%s}record' % xml_schema)\
-                    .getchildren()
-                for t in tables:
-                    table_name = t.tag.replace('{%s}' % xml_schema, '')
-                    child_nodes = t.getchildren()
-                    for column in child_nodes:
-                        key = column.tag.replace('{%s}' % xml_schema, '')
-                        value = column.text
-                        if column.attrib:
-                            for k,v in column.attrib.items():
-                                if k in ['rank', 'year']:
-                                    header_val = '%s_%s_%s' % (table_name,k,v.zfill(2))
-                                    table[header_val] = value
-                                if k in ['total_obligatedAmount', 'id', 'name']: 
-                                    rank = column.attrib['rank']
-                                    header_val = '%s_rank_%s_%s' % (table_name,rank.zfill(2),k)
-                                    table[header_val] = v
-                        else:
-                            header_val = '%s_%s' % (table_name,key)
-                            table[header_val] = value
-                table = OrderedDict(sorted(table.items()))
+                table = self.fetch_xml(url, params)
                 if not result['header']:
                     result['header'] = table.keys()
                 else:
@@ -142,17 +158,14 @@ class USASpending(BaseMancer):
                     for idx, col in positions:
                         result['header'].insert(idx,col)
                 table_ds[geo_id] = table
-        all_keys = []
-        for k, v in table_ds.items():
-            all_keys.extend(table_ds[k].keys())
         for geo_type, geo_id in geo_ids:
-            d = {}
-            for key in all_keys:
+            d = OrderedDict()
+            for key in result['header']:
                 try:
                     d[key] = table_ds[geo_id][key]
                 except KeyError:
-                    d[key] = None
+                    d[key] = ''
             result[geo_id] = d.values()
-        result['header'] = [' '.join(col.split('_')).title() for col in result['header']]
+        result['header'] = [' '.join(c.split('_')).title() for c in result['header']]
         return result
     
