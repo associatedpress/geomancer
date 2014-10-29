@@ -6,6 +6,7 @@ from geomancer.app_config import MANCERS
 from geomancer.mancers.geotype import GeoTypeEncoder
 import json
 from redis import Redis
+from collections import OrderedDict
 
 redis = Redis()
 
@@ -73,6 +74,39 @@ def data_sources():
     else:
         mancers = get_data_sources()
     resp = make_response(json.dumps(mancers, cls=GeoTypeEncoder))
+    resp.headers['Content-Type'] = 'application/json'
+    return resp
+
+@api.route('/api/table-info/')
+def table_info():
+    """ 
+    Return a list of data sources
+    """
+    columns = OrderedDict()
+    for mancer in MANCERS:
+        m = import_class(mancer)()
+        col_info = m.column_info()
+        for col in col_info:
+            columns[col['table_id']] = {
+              'table_id': col['table_id'],
+              'human_name': col['human_name'],
+              'mancer': m.name, 
+              'columns': col['columns'],
+              'source_url': col['source_url'],
+            }
+    response = []
+    if request.args.get('table_id'):
+        table_id = request.args['table_id']
+        try:
+            response.append(columns[table_id])
+        except KeyError:
+            response.append({
+                'status': 'error',
+                'message': 'table_id %s not found' % table_id
+            })
+    else:
+        response.extend(columns.values())
+    resp = make_response(json.dumps(response))
     resp.headers['Content-Type'] = 'application/json'
     return resp
 
