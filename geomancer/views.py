@@ -123,24 +123,7 @@ def select_geo():
                         'geo_type': v,
                         'column_index': index
                     }
-            mancer_data = []
-            for mancer in MANCERS:
-                m = import_class(mancer)()
-                mancer_obj = {
-                    "name": m.name, 
-                    "base_url": m.base_url, 
-                    "info_url": m.info_url, 
-                    "description": m.description, 
-                    "data_types": {}
-                }
-                info = m.column_info()
-                for col in info:
-                    col_types = [i.machine_name for i in col['geo_types']]
-                    if geo_type in col_types:
-                        mancer_obj["data_types"][col['table_id']] = col
-
-                mancer_data.append(mancer_obj)
-
+            mancer_data = get_data_sources(geo_type)
 
             session.update({'fields': fields, 'mancer_data': mancer_data})
             return redirect(url_for('views.select_tables'))

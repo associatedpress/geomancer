@@ -104,8 +104,9 @@ def do_the_work(file_contents, field_defs, filename):
     response = {
         'download_url': None,
         'geo_col': field_defs[0]['type'],
-        'num_rows': None,
-        'num_matches': None,
+        'num_rows': len(all_rows),
+        'num_matches': 0,
+        'num_missing': 0,
         'cols_added': header_row[:]
     }
 
@@ -146,7 +147,7 @@ def do_the_work(file_contents, field_defs, filename):
                     output.append(row)
         all_row_idxs = set(list(range(len(all_rows))))
         missing_rows = all_row_idxs.difference(included_idxs)
-        response['num_matches'] = len(missing_rows) # store away missing rows
+        response['num_missing'] = len(missing_rows) # store away missing rows
         for idx in missing_rows:
             row = all_rows[idx]
             row.extend(['' for i in header])
@@ -162,8 +163,7 @@ def do_the_work(file_contents, field_defs, filename):
         writeCSV(fpath, output)
 
     response['download_url'] = '/download/%s' % fname
-    response['num_rows'] = len(output)
-    response['num_matches'] = response['num_rows'] - response['num_matches']
+    response['num_matches'] = response['num_rows'] - response['num_missing']
     response['cols_added'] = list(set(header_row) - set(response['cols_added']))
 
     return response

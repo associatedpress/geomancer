@@ -7,7 +7,7 @@
         <h4>Column to match on: <strong>{{field_name}}</strong></h4>
 
         {% for mancer in mancer_data %}
-            {% if mancer['data_types'].items() | length > 0 %}
+            {% if mancer['data_types'] | length > 0 %}
                 <h3>{{mancer.name}} <small><a href='{{mancer.info_url}}' target='_blank'>{{mancer.info_url}}</a></small></h3>
                 <p>{{mancer.description}}</p>
                 <table class='table table-bordered table-striped'>
@@ -19,15 +19,15 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for key, val in mancer['data_types'].items() %}
+                        {% for val in mancer['data_types'] %}
                             <tr class="table-row" data-table_id="{{ val.table_id }}">
                                 <td>
                                     <input type="checkbox" class="table-select" data-table_id="{{ val.table_id }}"
-                                    id="{{ info.column_index }}-{{ info.geo_type }}-{{ key }}"
-                                    name="{{ info.column_index }}-{{ info.geo_type }}-{{ key }}" />
+                                    id="{{ info.column_index }}-{{ info.geo_type }}-{{ val.table_id }}"
+                                    name="{{ info.column_index }}-{{ info.geo_type }}-{{ val.table_id }}" />
                                 </td>
                                 <td>
-                                    <label for="{{ info.column_index }}-{{ info.geo_type }}-{{ key }}">
+                                    <label for="{{ info.column_index }}-{{ info.geo_type }}-{{ val.table_id }}">
                                         {{val.human_name}}
                                     </label>
                                 </td>
