@@ -50,12 +50,9 @@ class CensusReporter(BaseMancer):
             "B11009",
             "B05006"
         ]
-        scraper = scrapelib.Scraper()
-        scraper.cache_storage = scrapelib.cache.FileCache(CACHE_DIR)
-        scraper.cache_write_only = False
         columns = []
         for table in table_ids:
-            info = scraper.urlopen('%s/table/%s' % (self.base_url, table))
+            info = self.urlopen('%s/table/%s' % (self.base_url, table))
             table_info = json.loads(info)
             d = {
                 'table_id': table,
@@ -66,8 +63,11 @@ class CensusReporter(BaseMancer):
                 'geo_types': [City(), State(), StateFIPS(), StateCountyFIPS(), Zip5(), 
                     Zip9(), County(), SchoolDistrict(), 
                     CongressionalDistrict(), CensusTract()],
-                'count': len(table_info['columns'].keys())
+                'columns': [v['column_title'] for v in table_info['columns'].values()]
             }
+            d['columns'].extend(['%s (error margin)' % v for v in d['columns']])
+            d['columns'] = sorted(d['columns'])
+            d['count'] = len(d['columns'])
             columns.append(d)
         return columns
 
