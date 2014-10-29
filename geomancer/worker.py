@@ -103,11 +103,11 @@ def do_the_work(file_contents, field_defs, filename):
                     except KeyError:
                         mancer_mapper[column]['geo_id_map'][row_geoid] = [row_idx]
     all_data = {'header': []}
-    output = []
     contents.seek(0)
     all_rows = list(reader)
     included_idxs = set()
     header_row = all_rows.pop(0)
+    output = [[] for i in range(len(all_rows) + 1)]
 
     response = {
         'download_url': None,
@@ -140,21 +140,13 @@ def do_the_work(file_contents, field_defs, filename):
         for col in all_data['header']:
             if col not in header_row:
                 header_row.append(col)
-        i = 1
-        try:
-            output[0] = header_row
-        except IndexError:
-            output.append(header_row)
         for geoid, row_ids in geoid_mapper.items():
             for row_id in row_ids:
                 included_idxs.add(row_id)
                 row = all_rows[row_id]
                 row.extend(all_data[geoid])
-                try:
-                    output[i] = row
-                    i += 1
-                except IndexError:
-                    output.append(row)
+                output[row_id] = row
+        output.insert(0, header_row)
         all_row_idxs = set(list(range(len(all_rows))))
         missing_rows = all_row_idxs.difference(included_idxs)
         response['num_missing'] = len(missing_rows) # store away missing rows
