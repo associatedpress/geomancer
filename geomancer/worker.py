@@ -17,6 +17,15 @@ from itertools import izip_longest
 
 redis = Redis()
 
+try:
+    from raven import Client
+    from geomancer.app_config import SENTRY_DSN
+    client = Client(dsn=SENTRY_DSN)
+except ImportError:
+    client = None
+except KeyError:
+    client = None
+
 class DelayedResult(object):
     def __init__(self, key):
         self.key = key
@@ -59,7 +68,6 @@ def do_the_work(file_contents, field_defs, filename):
     result = None
     geo_ids = set()
     mancer_mapper = {}
-    print field_defs
     for mancer in MANCERS:
         m = import_class(mancer)()
         mancer_cols = [k['table_id'] for k in m.column_info()]
@@ -121,6 +129,8 @@ def do_the_work(file_contents, field_defs, filename):
                 gids = [(geo_type, g,) for g in list(geo_ids)]
                 data = mancer.search(geo_ids=gids, columns=[column])
             except MancerError, e:
+                if client:
+                    client.captureException()
                 raise e
             all_data['header'].extend(data['header'])
             for gid in geo_ids:
@@ -201,8 +211,9 @@ def queue_daemon(app, rv_ttl=500):
             rv = func(*args, **kwargs)
             rv = {'status': 'ok', 'result': rv}
         except Exception, e:
+            if client:
+                client.captureException()
             rv = {'status': 'error', 'result': e.message}
         if rv is not None:
-            print rv
             redis.set(key, dumps(rv))
             redis.expire(key, rv_ttl)
