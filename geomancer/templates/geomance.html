@@ -1,16 +1,17 @@
 {% extends 'wizard_base.html' %}
 {% block title %}Download - Geomancer {% endblock %}
 {% block wizard_content %}
-<h2>4. Merging data &hellip;</h2>
 
 <div id='wait-info'>
+    <h2>4. Merging data &hellip;</h2>
+
     <div class='well'>
         <p><strong>This may take a few minutes.</strong> We are fetching data for each row in your spreadsheet.</p>
         <p>When finished, your spreadsheet will be available to download below.</p>
     </div>
-</div>
 
-<div id='spinner'><br /><br /></div>
+    <div id='spinner'><br /><br /></div>
+</div>
 
 <div id='results'>
 </div>
@@ -50,20 +51,23 @@
                         <p>" + data.result + "</p>\
                         <p>Please <a href='/'>try again.</a><br />If this error persists <a href='https://groups.google.com/forum/#!forum/geomancer'>let us know on our Google Group</a>.</p>\
                     </div>";
-            } else if(data.result == ''){
-                template = "\
-                    <div class='alert alert-danger'>\
-                        <h4><i class='fa fa-bug'></i> Oh, no! No data was returned.</h4>\
-                        <p>Please <a href='/upload'>try again.</a><br />If this error persists <a href='https://groups.google.com/forum/#!forum/geomancer'>let us know on our Google Group</a>.</p>\
-                    </div>";
             } else {
+
+                var columns_added = "";
+                $.each(data.result['cols_added'], function(i, obj){
+                    columns_added += "<li>" + obj + "</li>\n";
+                })
+
                 template = "\
                     <h2><i class='fa fa-thumbs-o-up'></i> Your spreadsheet is ready!</h2>\
-                    <h4>\
+                    <p>\
                         <a class='btn btn-success btn-lg' id='deduped-results' href='" + data.result['download_url'] + "'>\
                             <i class='fa fa-download'></i> Download your spreadsheet\
                         </a>\
-                    </h4>\
+                    </p>\
+                    <p>We matched <strong>" + data.result.num_matches + "</strong> out of " + data.result.num_rows + " rows based on column <strong>" + data.result['geo_col'] + "</strong> and added " + data.result['cols_added'].length + " columns:</p>\
+                    <ul>" + columns_added + "</ul>\
+                    <p><a class='btn btn-info' href='{{ url_for('views.upload') }}'>Use Geomancer on another spreadsheet ></a></p>\
                     ";
             }
             $('#results').html(template);
