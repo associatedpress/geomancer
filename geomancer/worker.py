@@ -62,7 +62,6 @@ def do_the_work(file_contents, field_defs, filename):
 
       file_contents is a string containing the contents of the uploaded file.
     """
-    print field_defs
     contents = StringIO(file_contents)
     reader = UnicodeCSVReader(contents)
     header = reader.next()
