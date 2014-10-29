@@ -4,24 +4,86 @@
 
 <div class="col-md-12">
   <h1>How to contribute data sources to Geomancer</h1>
-  <p>Do you have a data source you'd like to add to <strong>Geomancer</strong>? We built this as in an open, extensible platform, so anyone can contribute.</p>
+  <p>
+      Do you have a data source you'd like to add to <strong>Geomancer</strong>?
+      We built this as in an open, extensible platform, so anyone can contribute.
+      If you know how to program in Python, you add your own data source using the
+      instructions below. Otherwise, post your request to our
+      <a href="https://groups.google.com/forum/#!forum/geomancer" target="_blank">
+          Google Group
+      </a>.
+  </p>
+  <hr />
+  <h3>Step 1: Fork the Geomancer repo</h3>
 
-  <div class='well'>
-    <p>Note: adding a data source requires <strong>programming in Python</strong>.</p>
-  </div>
+  <h3>Step 2: Create a new <code>BaseMancer</code> class</h3>
+      <p>
+          Geomancer implements a base class that establishes a pattern for setting up a new data source.
+          Simply inherit from that class and override a few properties and methods like so:
+      </p>
+      <pre>
+  from geomancer.mancers.base import BaseMancer
 
-  <h3>Step 1: Fork or clone the Geomancer repo</h3>
+  class MyGreatMancer(BaseMancer):
 
-  <h3>Step 2: Create a new <code>mancer</code> class</h3>
+      name = 'The best mancer ever'
+      machine_name = 'best_mancer'
+      base_url = 'http://lotsadata.gov/api'
+      info_url = 'http://lotsadata.gov'
+      description = 'This is probably the best mancer ever written'
 
-  <h3>Step 3: Implement the <code>search</code> method</h3>
+      def column_info(self):
+          return 'woo'
 
-  <h3>Step 4: Implement the <code>geo_lookup</code> method</h3>
+      def search(self, geo_ids=None, columns=None):
+          return 'woo'
 
-  <h3>Step 5: Register your <code>mancer</code> and test it</h3>
+      def geo_lookup(self, search_term, geo_type=None):
+          return 'woo'
+      </pre>
+      <p>
+          Detailed information about how the responses from these
+          methods should be structured as well as two example mancers
+          can be found in the
+          <a href="https://github.com/associatedpress/geomancer/tree/master/geomancer/mancers" target="_blank">
+              Github repository
+          </a>.
+      </p>
+  <h3>Step 2b: Add a <code>GeoType</code>. (Optional)</h3>
+      <p>
+          Does your mancer offer data that relates to geographic areas that are not
+          currently offered by Geomancer? This is also built in an extensible way. Each
+          <code>GeoType</code> is implemented as a subclass that expects
+          a few static properties to be overridden:
+      </p>
+      <pre>
+  from geomancer.mancers.geotype import GeoType
 
-  <h3>Step 6: Submit a pull request!</h3>
+  class RandomGeography(GeoType):
+      human_name = 'Randomly selected geographies'
+      machine_name = 'random_geo'
+      formatting_notes = 'Rows with this geography should contain a random \
+          selection of upper and lowercase ASCII characters'
+      formatting_example = 'jksalassJJnsjkJSAdjdfhsjAWHJSL'
 
+      </pre>
+      <p>
+          More details on how to implement a new <code>GeoType</code> can be found
+          <a href="https://github.com/associatedpress/geomancer/blob/master/geomancer/mancers/geotype.py" target="_blank">
+              here
+          </a>.
+      </p>
+  <h3>Step 3: Register your mancer in the application cofiguration.</h3>
+      <p>
+          The basic configuration options for Geomancer exist in <code>app_config.py</code>.
+          Add the import path to the module where you wrote your mancer and you should start seeing
+          it as an option when you run the app.
+      </p>
+  <h3>Step 4: Submit a pull request! </h3>
+      <p>
+          If you'd like to share your work with the rest of the world,
+          submit a pull request!
+      </p>
 </div>
 
 {% endblock %}
