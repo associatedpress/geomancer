@@ -124,7 +124,7 @@ def select_geo():
                         'column_index': index
                     }
             mancer_data = get_data_sources(geo_type)
-
+            print fields
             session.update({'fields': fields, 'mancer_data': mancer_data})
             return redirect(url_for('views.select_tables'))
     return render_template('select_geo.html', **context)

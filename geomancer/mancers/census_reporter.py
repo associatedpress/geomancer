@@ -86,7 +86,7 @@ class CensusReporter(BaseMancer):
         if geo_type in ['census_tract', 'state_fips', 'state_county_fips']:
             return {
                 'term': search_term,
-                'geoid': '%s00US%s' % (SUMLEV_LOOKUP['geo_type'], search_term)
+                'geoid': '%s00US%s' % (SUMLEV_LOOKUP[geo_type], search_term)
             }
         regex = re.compile('[%s]' % re.escape(punctuation))
         search_term = regex.sub('', search_term)
@@ -158,6 +158,7 @@ class CensusReporter(BaseMancer):
                 'geo_ids': ','.join([g[1] for g in gids]),
             }
             params = urlencode(query)
+            print params
             try:
                 response = self.urlopen('%s/data/show/latest?%s' % (self.base_url, params))
             except scrapelib.HTTPError, e:
