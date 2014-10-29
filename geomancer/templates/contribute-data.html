@@ -7,20 +7,22 @@
   <p>
       Do you have a data source you'd like to add to <strong>Geomancer</strong>?
       We built this as in an open, extensible platform, so anyone can contribute.
-      If you know how to program in Python, you add your own data source using the
+      If you know how to program in Python, you can add your own data source using the
       instructions below. Otherwise, post your request to our
-      <a href="https://groups.google.com/forum/#!forum/geomancer" target="_blank">
-          Google Group
-      </a>.
+      <a href="https://groups.google.com/forum/#!forum/geomancer" target="_blank">Google Group</a>.
   </p>
   <hr />
-  <h3>Step 1: Fork the Geomancer repo</h3>
+  <h3>Step 1: Fork and setup Geomancer</h3>
+
+  <p>First, <a href='https://github.com/associatedpress/geomancer/fork'><i class='fa fa-code-fork'></i> fork</a> the <a href='https://github.com/associatedpress/geomancer'>geomancer repository</a>. This requires a <a href='https://github.com'>GitHub account</a>.</p>
+
+  <p>Next, follow the <a href='https://github.com/associatedpress/geomancer#setup'>setup instructions</a> to get Geomancer working on your local machine.</p>
 
   <h3>Step 2: Create a new <code>BaseMancer</code> class</h3>
-      <p>
-          Geomancer implements a base class that establishes a pattern for setting up a new data source.
-          Simply inherit from that class and override a few properties and methods like so:
-      </p>
+  <p>
+      Geomancer implements a base class that establishes a pattern for setting up a new data source.
+      Simply inherit from that class and override a few properties and methods like so:
+  </p>
       <pre>
   from geomancer.mancers.base import BaseMancer
 
@@ -45,11 +47,9 @@
           Detailed information about how the responses from these
           methods should be structured as well as two example mancers
           can be found in the
-          <a href="https://github.com/associatedpress/geomancer/tree/master/geomancer/mancers" target="_blank">
-              Github repository
-          </a>.
+          <a href="https://github.com/associatedpress/geomancer/tree/master/geomancer/mancers" target="_blank">Github repository</a>.
       </p>
-  <h3>Step 2b: Add a <code>GeoType</code>. (Optional)</h3>
+  <h3>Step 3: Add a <code>GeoType</code> (optional)</h3>
       <p>
           Does your mancer offer data that relates to geographic areas that are not
           currently offered by Geomancer? This is also built in an extensible way. Each
@@ -69,20 +69,18 @@
       </pre>
       <p>
           More details on how to implement a new <code>GeoType</code> can be found
-          <a href="https://github.com/associatedpress/geomancer/blob/master/geomancer/mancers/geotype.py" target="_blank">
-              here
-          </a>.
+          <a href="https://github.com/associatedpress/geomancer/blob/master/geomancer/mancers/geotype.py" target="_blank">here</a>.
       </p>
-  <h3>Step 3: Register your mancer in the application cofiguration.</h3>
+  <h3>Step 4: Register your mancer in the application cofiguration</h3>
       <p>
           The basic configuration options for Geomancer exist in <code>app_config.py</code>.
           Add the import path to the module where you wrote your mancer and you should start seeing
           it as an option when you run the app.
       </p>
-  <h3>Step 4: Submit a pull request! </h3>
+  <h3>Step 5: Submit a pull request!</h3>
       <p>
           If you'd like to share your work with the rest of the world,
-          submit a pull request!
+          <a href='https://github.com/associatedpress/geomancer/compare'>submit a pull request</a>!
       </p>
 </div>
 
