@@ -170,8 +170,13 @@ def do_the_work(file_contents, field_defs, filename):
         writeCSV(fpath, output)
 
     response['download_url'] = '/download/%s' % fname
+<<<<<<< HEAD
     response['num_rows'] = len(output)
     response['cols_added'] = len(header_row) - response['cols_added']
+=======
+    response['num_matches'] = response['num_rows'] - response['num_missing']
+    response['cols_added'] = sorted(list(set(header_row) - set(response['cols_added'])))
+>>>>>>> :zap: added geomancer wizards! :zap:
 
     return response
 

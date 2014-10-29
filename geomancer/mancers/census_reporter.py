@@ -63,7 +63,7 @@ class CensusReporter(BaseMancer):
                 'geo_types': [City(), State(), StateFIPS(), StateCountyFIPS(), Zip5(), 
                     Zip9(), County(), SchoolDistrict(), 
                     CongressionalDistrict(), CensusTract()],
-                'columns': [v['column_title'] for v in table_info['columns'].values()]
+                'columns': [v['column_title'] for v in table_info['columns'].values() if v['indent'] is not None]
             }
             d['columns'].extend(['%s (error margin)' % v for v in d['columns']])
             d['columns'] = sorted(d['columns'])
