@@ -163,11 +163,9 @@ def do_the_work(file_contents, field_defs, filename):
         writeXLS(fpath, output)
     else:
         writeCSV(fpath, output)
-
     response['download_url'] = '/download/%s' % fname
     response['num_matches'] = response['num_rows'] - response['num_missing']
     response['cols_added'] = list(set(header_row) - set(response['cols_added']))
-
     return response
 
 def writeXLS(fpath, output):
@@ -186,7 +184,8 @@ def writeXLSX(fpath, output):
         sheet.title = 'Geomancer Output'
         numcols = len(output[0])
         for r, row in enumerate(output):
-            sheet.append([row[col_idx] for col_idx in range(numcols)])
+            if row:
+                sheet.append([row[col_idx] for col_idx in range(numcols)])
         workbook.save(fpath)
 
 def writeCSV(fpath, output):
@@ -205,7 +204,10 @@ def queue_daemon(app, rv_ttl=500):
         except Exception, e:
             if client:
                 client.captureException()
-            rv = {'status': 'error', 'result': e.body}
+            try:
+                rv = {'status': 'error', 'result': e.body}
+            except AttributeError:
+                rv = {'status': 'error', 'result': e.message}
         if rv is not None:
             redis.set(key, dumps(rv))
             redis.expire(key, rv_ttl)
