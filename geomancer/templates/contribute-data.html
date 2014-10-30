@@ -59,12 +59,11 @@
       <pre>
   from geomancer.mancers.geotype import GeoType
 
-  class RandomGeography(GeoType):
-      human_name = 'Randomly selected geographies'
-      machine_name = 'random_geo'
-      formatting_notes = 'Rows with this geography should contain a random \
-          selection of upper and lowercase ASCII characters'
-      formatting_example = 'jksalassJJnsjkJSAdjdfhsjAWHJSL'
+  class WizardSchoolDistrict(GeoType):
+      human_name = 'Wizard school district'
+      machine_name = 'wizard_school_district'
+      formatting_notes = 'Full name of a school district for wizards and witches'
+      formatting_example = 'Hogwarts School of Witchcraft and Wizardry'
 
       </pre>
       <p>
@@ -74,9 +73,16 @@
   <h3>Step 4: Register your mancer in the application cofiguration</h3>
       <p>
           The basic configuration options for Geomancer exist in <code>app_config.py</code>.
-          Add the import path to the module where you wrote your mancer and you should start seeing
-          it as an option when you run the app.
+          Add the import path to the module where you wrote your mancer and you should start seeing it as an option when you run the app.
       </p>
+
+      <pre>
+MANCERS = (
+    'geomancer.mancers.census_reporter.CensusReporter',
+    'geomancer.mancers.usa_spending.USASpending',
+    'geomancer.mancers.my_mancer.MyMancer',
+)
+      </pre>
   <h3>Step 5: Submit a pull request!</h3>
       <p>
           If you'd like to share your work with the rest of the world,
