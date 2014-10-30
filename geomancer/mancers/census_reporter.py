@@ -176,7 +176,7 @@ class CensusReporter(BaseMancer):
                     table_info = raw_results['tables'][table_id]
                     title = table_info['title']
                     detail_ids = [k for k in table_info['columns'].keys() \
-                        if table_info['columns'][k].get('indent')]
+                        if table_info['columns'][k].get('indent') is not None]
                     denominator = table_info['denominator_column_id']
                     for detail_id in detail_ids:
                         table_title = table_info['title']
