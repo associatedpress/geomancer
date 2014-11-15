@@ -62,7 +62,7 @@ Report it here: https://github.com/associatedpress/geomancer/issues
  
 * Fork the project.
 * Make your feature addition or bug fix.
-* Commit, do not mess version or history.
+* Commit, do not mess with version or history.
 * Send a pull request. Bonus points for topic branches.
 
 ## Copyright
