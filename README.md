@@ -27,6 +27,8 @@ $ pip install -r requirements.txt
 $ cp geomancer/app_config.py.example geomancer/app_config.py
 ```
 
+  NOTE: Mac users might need this [lxml workaround](http://stackoverflow.com/questions/22313407/clang-error-unknown-argument-mno-fused-madd-python-package-installation-fa).
+
 Afterwards, whenever you want to work on geomancer,
 
 ```bash
