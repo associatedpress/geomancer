@@ -47,8 +47,8 @@ Report it here: https://github.com/associatedpress/geomancer/issues
  
 * Fork the project.
 * Make your feature addition or bug fix.
-* Commit, do not mess with rakefile, version, or history.
-* Send me a pull request. Bonus points for topic branches.
+* Commit, do not mess version or history.
+* Send a pull request. Bonus points for topic branches.
 
 ## Copyright
 
