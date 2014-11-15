@@ -11,13 +11,26 @@ Read more: [AP wins Knight grant to build data journalism tool](http://www.ap.or
 **Install OS level dependencies:** 
 
 * Python 2.7
-* Redis
+* [Redis](http://redis.io/)
 
 **Install app requirements**
 
+We recommend using [virtualenv](http://virtualenv.readthedocs.org/en/latest/virtualenv.html) and [virtualenvwrapper](http://virtualenvwrapper.readthedocs.org/en/latest/install.html) for working in a virtualized development environment. [Read how to set up virtualenv](http://docs.python-guide.org/en/latest/dev/virtualenvs/).
+
+Once you have virtualenvwrapper set up,
+
 ```bash
+$ mkvirtualenv geomancer
+$ git clone https://github.com/associatedpress/geomancer.git
+$ cd geomancer
 $ pip install -r requirements.txt
 $ cp geomancer/app_config.py.example geomancer/app_config.py
+```
+
+Afterwards, whenever you want to work on geomancer,
+
+```bash
+$ workon geomancer
 ```
 
 ### Running Geomancer
