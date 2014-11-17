@@ -205,9 +205,12 @@ def queue_daemon(app, rv_ttl=500):
             if client:
                 client.captureException()
             try:
-                rv = {'status': 'error', 'result': e.body}
+                if e.body:
+                    rv = {'status': 'error', 'result': '{0} message: {1}'.format(e.message, e.body)}
+                else:
+                    rv = {'status': 'error', 'result': e.message}
             except AttributeError:
-                rv = {'status': 'error', 'result': e.message}
+                rv = {'status': 'error', 'result': 'Error: {0}'.format(e.message)}
         if rv is not None:
             redis.set(key, dumps(rv))
             redis.expire(key, rv_ttl)
