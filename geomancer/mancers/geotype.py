@@ -26,13 +26,13 @@ class City(GeoType):
     machine_name = 'city'
     formatting_notes = 'City name followed by state name, postal abbreviation or \
         AP abbreviation.' 
-    formatting_example = 'Chicago, Ill., Chicago, IL or Chicago, Illinois'
+    formatting_example = 'Chicago, Illinois; Chicago, IL or Chicago, Ill.'
 
 class State(GeoType):
     human_name = 'State'
     machine_name = 'state'
     formatting_notes = 'State name, postal abbreviation, or AP abbreviation.'
-    formatting_example = 'IL, Ill., or Illinois'
+    formatting_example = 'Illinois, IL or Ill.'
 
 class County(GeoType):
     human_name = 'County'
@@ -43,7 +43,7 @@ class County(GeoType):
 class SchoolDistrict(GeoType):
     human_name = 'School district'
     machine_name = 'school_district'
-    formatting_notes = 'Name of a Elementary, Secondary or Unified School District.'
+    formatting_notes = 'Name of an elementary, secondary or unified school district.'
     formatting_example = 'Chicago Public School District 299, IL'
 
 class CongressionalDistrict(GeoType):

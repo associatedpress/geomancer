@@ -34,7 +34,7 @@ class CensusReporter(BaseMancer):
     base_url = 'http://api.censusreporter.org/1.0'
     info_url = 'http://censusreporter.org'
     description = """ 
-        Demographic data from the 2013 American Community.
+        Demographic data from the 2013 American Community Survey.
     """
 
     def column_info(self):
