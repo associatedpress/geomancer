@@ -119,7 +119,7 @@ class USASpending(BaseMancer):
     def lookup_state(self, term):
         st = us.states.lookup(term)
         if not st:
-            st = [s for s in us.STATES if getattr(s, 'ap_abbr') == search_term]
+            st = [s for s in us.STATES if getattr(s, 'ap_abbr') == term]
         if st:
             return st.abbr
         else:
@@ -132,7 +132,7 @@ class USASpending(BaseMancer):
             parts = search_term.split(' ')
             district = search_term
             if len(parts) > 1:
-                st_abbr = self.lookup_state(part[0])
+                st_abbr = self.lookup_state(parts[0])
                 dist_code = parts[1].zfill(2)
                 district = st_abbr + dist_code 
             return {'term': search_term, 'geoid': district}
