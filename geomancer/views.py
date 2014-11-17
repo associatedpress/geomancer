@@ -11,7 +11,7 @@ from csvkit import convert
 from csvkit.unicsv import UnicodeCSVReader
 from csvkit.cleanup import RowChecker
 from cStringIO import StringIO
-from geomancer.helpers import import_class, get_geo_types, get_data_sources
+from geomancer.helpers import import_class, get_geo_types, get_data_sources, get_geo_types, validate_geo_type
 from geomancer.app_config import ALLOWED_EXTENSIONS, \
     MAX_CONTENT_LENGTH, MANCERS
 
@@ -114,7 +114,7 @@ def select_geo():
         if not request.form:
             valid = False
             context['errors'] = ['Select a field that contains a geography type']
-        if valid:
+        else:
             for k,v in request.form.items():
                 if k.startswith("geotype"):
                     geo_type = v
@@ -123,6 +123,12 @@ def select_geo():
                         'geo_type': v,
                         'column_index': index
                     }
+
+            found_geo_type = get_geo_types(geo_type)[0]['info']
+            sample_as_list = session['sample_data'][index][2].split(', ')
+            valid = validate_geo_type(found_geo_type, sample_as_list)
+            context['errors'] = ['The column you selected must be formatted like "%s" to match on %s geographies. Please pick another column or change the format of your data.' % (found_geo_type.formatting_example, found_geo_type.human_name)]
+        if valid:
             mancer_data = get_data_sources(geo_type)
             session.update({'fields': fields, 'mancer_data': mancer_data})
             return redirect(url_for('views.select_tables'))

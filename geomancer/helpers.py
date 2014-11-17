@@ -1,6 +1,7 @@
 from geomancer.app_config import MANCERS
 from collections import OrderedDict
 import operator
+import re
 
 def encoded_dict(in_dict):
     out_dict = {}
@@ -45,7 +46,7 @@ def get_geo_types(geo_type=None):
         types[t.machine_name]['tables'] = tables_sorted
 
     if geo_type:
-        types = types[geo_type]
+        types = {geo_type: types[geo_type]}
 
     types_sorted = sorted(types.values(), key=lambda x: x['info'].human_name)
 
@@ -85,3 +86,17 @@ def get_data_sources(geo_type=None):
         mancer_data.append(mancer_obj)
 
     return mancer_data
+
+def validate_geo_type(geo_type, sample):
+    """ 
+    If the selected geography has a validation regex, validate each sample value 
+    """
+    if geo_type.validation_regex != "":
+        print "validating with %s" % geo_type.validation_regex
+        for s in sample:
+            print "validating %s" % s
+            if not re.match(geo_type.validation_regex, s):
+                print "validation failed!"
+                return False
+
+    return True
