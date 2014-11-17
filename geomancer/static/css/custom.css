@@ -4,7 +4,8 @@ body {
   font-size: 16px;
 }
 
-table, .alert, label,.control-label,.help-block,.checkbox,.radio { font-size: 14px; }
+table, label,.control-label,.help-block,.checkbox,.radio { font-size: 14px; }
+.alert { font-size: 1em; font-weight: 500; }
 
 .label:hover { text-decoration: none; }
 

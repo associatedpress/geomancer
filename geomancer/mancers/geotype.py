@@ -9,10 +9,11 @@ class GeoType(object):
     machine_name = None
     formatting_notes = None
     formatting_example = None
+    validation_regex = ""
 
     def as_dict(self):
         d = {k:getattr(self,k) for k in \
-            ['human_name','machine_name','formatting_notes', 'formatting_example']}
+            ['human_name','machine_name','formatting_notes', 'formatting_example', 'validation_regex']}
         for k,v in d.items():
             d[k] = ' '.join(v.split())
         return d
@@ -51,6 +52,7 @@ class CongressionalDistrict(GeoType):
     machine_name = 'congress_district'
     formatting_notes = 'U.S Congressional District.' 
     formatting_example = 'Congressional District 7, IL'
+    validation_regex = r"Congressional District \d+,.+"
 
 class Zip5(GeoType):
     human_name = '5 digit zip code'
