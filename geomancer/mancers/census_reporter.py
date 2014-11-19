@@ -2,6 +2,7 @@ import scrapelib
 from urllib import urlencode
 import json
 import os
+import us
 from geomancer.helpers import encoded_dict
 from geomancer.mancers.base import BaseMancer, MancerError
 from geomancer.mancers.geotype import City, State, StateFIPS, StateCountyFIPS, \
@@ -39,16 +40,16 @@ class CensusReporter(BaseMancer):
 
     def column_info(self):
         table_ids = [
-            "B01003",
-            "B19013",
-            "B19301",
-            "B02001",
-            "B01002",
-            "B15002",
-            "B25077",
-            "B26001",
-            "B11009",
-            "B05006"
+            "B01003", # Total Population
+            "B19013", # Median Household Income
+            "B19301", # Per Capita Income
+            "B02001", # Race
+            "B01002", # Median Age by Sex"
+            "B15002", # Sex by Educational Attainment
+            "B25077", # Median Value (Dollars)
+            "B26001", # Group Quarters Population
+            "B11009", # Unmarried-partner Households by Sex of Partner
+            "B05006"  # Place of Birth for the Foreign-born Population in the United States
         ]
         columns = []
         for table in table_ids:
@@ -70,6 +71,15 @@ class CensusReporter(BaseMancer):
             d['count'] = len(d['columns'])
             columns.append(d)
         return columns
+
+    def lookup_state(self, term):
+        st = us.states.lookup(term)
+        if not st:
+            st = [s for s in us.STATES if getattr(s, 'ap_abbr') == term]
+        if st:
+            return st.name # Census Reporter prefers full state name 
+        else:
+            return term
 
     def geo_lookup(self, search_term, geo_type=None):
         """ 
@@ -95,7 +105,10 @@ class CensusReporter(BaseMancer):
             q_dict['sumlevs'] = SUMLEV_LOOKUP[geo_type]
             if geo_type == 'zip_5':
                 q_dict['q'] = search_term.zfill(5)
+            if geo_type == 'state':
+                q_dict['q'] = self.lookup_state(search_term)
         q_dict = encoded_dict(q_dict)
+
         params = urlencode(q_dict)
         try:
             response = self.urlopen('%s/geo/search?%s' % (self.base_url, params))
