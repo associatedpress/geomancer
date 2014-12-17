@@ -1,5 +1,5 @@
-from flask import Blueprint, make_response, request, redirect, url_for, session, \
-    render_template, current_app, send_from_directory
+from flask import Blueprint, make_response, request, redirect, url_for, \
+    session, render_template, current_app, send_from_directory
 import json
 import sys
 import os
@@ -11,7 +11,8 @@ from csvkit import convert
 from csvkit.unicsv import UnicodeCSVReader
 from csvkit.cleanup import RowChecker
 from cStringIO import StringIO
-from geomancer.helpers import import_class, get_geo_types, get_data_sources, get_geo_types, validate_geo_type
+from geomancer.helpers import import_class, get_geo_types, get_data_sources, \
+    get_geo_types, guess_geotype
 from geomancer.app_config import ALLOWED_EXTENSIONS, \
     MAX_CONTENT_LENGTH, MANCERS
 
@@ -74,7 +75,7 @@ def upload():
                         rows = []
                         columns = [[] for c in session['header_row']]
                         column_ids = range(len(session['header_row']))
-                        for row in range(10):
+                        for row in range(100):
                             try:
                                 rows.append(reader.next())
                             except StopIteration:
@@ -82,10 +83,11 @@ def upload():
                         for i, row in enumerate(rows):
                             for j,d in enumerate(row):
                                 columns[j].append(row[column_ids[j]])
-                        columns = [', '.join(c) for c in columns]
+                        sample_values = [', '.join(c[:11]) for c in columns]
                         sample_data = []
-                        for index,_ in enumerate(session['header_row']):
-                            sample_data.append((index, session['header_row'][index], columns[index]))
+                        for index, header_val in enumerate(session['header_row']):
+                            geotype_guess = guess_geotype(columns[index])
+                            sample_data.append((index, header_val, sample_values[index], geotype_guess))
                         session['sample_data'] = sample_data
                         outp.seek(0)
                         session['file'] = outp.getvalue()
@@ -126,8 +128,8 @@ def select_geo():
 
             found_geo_type = get_geo_types(geo_type)[0]['info']
             sample_as_list = session['sample_data'][index][2].split(', ')
-            valid = validate_geo_type(found_geo_type, sample_as_list)
-            context['errors'] = ['The column you selected must be formatted like "%s" to match on %s geographies. Please pick another column or change the format of your data.' % (found_geo_type.formatting_example, found_geo_type.human_name)]
+            valid, message = found_geo_type.validate(sample_as_list)
+            context['errors'] = [message]
         if valid:
             mancer_data = get_data_sources(geo_type)
             session.update({'fields': fields, 'mancer_data': mancer_data})

@@ -3,6 +3,22 @@ from collections import OrderedDict
 import operator
 import re
 
+from geomancer.mancers.geotype import City, State, County, SchoolDistrict, \
+    CongressionalDistrict, Zip5, Zip9, StateFIPS, StateCountyFIPS, CensusTract
+
+GEOTYPES = [
+    City, 
+    State, 
+    County, 
+    SchoolDistrict,
+    CongressionalDistrict, 
+    Zip5, 
+    Zip9, 
+    StateFIPS, 
+    StateCountyFIPS, 
+    CensusTract,
+]
+
 def encoded_dict(in_dict):
     out_dict = {}
     for k, v in in_dict.iteritems():
@@ -23,7 +39,6 @@ def get_geo_types(geo_type=None):
     types = {}
     columns = []
     geo_types = []
-    type_details = {}
 
     for mancer in MANCERS:
         m = import_class(mancer)()
@@ -56,6 +71,15 @@ def get_geo_types(geo_type=None):
 
     return results
 
+def guess_geotype(values):
+    guess = None
+    for geotype in GEOTYPES:
+        g = geotype()
+        valid, message = g.validate(values)
+        if valid:
+            guess = g.machine_name
+    return guess
+
 def get_data_sources(geo_type=None):
     mancer_data = []
     for mancer in MANCERS:
@@ -87,16 +111,3 @@ def get_data_sources(geo_type=None):
 
     return mancer_data
 
-def validate_geo_type(geo_type, sample):
-    """ 
-    If the selected geography has a validation regex, validate each sample value 
-    """
-    if geo_type.validation_regex != "":
-        print "validating with %s" % geo_type.validation_regex
-        for s in sample:
-            print "validating %s" % s
-            if not re.match(geo_type.validation_regex, s):
-                print "validation failed!"
-                return False
-
-    return True

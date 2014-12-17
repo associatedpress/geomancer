@@ -13,11 +13,11 @@
             </tr>
         </thead>
         <tbody>
-            {% for index,name,values in session['sample_data'] %}
+            {% for index,name,values,type_guess in session['sample_data'] %}
             <tr>
                 <td data-column_index="{{ index }}">
                     <label>
-                        <input id="column_{{ index }}" type="radio" class="geography" name="geo_type" />
+                        <input id="column_{{ index }}" type="checkbox" class="geography" name="geo_type" />
                     </label>
                 </td>
                 <td>
@@ -49,13 +49,13 @@
                 } else {
                     $('.geo_dropdown').remove();
                     $('.geo_hint').remove();
-                    
+
                     var dropdown = '<select class="geo_dropdown" name="geotype_' + col_index + '">';
                     var table = parent.parent().parent().parent()
                     $.each(geo_types, function(i, type){
                         dropdown += '<option value="' + type.info.machine_name + '">' + type.info.human_name + '</option>';
                     })
-                    
+
                     $(parent).append(dropdown);
                     updateHint('.geo_dropdown');
 

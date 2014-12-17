@@ -82,26 +82,28 @@ def do_the_work(file_contents, field_defs, filename):
                         'geo_type': v['type']
                     }
     for row_idx, row in enumerate(reader):
+        geo_type = field_defs[0]['type']
         col_idxs = [int(k) for k in field_defs.keys()]
+        vals = []
         for idx in col_idxs:
-            val = row[idx]
-            geo_type = field_defs[idx]['type']
-            for column in field_defs[idx]['append_columns']:
-                mancer = mancer_mapper[column]['mancer']
+            vals.append(row[idx])
+        val = ''.join(vals)
+        for column in field_defs[0]['append_columns']:
+            mancer = mancer_mapper[column]['mancer']
+            try:
+                if val:
+                    geoid_search = mancer.geo_lookup(val, geo_type=geo_type)
+                else:
+                    continue
+            except MancerError, e:
+                return 'Error message: %s, Body: %s' % (e.message, e.body)
+            row_geoid = geoid_search['geoid']
+            if row_geoid:
+                mancer_mapper[column]['geo_ids'].add(row_geoid)
                 try:
-                    if val:
-                        geoid_search = mancer.geo_lookup(val, geo_type=geo_type)
-                    else:
-                        continue
-                except MancerError, e:
-                    return 'Error message: %s, Body: %s' % (e.message, e.body)
-                row_geoid = geoid_search['geoid']
-                if row_geoid:
-                    mancer_mapper[column]['geo_ids'].add(row_geoid)
-                    try:
-                        mancer_mapper[column]['geo_id_map'][row_geoid].append(row_idx)
-                    except KeyError:
-                        mancer_mapper[column]['geo_id_map'][row_geoid] = [row_idx]
+                    mancer_mapper[column]['geo_id_map'][row_geoid].append(row_idx)
+                except KeyError:
+                    mancer_mapper[column]['geo_id_map'][row_geoid] = [row_idx]
     all_data = {'header': []}
     contents.seek(0)
     all_rows = list(reader)
