@@ -5,3 +5,4 @@ use_cases
 .env
 *.csv
 dump.rdb
+geomancer/result_folder/*
