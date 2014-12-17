@@ -174,8 +174,9 @@ def writeXLS(fpath, output):
         workbook = xlwt.Workbook(encoding='utf-8')
         sheet = workbook.add_sheet('Geomancer Output')
         for r, row in enumerate(output):
-            for c, col in enumerate(output[0]):
-                sheet.write(r, c, row[c])
+            if row:
+                for c, col in enumerate(output[0]):
+                    sheet.write(r, c, row[c])
         workbook.save(fpath)
 
 def writeXLSX(fpath, output):
