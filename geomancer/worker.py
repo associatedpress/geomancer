@@ -149,11 +149,12 @@ def do_the_work(file_contents, field_defs, filename):
         output.insert(0, header_row)
         all_row_idxs = set(list(range(len(all_rows))))
         missing_rows = all_row_idxs.difference(included_idxs)
-        response['num_missing'] = len(missing_rows) # store away missing rows
-        for idx in missing_rows:
-            row = all_rows[idx]
-            row.extend(['' for i in header])
-            output.append(row)
+    response['num_missing'] = len(missing_rows) # store away missing rows
+    for idx in missing_rows:
+        row = all_rows[idx]
+        diff = len(output[0]) - len(row)
+        row.extend(['' for i in range(diff)])
+        output.append(row)
     name, ext = os.path.splitext(filename)
     fname = '%s_%s%s' % (name, datetime.now().isoformat(), ext)
     fpath = '%s/%s' % (RESULT_FOLDER, fname)
