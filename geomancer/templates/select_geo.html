@@ -24,7 +24,7 @@
                     <label for="column_{{ index }}">{{ name }}</label>
                 </td>
                 <td>
-                    <label for="column_{{ index }}">{{ values }}</label>
+                    <label for="column_{{ index }}">{{ values[:11]|join(', ') }}</label>
                 </td>
             </tr>
             {% endfor %}
@@ -44,11 +44,11 @@
             $('.geography').on('click', function(e){
                 var parent = $(this).parent().parent()
                 var col_index = $(parent).data('column_index')
-                if(!$(this).is(':checked')){
-                    $(parent).find('.geo_dropdown').remove();
-                } else {
-                    $('.geo_dropdown').remove();
-                    $('.geo_hint').remove();
+              //if(!$(this).is(':checked')){
+              //    $(parent).find('.geo_dropdown').remove();
+              //} else {
+                    // $('.geo_dropdown').remove();
+                    // $('.geo_hint').remove();
 
                     var dropdown = '<select class="geo_dropdown" name="geotype_' + col_index + '">';
                     var table = parent.parent().parent().parent()
@@ -62,7 +62,7 @@
                     $('.geo_dropdown').on('change', function(e){
                         updateHint(this);
                     });
-                }
+              //}
             })
         })
 

@@ -7,7 +7,7 @@ import os
 from cStringIO import StringIO
 from csvkit.unicsv import UnicodeCSVReader, UnicodeCSVWriter
 from geomancer.mancers.base import MancerError
-from geomancer.helpers import import_class
+from geomancer.helpers import import_class, find_geo_type
 from geomancer.app_config import RESULT_FOLDER, MANCERS
 from datetime import datetime
 import xlwt
@@ -60,17 +60,33 @@ def do_the_work(file_contents, field_defs, filename):
         }
       }
 
+      or like this:
+
+      {
+        10;2: {
+          'type': 'city;state', 
+          'append_columns': ['total_population', 'median_age']
+        }
+      }
+
+      where the semicolon separated values represent a multicolumn geography
+
       file_contents is a string containing the contents of the uploaded file.
     """
+
     contents = StringIO(file_contents)
     reader = UnicodeCSVReader(contents)
     header = reader.next()
     result = None
     geo_ids = set()
     mancer_mapper = {}
+    fields_key = field_defs.keys()[0]
+
+    geo_type, col_idxs, val_fmt = find_geo_type(field_defs[fields_key]['type'], 
+                                       fields_key)
     for mancer in MANCERS:
         m = import_class(mancer)()
-        mancer_cols = [k['table_id'] for k in m.column_info()]
+        mancer_cols = [c['table_id'] for c in m.column_info()]
         for k, v in field_defs.items():
             field_cols = v['append_columns']
             for f in field_cols:
@@ -79,16 +95,12 @@ def do_the_work(file_contents, field_defs, filename):
                         'mancer': m,
                         'geo_id_map': {},
                         'geo_ids': set(),
-                        'geo_type': v['type']
+                        'geo_type': geo_type,
                     }
     for row_idx, row in enumerate(reader):
-        geo_type = field_defs[0]['type']
-        col_idxs = [int(k) for k in field_defs.keys()]
-        vals = []
-        for idx in col_idxs:
-            vals.append(row[idx])
-        val = ''.join(vals)
-        for column in field_defs[0]['append_columns']:
+        vals = [row[int(i)] for i in col_idxs]
+        val = val_fmt.format(*vals)
+        for column in field_cols:
             mancer = mancer_mapper[column]['mancer']
             try:
                 if val:
@@ -149,14 +161,14 @@ def do_the_work(file_contents, field_defs, filename):
                 row.extend(all_data[geoid])
                 output[row_id] = row
         output.insert(0, header_row)
-        all_row_idxs = set(list(range(len(all_rows))))
-        missing_rows = all_row_idxs.difference(included_idxs)
-    response['num_missing'] = len(missing_rows) # store away missing rows
-    for idx in missing_rows:
+    all_row_idxs = set(list(range(len(all_rows))))
+    missing_rows = all_row_idxs.difference(included_idxs)
+    for idx in sorted(missing_rows):
         row = all_rows[idx]
         diff = len(output[0]) - len(row)
         row.extend(['' for i in range(diff)])
-        output.append(row)
+        output[idx] = row
+    response['num_missing'] = len(missing_rows) # store away missing rows
     name, ext = os.path.splitext(filename)
     fname = '%s_%s%s' % (name, datetime.now().isoformat(), ext)
     fpath = '%s/%s' % (RESULT_FOLDER, fname)

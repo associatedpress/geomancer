@@ -69,23 +69,23 @@ class City(GeoType):
         AP abbreviation.' 
     formatting_example = 'Chicago, Illinois; Chicago, IL or Chicago, Ill.'
 
-    def validate(self, values):
-        ''' 
-        Uses the US Census 2014 Place Name Gazetteer.
-        https://www.census.gov/geo/maps-data/data/gazetteer2014.html
-        '''
-        gazetteer = set()
-        with open(join(GAZDIR, 'place_names.csv'), 'rb') as f:
-            reader = csv.reader(f)
-            for row in reader:
-                gazetteer.add(row[0].lower())
-        values = set([v.split(',')[0].lower() for v in values if v])
-        if values <= gazetteer:
-            return True, None
-        else:
-            diffs = values - gazetteer
-            return False, '"{0}" do not appear to be valid Census places'\
-                .format(', '.join(diffs))
+   #def validate(self, values):
+   #    ''' 
+   #    Uses the US Census 2014 Place Name Gazetteer.
+   #    https://www.census.gov/geo/maps-data/data/gazetteer2014.html
+   #    '''
+   #    gazetteer = set()
+   #    with open(join(GAZDIR, 'place_names.csv'), 'rb') as f:
+   #        reader = csv.reader(f)
+   #        for row in reader:
+   #            gazetteer.add(row[0].lower())
+   #    values = set([v.split(',')[0].lower() for v in values if v])
+   #    if values <= gazetteer:
+   #        return True, None
+   #    else:
+   #        diffs = values - gazetteer
+   #        return False, '"{0}" do not appear to be valid Census places'\
+   #            .format(', '.join(diffs))
 
 class State(GeoType):
     human_name = 'State'
@@ -197,7 +197,6 @@ class StateCountyFIPS(GeoType):
     formatting_notes = 'Federal Information Processing (FIPS) code for a U.S. County \
         which includes the FIPS code for the state.' 
     formatting_example = '17031'
-    validation_regex = r'\d{5}$'
     
     def validate(self, values):
         ''' 

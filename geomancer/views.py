@@ -83,11 +83,10 @@ def upload():
                         for i, row in enumerate(rows):
                             for j,d in enumerate(row):
                                 columns[j].append(row[column_ids[j]])
-                        sample_values = [', '.join(c[:11]) for c in columns]
                         sample_data = []
                         for index, header_val in enumerate(session['header_row']):
-                            geotype_guess = guess_geotype(columns[index])
-                            sample_data.append((index, header_val, sample_values[index], geotype_guess))
+                            geotype_guess = guess_geotype(header_val, columns[index])
+                            sample_data.append((index, header_val, columns[index], geotype_guess))
                         session['sample_data'] = sample_data
                         outp.seek(0)
                         session['file'] = outp.getvalue()
@@ -117,19 +116,23 @@ def select_geo():
             valid = False
             context['errors'] = ['Select a field that contains a geography type']
         else:
+            geotypes = []
+            indexes = []
             for k,v in request.form.items():
                 if k.startswith("geotype"):
-                    geo_type = v
-                    index = int(k.split('_')[1])
-                    fields[header[index]] = {
-                        'geo_type': v,
-                        'column_index': index
-                    }
+                    geotypes.append(v)
+                    indexes.append(k.split('_')[1])
+            fields_key = ';'.join([header[int(i)] for i in indexes])
+            geotype_val = ';'.join([g for g in geotypes])
+            fields[fields_key] = {
+                'geo_type': geotype_val,
+                'column_index': ';'.join(indexes)
+            }
 
-            found_geo_type = get_geo_types(geo_type)[0]['info']
-            sample_as_list = session['sample_data'][index][2].split(', ')
-            valid, message = found_geo_type.validate(sample_as_list)
-            context['errors'] = [message]
+            # found_geo_type = get_geo_types(geo_type)[0]['info']
+            # sample_list = session['sample_data'][index][2]
+            # valid, message = found_geo_type.validate(sample_list)
+            # context['errors'] = [message]
         if valid:
             mancer_data = get_data_sources(geo_type)
             session.update({'fields': fields, 'mancer_data': mancer_data})

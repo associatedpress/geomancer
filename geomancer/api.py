@@ -28,17 +28,29 @@ def geomance_api():
           'append_columns': ['total_population', 'median_age']
         }
       }
+
     The key is the zero-indexed position of the columns within the spreadsheet.
     The value is a dict containing the geographic type and the columns to 
     append. The values in that list should be fetched from one of the other
     endpoints.
 
+    To mance on a combination of columns, separate the column indexes and 
+    geotypes with a semicolon like so:
+
+      {
+        10;2: {
+          'type': 'city;state', 
+          'append_columns': ['total_population', 'median_age']
+        }
+      }
+
+    In this example, column 10 contains the city info and column 2 contains
+    the state info.
+
     Responds with a key that can be used to poll for results
     """
-    defs = json.loads(request.data)
-    field_defs = {}
-    for k,v in defs.items():
-        field_defs[int(k)] = v
+
+    field_defs = json.loads(request.data)
     if request.files:
         file_contents = request.files['input_file'].read()
         filename = request.files['input_file'].filename

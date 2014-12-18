@@ -72,12 +72,12 @@ class CensusReporter(BaseMancer):
             columns.append(d)
         return columns
 
-    def lookup_state(self, term):
+    def lookup_state(self, term, attr='name'):
         st = us.states.lookup(term)
         if not st:
             st = [s for s in us.STATES if getattr(s, 'ap_abbr') == term]
         if st:
-            return st.name # Census Reporter prefers full state name 
+            return getattr(st, attr)
         else:
             return term
 
@@ -93,6 +93,21 @@ class CensusReporter(BaseMancer):
         }
 
         """
+        if geo_type == 'congress_district':
+            geoid = None
+            dist, st = search_term.rsplit(',', 1)
+            fips = self.lookup_state(st.strip(), attr='fips')
+            try:
+                dist_num = str(int(dist.split(' ')[-1]))
+            except ValueError:
+                dist_num = '00'
+            if fips and dist_num:
+                geoid = '50000US{0}{1}'\
+                    .format(fips, dist_num.zfill(2))
+            return {
+                'term': search_term,
+                'geoid': geoid
+            }
         regex = re.compile('[%s]' % re.escape(punctuation))
         search_term = regex.sub('', search_term)
         if geo_type in ['census_tract', 'state_fips', 'state_county_fips']:

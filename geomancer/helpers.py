@@ -71,8 +71,23 @@ def get_geo_types(geo_type=None):
 
     return results
 
-def guess_geotype(values):
+GEO_LOOKUP = {
+    'state': ['state'],
+    'city': ['city'],
+    'county': ['county'],
+    'zip_5': ['zip', 'zip code', 'zipcode'],
+    'congress_district': ['congressional district'],
+    'school_district': ['school district'],
+    'state_fips': ['state fips', 'state fips code'],
+    'state_county_fips': ['county fips'],
+    'census_tract': ['census tract', 'us census tract'],
+}
+
+def guess_geotype(header, values):
     guess = None
+    for geotype, vals in GEO_LOOKUP.items():
+        if header in vals:
+            return geotype
     for geotype in GEOTYPES:
         g = geotype()
         valid, message = g.validate(values)
@@ -101,13 +116,37 @@ def get_data_sources(geo_type=None):
             else:
                 mancer_obj["data_types"][col['table_id']] = col
             try:
-                mancer_obj["data_types"][col['table_id']]['geo_types'] = sorted(mancer_obj["data_types"][col['table_id']]['geo_types'], key=lambda x: x.human_name)
+                mancer_obj["data_types"][col['table_id']]['geo_types'] = \
+                    sorted(mancer_obj["data_types"][col['table_id']]['geo_types'], 
+                           key=lambda x: x.human_name)
             except KeyError:
                 pass
 
-        mancer_obj["data_types"] = sorted(mancer_obj["data_types"].values(), key=lambda x: x['human_name'])
+        mancer_obj["data_types"] = sorted(mancer_obj["data_types"].values(), 
+                                          key=lambda x: x['human_name'])
 
         mancer_data.append(mancer_obj)
 
     return mancer_data
 
+def find_geo_type(geo_type, col_idxs):
+    if ';' not in geo_type:
+        return geo_type, col_idxs, '{0}'
+    else:
+        g = None
+        fmt = '{0}, {1}'
+        if 'city' in geo_type:
+            g = 'city'
+        elif 'county' in geo_type:
+            g = 'county'
+            fmt = '{0} County, {1}'
+        elif 'school_district' in geo_type:
+            g = 'school_district'
+        elif 'congress_district' in geo_type:
+            g = 'congress_district'
+            fmt = 'Congressional District {0}, {1}'
+        if geo_type.find(g) > 0:
+            col_idxs = list(reversed(col_idxs.split(';')))
+        else:
+            col_idxs = col_idxs.split(';')
+        return g, col_idxs, fmt
