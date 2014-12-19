@@ -12,7 +12,7 @@ from csvkit.unicsv import UnicodeCSVReader
 from csvkit.cleanup import RowChecker
 from cStringIO import StringIO
 from geomancer.helpers import import_class, get_geo_types, get_data_sources, \
-    get_geo_types, guess_geotype
+    get_geo_types, guess_geotype, check_combos
 from geomancer.app_config import ALLOWED_EXTENSIONS, \
     MAX_CONTENT_LENGTH, MANCERS
 
@@ -84,10 +84,12 @@ def upload():
                             for j,d in enumerate(row):
                                 columns[j].append(row[column_ids[j]])
                         sample_data = []
+                        guesses = {}
                         for index, header_val in enumerate(session['header_row']):
-                            geotype_guess = guess_geotype(header_val, columns[index])
-                            sample_data.append((index, header_val, columns[index], geotype_guess))
+                            guesses[index] = guess_geotype(header_val, columns[index])
+                            sample_data.append((index, header_val, columns[index]))
                         session['sample_data'] = sample_data
+                        session['guesses'] = json.dumps(guesses)
                         outp.seek(0)
                         session['file'] = outp.getvalue()
                         session['filename'] = f.filename
@@ -122,12 +124,21 @@ def select_geo():
                 if k.startswith("geotype"):
                     geotypes.append(v)
                     indexes.append(k.split('_')[1])
-            fields_key = ';'.join([header[int(i)] for i in indexes])
-            geotype_val = ';'.join([g for g in geotypes])
-            fields[fields_key] = {
-                'geo_type': geotype_val,
-                'column_index': ';'.join(indexes)
-            }
+            if len(indexes) > 2:
+                valid = False
+                context['errors'] = ['We can only merge geographic information from 2 columns']
+            else:
+                fields_key = ';'.join([header[int(i)] for i in indexes])
+                geotype_val = ';'.join([g for g in geotypes])
+                if not check_combos(geotype_val):
+                    valid = False
+                    types = [t.title() for t in geotype_val.split(';')]
+                    context['errors'] = ['The geographic combination of {0} and {1} does not work'.format(*types)]
+                else:
+                    fields[fields_key] = {
+                        'geo_type': geotype_val,
+                        'column_index': ';'.join(indexes)
+                    }
 
             # found_geo_type = get_geo_types(geo_type)[0]['info']
             # sample_list = session['sample_data'][index][2]

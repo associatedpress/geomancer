@@ -43,7 +43,7 @@ class GeoType(object):
         '''
 
         if self.validation_regex is None:
-            return True, None
+            return False, None
         else:
             values = list(set([v for v in values if v]))
             for v in values:

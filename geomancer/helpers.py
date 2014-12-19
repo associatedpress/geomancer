@@ -150,3 +150,21 @@ def find_geo_type(geo_type, col_idxs):
         else:
             col_idxs = col_idxs.split(';')
         return g, col_idxs, fmt
+
+def check_combos(combo):
+    ''' 
+    Return boolean telling us whether the geo type combination 
+    makes sense or not
+    '''
+    if ';' not in combo:
+        return True
+    sorted_types = ';'.join(sorted(combo.split(';')))
+    sensical_types = [
+        'city;state',
+        'county;state',
+        'congress_district;state',
+        'school_district;state',
+    ]
+    if sorted_types in sensical_types:
+        return True
+    return False
