@@ -62,11 +62,51 @@ class BureauEconomicAnalysis(scrapelib.Scraper):
             {
                 'table_id': 'GDP_SP',
                 'human_name': '2013 GDP',
-                'description': 'Gross Domestic Product (GDP) (state annual product)',
+                'description': '2013 Gross Domestic Product (GDP) (state annual product)',
                 'source_name': self.name,
                 'source_url': '', #populate this
-                'geo_types': [State(), StateFIPS()], #is this right
-                'columns': ['DataValue'],
+                'geo_types': [State()], #is this right
+                'columns': ['2013 GDP'],
+                'count': 1
+            },
+            {
+                'table_id': 'RGDP_SP',
+                'human_name': '2013 Real GDP',
+                'description': '2013 Real GDP (state annual product)',
+                'source_name': self.name,
+                'source_url': '', #populate this
+                'geo_types': [State()],
+                'columns': ['2013 Real GDP'],
+                'count': 1
+            },
+            {
+                'table_id': 'PCRGDP_SP',
+                'human_name': '2013 Per Capita Real GDP',
+                'description': '2013 Per capita Real GDP (state annual product)',
+                'source_name': self.name,
+                'source_url': '', #populate this
+                'geo_types': [State()],
+                'columns': ['2013 Per Capita Real GDP'],
+                'count': 1
+            },
+            {
+                'table_id': 'TPI_SI',
+                'human_name': '2013 Total Personal Income',
+                'description': '2013 Total Personal Income (state annual income)',
+                'source_name': self.name,
+                'source_url': '', #populate this
+                'geo_types': [State()],
+                'columns': ['2013 Total Personal Income'],
+                'count': 1
+            },
+            {
+                'table_id': 'PCPI_SI',
+                'human_name': '2013 Per Capita Personal Income',
+                'description': '2013 "Per Capita personal income (state annual income)',
+                'source_name': self.name,
+                'source_url': '', #populate this
+                'geo_types': [State()],
+                'columns': ['2013 Per Capita Personal Income'],
                 'count': 1
             }
         ]
@@ -155,7 +195,17 @@ class BureauEconomicAnalysis(scrapelib.Scraper):
         One should be able to call the python zip function on the header list 
         and any of the lists with data about the geographies and have it work.
         """
+
+        column_names = {
+        'GDP_SP': '2013 GDP (millions)',
+        'RGDP_SP': '2013 Real GDP (millions of chained 2009 dollars)',
+        'PCRGDP_SP': '2013 Per Capital Real GDP (chained 2009 dollars)',
+        'TPI_SI': '2013 Total Personal Income (thousands of dollars)',
+        'PCPI_SI': '2013 Per Capita Personal Income (dollars)'
+        }
+
         results = {'header':[]}
+
         for col in columns:
             url = self.base_url+'/?UserID=%s&method=GetData&datasetname=RegionalData&KeyCode=%s&Year=2013&ResultFormat=json' %(self.api_key, col)
             try:
@@ -170,7 +220,7 @@ class BureauEconomicAnalysis(scrapelib.Scraper):
                 raise MancerError('BEA API returned an error', body=body)
             raw_results = json.loads(response)
             raw_data = raw_results['BEAAPI']['Results']['Data']
-            results['header'].append(col)
+            results['header'].append(column_names[col])
             for geo_type, geo_id in geo_ids:
                 if not results.get(geo_id):
                     results[geo_id] = []
