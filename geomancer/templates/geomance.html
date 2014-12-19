@@ -70,7 +70,7 @@
                             <i class='fa fa-download'></i> Download your spreadsheet\
                         </a>\
                     </p>\
-                    <p>We matched <strong>" + data.result.num_matches + "</strong> out of " + data.result.num_rows + " rows based on column <strong>" + data.result['geo_col'] + "</strong> and added " + data.result['cols_added'].length + " columns:</p>\
+                    <p>We matched <strong>" + data.result.num_matches + "</strong> out of " + data.result.num_rows + " rows based on column(s) <strong>" + data.result['geo_col'].split(';').join(', ') + "</strong> and added " + data.result['cols_added'].length + " columns:</p>\
                     <ul>" + columns_added + "</ul>\
                     <p><a class='btn btn-info' href='{{ url_for('views.upload') }}'>Use Geomancer on another spreadsheet ></a></p>\
                     ";
