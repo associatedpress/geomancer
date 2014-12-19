@@ -45,11 +45,12 @@ class CensusReporter(BaseMancer):
             "B19301", # Per Capita Income
             "B02001", # Race
             "B01002", # Median Age by Sex"
-            "B15002", # Sex by Educational Attainment
             "B25077", # Median Value (Dollars)
             "B26001", # Group Quarters Population
             "B11009", # Unmarried-partner Households by Sex of Partner
-            "B05006"  # Place of Birth for the Foreign-born Population in the United States
+            "B05006",  # Place of Birth for the Foreign-born Population in the United States
+            "B19083", # Gini Index of Income Inequality
+            "B15003", # Educational Attainment
         ]
         columns = []
         for table in table_ids:
