@@ -199,7 +199,7 @@ class BureauEconomicAnalysis(scrapelib.Scraper):
         column_names = {
         'GDP_SP': '2013 GDP (millions)',
         'RGDP_SP': '2013 Real GDP (millions of chained 2009 dollars)',
-        'PCRGDP_SP': '2013 Per Capital Real GDP (chained 2009 dollars)',
+        'PCRGDP_SP': '2013 Per Capita Real GDP (chained 2009 dollars)',
         'TPI_SI': '2013 Total Personal Income (thousands of dollars)',
         'PCPI_SI': '2013 Per Capita Personal Income (dollars)'
         }
