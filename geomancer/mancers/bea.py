@@ -21,7 +21,7 @@ class BureauEconomicAnalysis(scrapelib.Scraper):
     info_url = 'http://www.bea.gov'
     api_key = MANCER_KEYS[machine_name]
     description = """ 
-        GDP by state (2013) from the Bureau of Economic Analysis
+        GDP & Personal Income Data (2013) from the Bureau of Economic Analysis
     """
 
     def column_info(self):
@@ -45,14 +45,14 @@ class BureauEconomicAnalysis(scrapelib.Scraper):
               'columns': ['list', 'of', 'column', 'names', 'that', 'will', 'be', 'appended']
             },
             {
-              'table_id': '<unique_id>', 
-              'human_name': '<human_friendly_name>',
+              'table_id':    # table id for api lookups, 
+              'human_name':  # this shows up as a table row on the /select-tables page, the /data-sources page, & the /geographies page,
               'description': '<free form text description>',
-              'source_name': '<name of data source>',
-              'source_url': '<where to find source on the web>',
-              'geo_types': ['examples', Zip5(), State(), County()],
-              'count': '<number of columns this will add to spreadsheet>',
-              'columns': ['list', 'of', 'column', 'names', 'that', 'will', 'be', 'appended']
+              'source_name': # this shows up as link text under 'Source' on the /geographies page,
+              'source_url':  # this is the link url under 'Source' on the /geographies page,
+              'geo_types':   # this determines the geographies that can be matched,
+              'count':       # this shows up under 'Columns that will be added' on the /select-tables page,
+              'columns':     # each list item shows up in the popup when clicking the column info link on the /select-tables page
             },
             ...etc...
         ]
@@ -61,50 +61,50 @@ class BureauEconomicAnalysis(scrapelib.Scraper):
         columns = [
             {
                 'table_id': 'GDP_SP',
-                'human_name': '2013 GDP',
+                'human_name': 'Nominal GDP',
                 'description': '2013 Gross Domestic Product (GDP) (state annual product)',
                 'source_name': self.name,
-                'source_url': '', #populate this
-                'geo_types': [State()], #is this right
+                'source_url': 'http://bea.gov/regional/index.htm',
+                'geo_types': [State()],
                 'columns': ['2013 GDP'],
                 'count': 1
             },
             {
                 'table_id': 'RGDP_SP',
-                'human_name': '2013 Real GDP',
+                'human_name': 'Real GDP',
                 'description': '2013 Real GDP (state annual product)',
                 'source_name': self.name,
-                'source_url': '', #populate this
+                'source_url': 'http://bea.gov/regional/index.htm',
                 'geo_types': [State()],
                 'columns': ['2013 Real GDP'],
                 'count': 1
             },
             {
                 'table_id': 'PCRGDP_SP',
-                'human_name': '2013 Per Capita Real GDP',
+                'human_name': 'Real GDP - Per Capita',
                 'description': '2013 Per capita Real GDP (state annual product)',
                 'source_name': self.name,
-                'source_url': '', #populate this
+                'source_url': 'http://bea.gov/regional/index.htm',
                 'geo_types': [State()],
                 'columns': ['2013 Per Capita Real GDP'],
                 'count': 1
             },
             {
                 'table_id': 'TPI_SI',
-                'human_name': '2013 Total Personal Income',
+                'human_name': 'Personal Income - Total',
                 'description': '2013 Total Personal Income (state annual income)',
                 'source_name': self.name,
-                'source_url': '', #populate this
+                'source_url': 'http://bea.gov/regional/index.htm',
                 'geo_types': [State()],
                 'columns': ['2013 Total Personal Income'],
                 'count': 1
             },
             {
                 'table_id': 'PCPI_SI',
-                'human_name': '2013 Per Capita Personal Income',
-                'description': '2013 "Per Capita personal income (state annual income)',
+                'human_name': 'Personal Income - Per Capita',
+                'description': '2013 Per Capita personal income (state annual income)',
                 'source_name': self.name,
-                'source_url': '', #populate this
+                'source_url': 'http://bea.gov/regional/index.htm',
                 'geo_types': [State()],
                 'columns': ['2013 Per Capita Personal Income'],
                 'count': 1
@@ -138,8 +138,7 @@ class BureauEconomicAnalysis(scrapelib.Scraper):
 
         {
           'term': <search_term>,
-          'geoid': '<full_geoid>',
-          'geo_type': '<geo_type>',
+          'geoid': '<full_geoid>'
         }
         
         Default behavior is to just echo back the search_term as the geoid.
@@ -150,14 +149,13 @@ class BureauEconomicAnalysis(scrapelib.Scraper):
         search_term = regex.sub('', search_term)
         if geo_type == 'state':
             return {'term': search_term, 'geoid': self.lookup_state_name(search_term)}
-        else: # finish this
+        else:
             return {'term': search_term, 'geoid': search_term}
 
     def search(self, geo_ids=None, columns=None):
         """
         This method should send the search request to the API endpoint(s).
-        'geo_ids' is a list of tuples with the geography type and geo_id
-        returned by the geo_lookup method like so:
+        'geo_ids' is a list of tuples with the geography type and geo_id:
 
         [
             ('state', 'IL',),
@@ -169,7 +167,10 @@ class BureauEconomicAnalysis(scrapelib.Scraper):
         return. Child classes should be capable of looking these up in a way
         that makes sense to the API.
         
-        Response looks like this:
+        The response should be a dict:
+            - keys consist of the header and geo_ids
+            - values are a list, with length = len(columns)
+
         {
             'header': [
                 '<data source name 1>',

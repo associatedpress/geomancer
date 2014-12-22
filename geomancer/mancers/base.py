@@ -18,11 +18,11 @@ class BaseMancer(scrapelib.Scraper):
     """ 
     Subclassing scrapelib here mainly to take advantage of pluggable caching backend.
     """
-    name = None
-    machine_name = None
-    base_url = None
-    info_url = None
-    description = None
+    name = None         # this is the name that will show up on the /select-tables page
+    machine_name = None # a slugified machine name
+    base_url = None     # base url for the api
+    info_url = None     # this will show up next to the name on the /select-tables page
+    description = None  # this will show up under the name on the /select-tables page
 
     def __init__(self,
                  raise_errors=True,
@@ -74,14 +74,14 @@ class BaseMancer(scrapelib.Scraper):
               'columns': ['list', 'of', 'column', 'names', 'that', 'will', 'be', 'appended']
             },
             {
-              'table_id': '<unique_id>', 
-              'human_name': '<human_friendly_name>',
+              'table_id':    # table id for api lookups, 
+              'human_name':  # this shows up as a table row on the /select-tables page,
               'description': '<free form text description>',
               'source_name': '<name of data source>',
-              'source_url': '<where to find source on the web>',
-              'geo_types': ['examples', Zip5(), State(), County()],
-              'count': '<number of columns this will add to spreadsheet>',
-              'columns': ['list', 'of', 'column', 'names', 'that', 'will', 'be', 'appended']
+              'source_url':  '<where to find source on the web>',
+              'geo_types':   # this determines the geographies that can be matched,
+              'count':       # this shows up under 'Columns that will be added' on the /select-tables page,
+              'columns':     # each list item shows up in the popup when clicking the column info link on the /select-tables page
             },
             ...etc...
         ]
@@ -106,8 +106,7 @@ class BaseMancer(scrapelib.Scraper):
 
         {
           'term': <search_term>,
-          'geoid': '<full_geoid>',
-          'geo_type': '<geo_type>',
+          'geoid': '<full_geoid>'
         }
         
         Default behavior is to just echo back the search_term as the geoid.
@@ -120,8 +119,7 @@ class BaseMancer(scrapelib.Scraper):
     def search(self, geo_ids=None, columns=None):
         """
         This method should send the search request to the API endpoint(s).
-        'geo_ids' is a list of tuples with the geography type and geo_id
-        returned by the geo_lookup method like so:
+        'geo_ids' is a list of tuples with the geography type and geo_id:
 
         [
             ('state', 'IL',),
@@ -133,7 +131,10 @@ class BaseMancer(scrapelib.Scraper):
         return. Child classes should be capable of looking these up in a way
         that makes sense to the API.
         
-        Response looks like this:
+        The response should be a dict:
+            - keys consist of the header and geo_ids
+            - values are a list, with length = len(columns)
+
         {
             'header': [
                 '<data source name 1>',
