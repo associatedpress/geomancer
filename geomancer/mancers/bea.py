@@ -2,7 +2,7 @@ import scrapelib
 from urllib import urlencode
 import json
 import os
-from geomancer.app_config import CACHE_DIR, MANCER_KEYS
+from geomancer.app_config import MANCER_KEYS
 from geomancer.helpers import encoded_dict
 from geomancer.mancers.geotype import State, StateFIPS
 from string import punctuation

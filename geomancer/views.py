@@ -12,7 +12,7 @@ from csvkit.unicsv import UnicodeCSVReader
 from csvkit.cleanup import RowChecker
 from cStringIO import StringIO
 from geomancer.helpers import import_class, get_geo_types, get_data_sources, \
-    get_geo_types, guess_geotype, check_combos
+    guess_geotype, check_combos, SENSICAL_TYPES
 from geomancer.app_config import ALLOWED_EXTENSIONS, \
     MAX_CONTENT_LENGTH, MANCERS
 
@@ -112,8 +112,8 @@ def select_geo():
         reader = UnicodeCSVReader(inp)
         header = reader.next()
         fields = {}
-        geo_type = None
         valid = True
+        geotype_val = None
         if not request.form:
             valid = False
             context['errors'] = ['Select a field that contains a geography type']
@@ -145,8 +145,13 @@ def select_geo():
             # valid, message = found_geo_type.validate(sample_list)
             # context['errors'] = [message]
         if valid:
-            mancer_data = get_data_sources(geo_type)
-            session.update({'fields': fields, 'mancer_data': mancer_data})
+            try:
+                geo_type = SENSICAL_TYPES[geotype_val]
+            except KeyError:
+                geo_type = geotype_val
+            mancer_data = get_data_sources(geo_type=geo_type)
+            session['fields'] = fields
+            session['mancer_data'] = mancer_data
             return redirect(url_for('views.select_tables'))
     return render_template('select_geo.html', **context)
 
@@ -158,7 +163,6 @@ def select_tables():
     if request.method == 'POST' and not request.form:
         valid = False
         context['errors'] = ['Select at least on table to join to your spreadsheet']
-    context.update({'fields': session['fields'], 'mancer_data': session['mancer_data']})
     return render_template('select_tables.html', **context)
 
 @views.route('/geomance/<session_key>/')

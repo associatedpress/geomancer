@@ -128,14 +128,14 @@ class County(GeoType):
         for val in values:
             val = val.lower()
             if 'county' not in val:
-                val = '{0} county'.format(val)
+                val = u'{0} county'.format(val)
             vals.add(val)
         if vals <= gazetteer:
             return True, None
         else:
             diffs = vals - gazetteer
-            return False, '"{0}" do not appear to be valid Counties'\
-                .format(', '.join(diffs))
+            return False, u'"{0}" do not appear to be valid Counties'\
+                .format(u', '.join(diffs))
 
 class SchoolDistrict(GeoType):
     human_name = 'School district'
@@ -159,8 +159,8 @@ class SchoolDistrict(GeoType):
             return True, None
         else:
             diffs = values - gazetteer
-            return False, '"{0}" do not appear to be valid School Districts'\
-                .format(', '.join(diffs))
+            return False, u'"{0}" do not appear to be valid School Districts'\
+                .format(u', '.join(diffs))
 
 class CongressionalDistrict(GeoType):
     human_name = 'Congressional District'
@@ -213,8 +213,8 @@ class StateCountyFIPS(GeoType):
             return True, None
         else:
             diffs = values - gazetteer
-            return False, '"{0}" do not appear to be valid County FIPS codes'\
-                .format(', '.join(diffs))
+            return False, u'"{0}" do not appear to be valid County FIPS codes'\
+                .format(u', '.join(diffs))
 
 class CensusTract(GeoType):
     human_name = 'FIPS: Census Tract'

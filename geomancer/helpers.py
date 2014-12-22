@@ -124,8 +124,8 @@ def get_data_sources(geo_type=None):
 
         mancer_obj["data_types"] = sorted(mancer_obj["data_types"].values(), 
                                           key=lambda x: x['human_name'])
-
-        mancer_data.append(mancer_obj)
+        if mancer_obj['data_types']:
+            mancer_data.append(mancer_obj)
 
     return mancer_data
 
@@ -151,6 +151,13 @@ def find_geo_type(geo_type, col_idxs):
             col_idxs = col_idxs.split(';')
         return g, col_idxs, fmt
 
+SENSICAL_TYPES = {
+    'city;state': 'city',
+    'county;state': 'state',
+    'congress_district;state': 'congress_district',
+    'school_district;state': 'school_district',
+}
+
 def check_combos(combo):
     ''' 
     Return boolean telling us whether the geo type combination 
@@ -159,12 +166,6 @@ def check_combos(combo):
     if ';' not in combo:
         return True
     sorted_types = ';'.join(sorted(combo.split(';')))
-    sensical_types = [
-        'city;state',
-        'county;state',
-        'congress_district;state',
-        'school_district;state',
-    ]
-    if sorted_types in sensical_types:
+    if sorted_types in SENSICAL_TYPES.keys():
         return True
     return False
