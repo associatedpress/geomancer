@@ -37,6 +37,7 @@
     <script type="text/javascript">
         var geo_types = [];
         var type_guesses = {{ session['guesses']|safe }};
+        var checked_geos = [];
         $(document).ready(function(){
             $.getJSON('{{ url_for("api.geo_types") }}', {}, function(types){
                 geo_types = types;
@@ -48,6 +49,8 @@
                 $(parent).find('.geo_dropdown').remove();
                 $(parent).find('.geo_hint').remove();
                 if($(this).is(':checked')){
+                    checked_geos.push($(this))
+                    checkChecked();
                     var dropdown = '<select class="geo_dropdown" name="geotype_' + col_index + '">';
                     var table = parent.parent().parent().parent()
                     $.each(geo_types, function(i, type){
@@ -84,6 +87,17 @@
             return str.replace(/\w\S*/g, function(txt){
                 return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
             });
+        }
+        function checkChecked(){
+            if (checked_geos.length <= 2){
+                return
+            } else {
+                var first = checked_geos.shift();
+                $(first).attr('checked', false);
+                var parent = $(first).parent().parent();
+                $(parent).find('.geo_dropdown').remove();
+                $(parent).find('.geo_hint').remove();
+            }
         }
     </script>
 {% endblock %}
