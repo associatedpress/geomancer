@@ -11,4 +11,10 @@ SENTRY_DSN = ''
 MANCERS = (
     'geomancer.mancers.census_reporter.CensusReporter',
     'geomancer.mancers.usa_spending.USASpending',
+    'geomancer.mancers.bea.BureauEconomicAnalysis'
 )
+
+# k = mancer machine_name, v = API key
+MANCER_KEYS = {
+    'bureau_economic_analysis' : # add BEA API key here
+}
