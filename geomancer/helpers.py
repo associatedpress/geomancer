@@ -131,20 +131,20 @@ def get_data_sources(geo_type=None):
 
 def find_geo_type(geo_type, col_idxs):
     if ';' not in geo_type:
-        return geo_type, col_idxs, '{0}'
+        return geo_type, col_idxs, u'{0}'
     else:
         g = None
-        fmt = '{0}, {1}'
+        fmt = u'{0}, {1}'
         if 'city' in geo_type:
-            g = 'city'
+            g = u'city'
         elif 'county' in geo_type:
-            g = 'county'
-            fmt = '{0} County, {1}'
+            g = u'county'
+            fmt = u'{0} County, {1}'
         elif 'school_district' in geo_type:
-            g = 'school_district'
+            g = u'school_district'
         elif 'congress_district' in geo_type:
-            g = 'congress_district'
-            fmt = 'Congressional District {0}, {1}'
+            g = u'congress_district'
+            fmt = u'Congressional District {0}, {1}'
         if geo_type.find(g) > 0:
             col_idxs = list(reversed(col_idxs.split(';')))
         else:
@@ -152,10 +152,10 @@ def find_geo_type(geo_type, col_idxs):
         return g, col_idxs, fmt
 
 SENSICAL_TYPES = {
-    'city;state': 'city',
-    'county;state': 'state',
-    'congress_district;state': 'congress_district',
-    'school_district;state': 'school_district',
+    'city;state': u'city',
+    'county;state': u'state',
+    'congress_district;state': u'congress_district',
+    'school_district;state': u'school_district',
 }
 
 def check_combos(combo):

@@ -14,6 +14,7 @@ import xlwt
 from openpyxl import Workbook
 from openpyxl.cell import get_column_letter
 from itertools import izip_longest
+import traceback
 
 redis = Redis()
 
@@ -98,7 +99,7 @@ def do_the_work(file_contents, field_defs, filename):
                         'geo_type': geo_type,
                     }
     for row_idx, row in enumerate(reader):
-        vals = [row[int(i)] for i in col_idxs]
+        vals = [unicode(row[int(i)]) for i in col_idxs]
         val = val_fmt.format(*vals)
         for column in field_cols:
             mancer = mancer_mapper[column]['mancer']
@@ -220,6 +221,8 @@ def queue_daemon(app, rv_ttl=500):
         except Exception, e:
             if client:
                 client.captureException()
+            tb = traceback.format_exc()
+            print tb
             try:
                 if e.body:
                     rv = {'status': 'error', 'result': '{0} message: {1}'.format(e.message, e.body)}
