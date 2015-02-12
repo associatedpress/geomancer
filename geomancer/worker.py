@@ -74,7 +74,6 @@ def do_the_work(file_contents, field_defs, filename):
 
       file_contents is a string containing the contents of the uploaded file.
     """
-
     contents = StringIO(file_contents)
     reader = UnicodeCSVReader(contents)
     header = reader.next()
@@ -149,7 +148,10 @@ def do_the_work(file_contents, field_defs, filename):
                 raise e
             all_data['header'].extend(data['header'])
             for gid in geo_ids:
-                all_data[gid].extend(data[gid])
+                try:
+                    all_data[gid].extend(data[gid])
+                except KeyError:
+                    pass
         else:
             raise MancerError('No geographies matched')
         for col in all_data['header']:

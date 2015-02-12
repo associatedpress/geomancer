@@ -184,7 +184,7 @@ class CensusReporter(BaseMancer):
         for gids in self._chunk_geoids(geo_ids):
             query = {
                 'table_ids': ','.join(columns),
-                'geo_ids': ','.join([g[1] for g in gids]),
+                'geo_ids': ','.join(sorted([g[1] for g in gids])),
             }
             params = urlencode(query)
             try:
@@ -196,7 +196,21 @@ class CensusReporter(BaseMancer):
                     body = None
                 except AttributeError:
                     body = e.body
-                raise MancerError('Census Reporter API returned an error', body=body)
+                if "doesn't include GeoID(s)" in body:
+                    message = json.loads(body)['error']
+                    bad_gids = set([(gids[0][0], g.replace('.', '').strip(), ) \
+                            for g in message.split('GeoID(s)')[1].split(',')])
+                    all_gids = set([g for g in gids])
+                    good_gids = all_gids.difference(bad_gids)
+                    if good_gids:
+                        query['geo_ids'] = ','.join(sorted([g[1] for g in good_gids]))
+                        params = urlencode(query)
+                        gids = list(good_gids)
+                        response = self.urlopen('%s/data/show/latest?%s' % (self.base_url, params))
+                    else:
+                        continue
+                else:
+                    raise MancerError('Census Reporter API returned an error', body=body)
             raw_results = json.loads(response)
             for geo_type, geo_id in gids:
                 if not results.get(geo_id):

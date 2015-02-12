@@ -129,7 +129,7 @@ def select_geo():
                 context['errors'] = ['We can only merge geographic information from 2 columns']
             else:
                 fields_key = ';'.join([header[int(i)] for i in indexes])
-                geotype_val = ';'.join([g for g in geotypes])
+                geotype_val = ';'.join([g for g in sorted(geotypes)])
                 if not check_combos(geotype_val):
                     valid = False
                     types = [t.title() for t in geotype_val.split(';')]
