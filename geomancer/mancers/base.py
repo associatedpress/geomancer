@@ -24,13 +24,18 @@ class BaseMancer(scrapelib.Scraper):
     info_url = None     # this will show up next to the name on the /select-tables page
     description = None  # this will show up under the name on the /select-tables page
 
+    # If True, geomancer will check that an API key is passed into the constructor.
+    # If it's not present, the mancer will be disabled and an error will display.
+    api_key_required = False
+
     def __init__(self,
                  raise_errors=True,
                  requests_per_minute=0,
                  retry_attempts=5,
                  retry_wait_seconds=1,
                  header_func=None, 
-                 cache_dir=CACHE_DIR):
+                 cache_dir=CACHE_DIR,
+                 api_key=None):
         
         super(BaseMancer, self).__init__(raise_errors=raise_errors,
                                              requests_per_minute=requests_per_minute,
@@ -43,6 +48,10 @@ class BaseMancer(scrapelib.Scraper):
         self.cache_dir = cache_dir
         self.cache_storage = scrapelib.cache.FileCache(self.cache_dir)
         self.cache_write_only = False
+        
+        if self.api_key_required and not self.api_key:
+            raise ImportError('The %s mancer requires an API key and is disabled.' % self.name)
+
 
     def flush_cache(self):
         host = urlparse(self.base_url).netloc

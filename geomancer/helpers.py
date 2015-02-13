@@ -1,4 +1,4 @@
-from geomancer.app_config import MANCERS
+from geomancer.app_config import MANCERS, MANCER_KEYS
 from collections import OrderedDict
 import operator
 import re
@@ -39,9 +39,16 @@ def get_geo_types(geo_type=None):
     types = {}
     columns = []
     geo_types = []
+    errors = []
 
     for mancer in MANCERS:
-        m = import_class(mancer)()
+        m = import_class(mancer)
+        api_key = MANCER_KEYS.get(m.machine_name)
+        try:
+            m = m(api_key=api_key)
+        except ImportError, e:
+            errors.append(e.message)
+            continue
         for col in m.column_info():
             geo_types.extend(col['geo_types'])
         columns.extend(m.column_info())
@@ -69,7 +76,7 @@ def get_geo_types(geo_type=None):
     for v in types_sorted:
         results.append(v)
 
-    return results
+    return results, errors
 
 GEO_LOOKUP = {
     'state': ['state'],
@@ -97,8 +104,15 @@ def guess_geotype(header, values):
 
 def get_data_sources(geo_type=None):
     mancer_data = []
+    errors = []
     for mancer in MANCERS:
-        m = import_class(mancer)()
+        m = import_class(mancer)
+        api_key = MANCER_KEYS.get(m.machine_name)
+        try:
+            m = m(api_key=api_key)
+        except ImportError, e:
+            errors.append(e.message)
+            continue
         mancer_obj = {
             "name": m.name, 
             "machine_name": m.machine_name, 
@@ -127,7 +141,7 @@ def get_data_sources(geo_type=None):
         if mancer_obj['data_types']:
             mancer_data.append(mancer_obj)
 
-    return mancer_data
+    return mancer_data, errors
 
 def find_geo_type(geo_type, col_idxs):
     if ';' not in geo_type:

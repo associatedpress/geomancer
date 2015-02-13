@@ -1,5 +1,5 @@
 from flask import Blueprint, make_response, request, redirect, url_for, \
-    session, render_template, current_app, send_from_directory
+    session, render_template, current_app, send_from_directory, flash
 import json
 import sys
 import os
@@ -14,7 +14,7 @@ from cStringIO import StringIO
 from geomancer.helpers import import_class, get_geo_types, get_data_sources, \
     guess_geotype, check_combos, SENSICAL_TYPES
 from geomancer.app_config import ALLOWED_EXTENSIONS, \
-    MAX_CONTENT_LENGTH, MANCERS
+    MAX_CONTENT_LENGTH
 
 views = Blueprint('views', __name__)
 
@@ -41,12 +41,16 @@ def contribute_data():
 
 @views.route('/geographies', methods=['GET', 'POST'])
 def geographies():
-    geographies = get_geo_types()
+    geographies, errors = get_geo_types()
+    for error in errors:
+        flash(error)
     return render_template('geographies.html', geographies=geographies)
 
 @views.route('/data-sources', methods=['GET', 'POST'])
 def data_sources():
-    data_sources = get_data_sources()
+    data_sources, errors = get_data_sources()
+    for error in errors:
+        flash(error)
     return render_template('data-sources.html', data_sources=data_sources)
 
 # routes for geomancin'
@@ -149,9 +153,11 @@ def select_geo():
                 geo_type = SENSICAL_TYPES[geotype_val]
             except KeyError:
                 geo_type = geotype_val
-            mancer_data = get_data_sources(geo_type=geo_type)
+            mancer_data, errors = get_data_sources(geo_type=geo_type)
             session['fields'] = fields
             session['mancer_data'] = mancer_data
+            for error in errors:
+                flash(error)
             return redirect(url_for('views.select_tables'))
     return render_template('select_geo.html', **context)
 
