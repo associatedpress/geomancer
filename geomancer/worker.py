@@ -151,7 +151,7 @@ def do_the_work(file_contents, field_defs, filename):
                 try:
                     all_data[gid].extend(data[gid])
                 except KeyError:
-                    pass
+                    all_data[gid].extend(['' for i in data.values()[0]])
         else:
             raise MancerError('No geographies matched')
         for col in all_data['header']:

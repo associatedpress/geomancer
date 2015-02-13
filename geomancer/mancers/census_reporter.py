@@ -111,11 +111,21 @@ class CensusReporter(BaseMancer):
             }
         regex = re.compile('[%s]' % re.escape(punctuation))
         search_term = regex.sub('', search_term)
-        if geo_type in ['census_tract', 'state_fips', 'state_county_fips']:
+        if geo_type in ['census_tract', 'state_fips']:
             return {
                 'term': search_term,
                 'geoid': '%s00US%s' % (SUMLEV_LOOKUP[geo_type], search_term)
             }
+        if geo_type == 'state_county_fips':
+            resp = {
+                'term': search_term,
+                'geoid': None
+                }
+            g = StateCountyFIPS()
+            valid, message = g.validate([search_term])
+            if valid:
+                resp['geoid'] = '05000US%s' % search_term
+            return resp
         q_dict = {'q': search_term}
         if geo_type:
             q_dict['sumlevs'] = SUMLEV_LOOKUP[geo_type]
@@ -196,21 +206,7 @@ class CensusReporter(BaseMancer):
                     body = None
                 except AttributeError:
                     body = e.body
-                if "doesn't include GeoID(s)" in body:
-                    message = json.loads(body)['error']
-                    bad_gids = set([(gids[0][0], g.replace('.', '').strip(), ) \
-                            for g in message.split('GeoID(s)')[1].split(',')])
-                    all_gids = set([g for g in gids])
-                    good_gids = all_gids.difference(bad_gids)
-                    if good_gids:
-                        query['geo_ids'] = ','.join(sorted([g[1] for g in good_gids]))
-                        params = urlencode(query)
-                        gids = list(good_gids)
-                        response = self.urlopen('%s/data/show/latest?%s' % (self.base_url, params))
-                    else:
-                        continue
-                else:
-                    raise MancerError('Census Reporter API returned an error', body=body)
+                raise MancerError('Census Reporter API returned an error', body=body)
             raw_results = json.loads(response)
             for geo_type, geo_id in gids:
                 if not results.get(geo_id):
