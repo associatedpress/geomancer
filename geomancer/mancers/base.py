@@ -49,6 +49,8 @@ class BaseMancer(scrapelib.Scraper):
         self.cache_storage = scrapelib.cache.FileCache(self.cache_dir)
         self.cache_write_only = False
         
+        # If subclass declares that an API Key is required and an API Key is not given, 
+        # raise an ImportError
         if self.api_key_required and not self.api_key:
             raise ImportError('The %s mancer requires an API key and is disabled.' % self.name)
 
