@@ -1,7 +1,7 @@
 {% extends 'wizard_base.html' %}
 {% block title %}Add data - Geomancer {% endblock %}
 {% block wizard_content %}
-<h2>2. Add data</h2>
+<h2>3. Add data</h2>
 <form id="mance-form" role="form">
     {% for field_name, info in session['fields'].items() %}
         <h4>Column(s) to match on: <strong>{{field_name|string_split(';')|join(', ')}}</strong></h4>
