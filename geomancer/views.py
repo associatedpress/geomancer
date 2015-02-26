@@ -178,3 +178,7 @@ def geomance_view(session_key):
 @views.route('/download/<path:filename>')
 def download_results(filename):
     return send_from_directory(current_app.config['RESULT_FOLDER'], filename)
+
+@views.route('/413.html')
+def file_too_large():
+    return make_response(render_template('413.html'), 413)

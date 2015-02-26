@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+{% block title %}File too large - Geomancer{% endblock %}
+{% block content %}
+  <h1>File too large</h1>
+  <p>The file you tried to upload was too large for us to handle</p>
+  <p><a class="btn btn-info" href="{{ url_for('views.upload') }}">&laquo; Try again with another file</a></p>
+{% endblock %}
