@@ -24,9 +24,13 @@ def create_app():
         return render_template('404.html'), 404
 
     @app.errorhandler(500)
-    def page_not_found(e):
+    def server_error(e):
         return render_template('error.html'), 500
 
+    @app.errorhandler(413)
+    def file_too_large(e):
+        return render_template('413.html'), 413
+    
     @app.template_filter('string_split')
     def string_split(val, splitter):
         return val.split(splitter)

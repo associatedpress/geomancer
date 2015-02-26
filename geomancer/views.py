@@ -15,6 +15,7 @@ from geomancer.helpers import import_class, get_geo_types, get_data_sources, \
     guess_geotype, check_combos, SENSICAL_TYPES
 from geomancer.app_config import ALLOWED_EXTENSIONS, \
     MAX_CONTENT_LENGTH
+from werkzeug.exceptions import RequestEntityTooLarge
 
 views = Blueprint('views', __name__)
 
@@ -58,52 +59,57 @@ def data_sources():
 def upload():
     context = {}
     if request.method == 'POST':
-        f = request.files['input_file']
-        if f:
+        big_file = False
+        try:
+            files = request.files
+        except RequestEntityTooLarge, e:
+            files = None
+            big_file = True
+            current_app.logger.info(e)
+        if files:
+            f = files['input_file']
             if allowed_file(f.filename):
                 inp = StringIO(f.read())
-                if sys.getsizeof(inp.getvalue()) <= MAX_CONTENT_LENGTH:
-                    inp.seek(0)
-                    file_format = convert.guess_format(f.filename)
-                    try:
-                        converted = convert.convert(inp, file_format)
-                    except UnicodeDecodeError:
-                        context['errors'] = ['We had a problem with reading your file. \
-                            This could have to do with the file encoding or format']
-                        converted = None
-                    f.seek(0)
-                    if converted:
-                        outp = StringIO(converted)
-                        reader = UnicodeCSVReader(outp)
-                        session['header_row'] = reader.next()
-                        rows = []
-                        columns = [[] for c in session['header_row']]
-                        column_ids = range(len(session['header_row']))
-                        for row in range(100):
-                            try:
-                                rows.append(reader.next())
-                            except StopIteration:
-                                break
-                        for i, row in enumerate(rows):
-                            for j,d in enumerate(row):
-                                columns[j].append(row[column_ids[j]])
-                        sample_data = []
-                        guesses = {}
-                        for index, header_val in enumerate(session['header_row']):
-                            guesses[index] = guess_geotype(header_val, columns[index])
-                            sample_data.append((index, header_val, columns[index]))
-                        session['sample_data'] = sample_data
-                        session['guesses'] = json.dumps(guesses)
-                        outp.seek(0)
-                        session['file'] = outp.getvalue()
-                        session['filename'] = f.filename
-                        return redirect(url_for('views.select_geo'))
-                else:
-                   context['errors'] = ['Uploaded file must be 10mb or less.'] 
+                file_format = convert.guess_format(f.filename)
+                try:
+                    converted = convert.convert(inp, file_format)
+                except UnicodeDecodeError:
+                    context['errors'] = ['We had a problem with reading your file. \
+                        This could have to do with the file encoding or format']
+                    converted = None
+                f.seek(0)
+                if converted:
+                    outp = StringIO(converted)
+                    reader = UnicodeCSVReader(outp)
+                    session['header_row'] = reader.next()
+                    rows = []
+                    columns = [[] for c in session['header_row']]
+                    column_ids = range(len(session['header_row']))
+                    for row in range(100):
+                        try:
+                            rows.append(reader.next())
+                        except StopIteration:
+                            break
+                    for i, row in enumerate(rows):
+                        for j,d in enumerate(row):
+                            columns[j].append(row[column_ids[j]])
+                    sample_data = []
+                    guesses = {}
+                    for index, header_val in enumerate(session['header_row']):
+                        guesses[index] = guess_geotype(header_val, columns[index])
+                        sample_data.append((index, header_val, columns[index]))
+                    session['sample_data'] = sample_data
+                    session['guesses'] = json.dumps(guesses)
+                    outp.seek(0)
+                    session['file'] = outp.getvalue()
+                    session['filename'] = f.filename
+                    return redirect(url_for('views.select_geo'))
             else:
                 context['errors'] = ['Only .xls or .xlsx and .csv files are allowed.']
         else:
             context['errors'] = ['You must provide a file to upload.']
+            if big_file:
+                context['errors'] = ['Uploaded file must be 10mb or less.'] 
     return render_template('upload.html', **context)
 
 @views.route('/select-geography/', methods=['GET', 'POST'])
@@ -178,3 +184,7 @@ def geomance_view(session_key):
 @views.route('/download/<path:filename>')
 def download_results(filename):
     return send_from_directory(current_app.config['RESULT_FOLDER'], filename)
+
+@views.route('/413.html')
+def file_too_large():
+    return make_response(render_template('413.html'), 413)
