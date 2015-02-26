@@ -11,4 +11,9 @@ SENTRY_DSN = ''
 MANCERS = (
     'geomancer.mancers.census_reporter.CensusReporter',
     'geomancer.mancers.usa_spending.USASpending',
+    'geomancer.mancers.bea.BureauEconomicAnalysis'
 )
+
+MANCER_KEYS = {
+    'bureau_economic_analysis' : None
+}

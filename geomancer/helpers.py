@@ -1,7 +1,23 @@
-from geomancer.app_config import MANCERS
+from geomancer.app_config import MANCERS, MANCER_KEYS
 from collections import OrderedDict
 import operator
 import re
+
+from geomancer.mancers.geotype import City, State, County, SchoolDistrict, \
+    CongressionalDistrict, Zip5, Zip9, StateFIPS, StateCountyFIPS, CensusTract
+
+GEOTYPES = [
+    City, 
+    State, 
+    County, 
+    SchoolDistrict,
+    CongressionalDistrict, 
+    Zip5, 
+    Zip9, 
+    StateFIPS, 
+    StateCountyFIPS, 
+    CensusTract,
+]
 
 def encoded_dict(in_dict):
     out_dict = {}
@@ -23,10 +39,16 @@ def get_geo_types(geo_type=None):
     types = {}
     columns = []
     geo_types = []
-    type_details = {}
+    errors = []
 
     for mancer in MANCERS:
-        m = import_class(mancer)()
+        m = import_class(mancer)
+        api_key = MANCER_KEYS.get(m.machine_name)
+        try:
+            m = m(api_key=api_key)
+        except ImportError, e:
+            errors.append(e.message)
+            continue
         for col in m.column_info():
             geo_types.extend(col['geo_types'])
         columns.extend(m.column_info())
@@ -54,12 +76,43 @@ def get_geo_types(geo_type=None):
     for v in types_sorted:
         results.append(v)
 
-    return results
+    return results, errors
+
+GEO_LOOKUP = {
+    'state': ['state'],
+    'city': ['city'],
+    'county': ['county'],
+    'zip_5': ['zip', 'zip code', 'zipcode'],
+    'congress_district': ['congressional district'],
+    'school_district': ['school district'],
+    'state_fips': ['state fips', 'state fips code'],
+    'state_county_fips': ['county fips'],
+    'census_tract': ['census tract', 'us census tract'],
+}
+
+def guess_geotype(header, values):
+    guess = None
+    for geotype, vals in GEO_LOOKUP.items():
+        if header in vals:
+            return geotype
+    for geotype in GEOTYPES:
+        g = geotype()
+        valid, message = g.validate(values)
+        if valid:
+            guess = g.machine_name
+    return guess
 
 def get_data_sources(geo_type=None):
     mancer_data = []
+    errors = []
     for mancer in MANCERS:
-        m = import_class(mancer)()
+        m = import_class(mancer)
+        api_key = MANCER_KEYS.get(m.machine_name)
+        try:
+            m = m(api_key=api_key)
+        except ImportError, e:
+            errors.append(e.message)
+            continue
         mancer_obj = {
             "name": m.name, 
             "machine_name": m.machine_name, 
@@ -77,26 +130,56 @@ def get_data_sources(geo_type=None):
             else:
                 mancer_obj["data_types"][col['table_id']] = col
             try:
-                mancer_obj["data_types"][col['table_id']]['geo_types'] = sorted(mancer_obj["data_types"][col['table_id']]['geo_types'], key=lambda x: x.human_name)
+                mancer_obj["data_types"][col['table_id']]['geo_types'] = \
+                    sorted(mancer_obj["data_types"][col['table_id']]['geo_types'], 
+                           key=lambda x: x.human_name)
             except KeyError:
                 pass
 
-        mancer_obj["data_types"] = sorted(mancer_obj["data_types"].values(), key=lambda x: x['human_name'])
+        mancer_obj["data_types"] = sorted(mancer_obj["data_types"].values(), 
+                                          key=lambda x: x['human_name'])
+        if mancer_obj['data_types']:
+            mancer_data.append(mancer_obj)
 
-        mancer_data.append(mancer_obj)
+    return mancer_data, errors
 
-    return mancer_data
+def find_geo_type(geo_type, col_idxs):
+    if ';' not in geo_type:
+        return geo_type, col_idxs, u'{0}'
+    else:
+        g = None
+        fmt = u'{0}, {1}'
+        if 'city' in geo_type:
+            g = u'city'
+        elif 'county' in geo_type:
+            g = u'county'
+            fmt = u'{0} County, {1}'
+        elif 'school_district' in geo_type:
+            g = u'school_district'
+        elif 'congress_district' in geo_type:
+            g = u'congress_district'
+            fmt = u'Congressional District {0}, {1}'
+        if geo_type.find(g) > 0:
+            col_idxs = list(reversed(col_idxs.split(';')))
+        else:
+            col_idxs = col_idxs.split(';')
+        return g, col_idxs, fmt
 
-def validate_geo_type(geo_type, sample):
-    """ 
-    If the selected geography has a validation regex, validate each sample value 
-    """
-    if geo_type.validation_regex != "":
-        print "validating with %s" % geo_type.validation_regex
-        for s in sample:
-            print "validating %s" % s
-            if not re.match(geo_type.validation_regex, s):
-                print "validation failed!"
-                return False
+SENSICAL_TYPES = {
+    'city;state': u'city',
+    'county;state': u'state',
+    'congress_district;state': u'congress_district',
+    'school_district;state': u'school_district',
+}
 
-    return True
+def check_combos(combo):
+    ''' 
+    Return boolean telling us whether the geo type combination 
+    makes sense or not
+    '''
+    if ';' not in combo:
+        return True
+    sorted_types = ';'.join(sorted(combo.split(';')))
+    if sorted_types in SENSICAL_TYPES.keys():
+        return True
+    return False

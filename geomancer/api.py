@@ -2,7 +2,7 @@ from flask import Blueprint, make_response, request, jsonify, \
     session as flask_session
 from geomancer.worker import DelayedResult, do_the_work
 from geomancer.helpers import import_class, get_geo_types, get_data_sources
-from geomancer.app_config import MANCERS
+from geomancer.app_config import MANCERS, MANCER_KEYS
 from geomancer.mancers.geotype import GeoTypeEncoder
 import json
 from redis import Redis
@@ -28,17 +28,29 @@ def geomance_api():
           'append_columns': ['total_population', 'median_age']
         }
       }
+
     The key is the zero-indexed position of the columns within the spreadsheet.
     The value is a dict containing the geographic type and the columns to 
     append. The values in that list should be fetched from one of the other
     endpoints.
 
+    To mance on a combination of columns, separate the column indexes and 
+    geotypes with a semicolon like so:
+
+      {
+        10;2: {
+          'type': 'city;state', 
+          'append_columns': ['total_population', 'median_age']
+        }
+      }
+
+    In this example, column 10 contains the city info and column 2 contains
+    the state info.
+
     Responds with a key that can be used to poll for results
     """
-    defs = json.loads(request.data)
-    field_defs = {}
-    for k,v in defs.items():
-        field_defs[int(k)] = v
+
+    field_defs = json.loads(request.data)
     if request.files:
         file_contents = request.files['input_file'].read()
         filename = request.files['input_file'].filename
@@ -69,9 +81,9 @@ def data_sources():
     """
     mancers = None
     if request.args.get('geo_type'):
-        mancers = get_data_sources(request.args.get('geo_type'))
+        mancers, errors = get_data_sources(request.args.get('geo_type'))
     else:
-        mancers = get_data_sources()
+        mancers, errors = get_data_sources()
     resp = make_response(json.dumps(mancers, cls=GeoTypeEncoder))
     resp.headers['Content-Type'] = 'application/json'
     return resp
@@ -83,7 +95,12 @@ def table_info():
     """
     columns = OrderedDict()
     for mancer in MANCERS:
-        m = import_class(mancer)()
+        m = import_class(mancer)
+        api_key = MANCER_KEYS.get(m.machine_name)
+        try:
+            m = m(api_key=api_key)
+        except ImportError, e:
+            continue
         col_info = m.column_info()
         for col in col_info:
             columns[col['table_id']] = {
@@ -116,9 +133,9 @@ def geo_types():
     """
     ordered_types = None
     if request.args.get('geo_type'):
-        ordered_types = get_geo_types(request.args.get('geo_type'))
+        ordered_types, errors = get_geo_types(request.args.get('geo_type'))
     else:
-        ordered_types = get_geo_types()
+        ordered_types, errors = get_geo_types()
     resp = make_response(json.dumps(ordered_types, cls=GeoTypeEncoder))
     resp.headers['Content-Type'] = 'application/json'
     return resp

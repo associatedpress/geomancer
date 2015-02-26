@@ -73,12 +73,12 @@ class CensusReporter(BaseMancer):
             columns.append(d)
         return columns
 
-    def lookup_state(self, term):
+    def lookup_state(self, term, attr='name'):
         st = us.states.lookup(term)
         if not st:
             st = [s for s in us.STATES if getattr(s, 'ap_abbr') == term]
         if st:
-            return st.name # Census Reporter prefers full state name 
+            return getattr(st, attr)
         else:
             return term
 
@@ -94,13 +94,38 @@ class CensusReporter(BaseMancer):
         }
 
         """
+        if geo_type == 'congress_district':
+            geoid = None
+            dist, st = search_term.rsplit(',', 1)
+            fips = self.lookup_state(st.strip(), attr='fips')
+            try:
+                dist_num = str(int(dist.split(' ')[-1]))
+            except ValueError:
+                dist_num = '00'
+            if fips and dist_num:
+                geoid = '50000US{0}{1}'\
+                    .format(fips, dist_num.zfill(2))
+            return {
+                'term': search_term,
+                'geoid': geoid
+            }
         regex = re.compile('[%s]' % re.escape(punctuation))
         search_term = regex.sub('', search_term)
-        if geo_type in ['census_tract', 'state_fips', 'state_county_fips']:
+        if geo_type in ['census_tract', 'state_fips']:
             return {
                 'term': search_term,
                 'geoid': '%s00US%s' % (SUMLEV_LOOKUP[geo_type], search_term)
             }
+        if geo_type == 'state_county_fips':
+            resp = {
+                'term': search_term,
+                'geoid': None
+                }
+            g = StateCountyFIPS()
+            valid, message = g.validate([search_term])
+            if valid:
+                resp['geoid'] = '05000US%s' % search_term
+            return resp
         q_dict = {'q': search_term}
         if geo_type:
             q_dict['sumlevs'] = SUMLEV_LOOKUP[geo_type]
@@ -169,7 +194,7 @@ class CensusReporter(BaseMancer):
         for gids in self._chunk_geoids(geo_ids):
             query = {
                 'table_ids': ','.join(columns),
-                'geo_ids': ','.join([g[1] for g in gids]),
+                'geo_ids': ','.join(sorted([g[1] for g in gids])),
             }
             params = urlencode(query)
             try:

@@ -27,6 +27,10 @@ def create_app():
     def page_not_found(e):
         return render_template('error.html'), 500
 
+    @app.template_filter('string_split')
+    def string_split(val, splitter):
+        return val.split(splitter)
+
     if sentry:
         sentry.init_app(app)
 

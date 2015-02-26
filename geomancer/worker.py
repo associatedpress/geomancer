@@ -7,13 +7,14 @@ import os
 from cStringIO import StringIO
 from csvkit.unicsv import UnicodeCSVReader, UnicodeCSVWriter
 from geomancer.mancers.base import MancerError
-from geomancer.helpers import import_class
-from geomancer.app_config import RESULT_FOLDER, MANCERS
+from geomancer.helpers import import_class, find_geo_type
+from geomancer.app_config import RESULT_FOLDER, MANCERS, MANCER_KEYS
 from datetime import datetime
 import xlwt
 from openpyxl import Workbook
 from openpyxl.cell import get_column_letter
 from itertools import izip_longest
+import traceback
 
 redis = Redis()
 
@@ -60,6 +61,17 @@ def do_the_work(file_contents, field_defs, filename):
         }
       }
 
+      or like this:
+
+      {
+        10;2: {
+          'type': 'city;state', 
+          'append_columns': ['total_population', 'median_age']
+        }
+      }
+
+      where the semicolon separated values represent a multicolumn geography
+
       file_contents is a string containing the contents of the uploaded file.
     """
     contents = StringIO(file_contents)
@@ -68,9 +80,20 @@ def do_the_work(file_contents, field_defs, filename):
     result = None
     geo_ids = set()
     mancer_mapper = {}
+    fields_key = field_defs.keys()[0]
+    errors = []
+
+    geo_type, col_idxs, val_fmt = find_geo_type(field_defs[fields_key]['type'], 
+                                       fields_key)
     for mancer in MANCERS:
-        m = import_class(mancer)()
-        mancer_cols = [k['table_id'] for k in m.column_info()]
+        m = import_class(mancer)
+        api_key = MANCER_KEYS.get(m.machine_name)
+        try:
+            m = m(api_key=api_key)
+        except ImportError, e:
+            errors.append(e.message)
+            continue
+        mancer_cols = [c['table_id'] for c in m.column_info()]
         for k, v in field_defs.items():
             field_cols = v['append_columns']
             for f in field_cols:
@@ -79,29 +102,27 @@ def do_the_work(file_contents, field_defs, filename):
                         'mancer': m,
                         'geo_id_map': {},
                         'geo_ids': set(),
-                        'geo_type': v['type']
+                        'geo_type': geo_type,
                     }
     for row_idx, row in enumerate(reader):
-        col_idxs = [int(k) for k in field_defs.keys()]
-        for idx in col_idxs:
-            val = row[idx]
-            geo_type = field_defs[idx]['type']
-            for column in field_defs[idx]['append_columns']:
-                mancer = mancer_mapper[column]['mancer']
+        vals = [unicode(row[int(i)]) for i in col_idxs]
+        val = val_fmt.format(*vals)
+        for column in field_cols:
+            mancer = mancer_mapper[column]['mancer']
+            try:
+                if val:
+                    geoid_search = mancer.geo_lookup(val, geo_type=geo_type)
+                else:
+                    continue
+            except MancerError, e:
+                return 'Error message: %s, Body: %s' % (e.message, e.body)
+            row_geoid = geoid_search['geoid']
+            if row_geoid:
+                mancer_mapper[column]['geo_ids'].add(row_geoid)
                 try:
-                    if val:
-                        geoid_search = mancer.geo_lookup(val, geo_type=geo_type)
-                    else:
-                        continue
-                except MancerError, e:
-                    return 'Error message: %s, Body: %s' % (e.message, e.body)
-                row_geoid = geoid_search['geoid']
-                if row_geoid:
-                    mancer_mapper[column]['geo_ids'].add(row_geoid)
-                    try:
-                        mancer_mapper[column]['geo_id_map'][row_geoid].append(row_idx)
-                    except KeyError:
-                        mancer_mapper[column]['geo_id_map'][row_geoid] = [row_idx]
+                    mancer_mapper[column]['geo_id_map'][row_geoid].append(row_idx)
+                except KeyError:
+                    mancer_mapper[column]['geo_id_map'][row_geoid] = [row_idx]
     all_data = {'header': []}
     contents.seek(0)
     all_rows = list(reader)
@@ -115,7 +136,8 @@ def do_the_work(file_contents, field_defs, filename):
         'num_rows': len(all_rows),
         'num_matches': 0,
         'num_missing': 0,
-        'cols_added': header_row[:]
+        'cols_added': header_row[:],
+        'errors': errors,
     }
 
     for column, defs in mancer_mapper.items():
@@ -134,7 +156,10 @@ def do_the_work(file_contents, field_defs, filename):
                 raise e
             all_data['header'].extend(data['header'])
             for gid in geo_ids:
-                all_data[gid].extend(data[gid])
+                try:
+                    all_data[gid].extend(data[gid])
+                except KeyError:
+                    all_data[gid].extend(['' for i in data.values()[0]])
         else:
             raise MancerError('No geographies matched')
         for col in all_data['header']:
@@ -147,14 +172,14 @@ def do_the_work(file_contents, field_defs, filename):
                 row.extend(all_data[geoid])
                 output[row_id] = row
         output.insert(0, header_row)
-        all_row_idxs = set(list(range(len(all_rows))))
-        missing_rows = all_row_idxs.difference(included_idxs)
-    response['num_missing'] = len(missing_rows) # store away missing rows
-    for idx in missing_rows:
+    all_row_idxs = set(list(range(len(all_rows))))
+    missing_rows = all_row_idxs.difference(included_idxs)
+    for idx in sorted(missing_rows):
         row = all_rows[idx]
         diff = len(output[0]) - len(row)
         row.extend(['' for i in range(diff)])
-        output.append(row)
+        output[idx] = row
+    response['num_missing'] = len(missing_rows) # store away missing rows
     name, ext = os.path.splitext(filename)
     fname = '%s_%s%s' % (name, datetime.now().isoformat(), ext)
     fpath = '%s/%s' % (RESULT_FOLDER, fname)
@@ -206,6 +231,8 @@ def queue_daemon(app, rv_ttl=500):
         except Exception, e:
             if client:
                 client.captureException()
+            tb = traceback.format_exc()
+            print tb
             try:
                 if e.body:
                     rv = {'status': 'error', 'result': '{0} message: {1}'.format(e.message, e.body)}

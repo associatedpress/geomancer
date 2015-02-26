@@ -17,14 +17,14 @@
             <tr>
                 <td data-column_index="{{ index }}">
                     <label>
-                        <input id="column_{{ index }}" type="radio" class="geography" name="geo_type" />
+                        <input id="column_{{ index }}" type="checkbox" class="geography" name="geo_type" />
                     </label>
                 </td>
                 <td>
                     <label for="column_{{ index }}">{{ name }}</label>
                 </td>
                 <td>
-                    <label for="column_{{ index }}">{{ values }}</label>
+                    <label for="column_{{ index }}">{{ values[:11]|join(', ') }}</label>
                 </td>
             </tr>
             {% endfor %}
@@ -36,26 +36,31 @@
 {% block extra_javascript %}
     <script type="text/javascript">
         var geo_types = [];
+        var type_guesses = {{ session['guesses']|safe }};
+        var checked_geos = [];
         $(document).ready(function(){
             $.getJSON('{{ url_for("api.geo_types") }}', {}, function(types){
                 geo_types = types;
             });
 
             $('.geography').on('click', function(e){
-                var parent = $(this).parent().parent()
+                var parent = $(this).parent().parent();
                 var col_index = $(parent).data('column_index')
-                if(!$(this).is(':checked')){
-                    $(parent).find('.geo_dropdown').remove();
-                } else {
-                    $('.geo_dropdown').remove();
-                    $('.geo_hint').remove();
-                    
+                $(parent).find('.geo_dropdown').remove();
+                $(parent).find('.geo_hint').remove();
+                if($(this).is(':checked')){
+                    checked_geos.push($(this))
+                    checkChecked();
                     var dropdown = '<select class="geo_dropdown" name="geotype_' + col_index + '">';
                     var table = parent.parent().parent().parent()
                     $.each(geo_types, function(i, type){
-                        dropdown += '<option value="' + type.info.machine_name + '">' + type.info.human_name + '</option>';
+                        dropdown += '<option value="' + type.info.machine_name + '" ';
+                        if(type_guesses[col_index] && type_guesses[col_index] == type.info.machine_name){
+                            dropdown += 'selected';
+                        }
+                        dropdown += '>' + type.info.human_name + '</option>';
                     })
-                    
+
                     $(parent).append(dropdown);
                     updateHint('.geo_dropdown');
 
@@ -82,6 +87,17 @@
             return str.replace(/\w\S*/g, function(txt){
                 return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
             });
+        }
+        function checkChecked(){
+            if (checked_geos.length <= 2){
+                return
+            } else {
+                var first = checked_geos.shift();
+                $(first).attr('checked', false);
+                var parent = $(first).parent().parent();
+                $(parent).find('.geo_dropdown').remove();
+                $(parent).find('.geo_hint').remove();
+            }
         }
     </script>
 {% endblock %}

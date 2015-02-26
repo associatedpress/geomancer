@@ -1,5 +1,5 @@
-from flask import Blueprint, make_response, request, redirect, url_for, session, \
-    render_template, current_app, send_from_directory
+from flask import Blueprint, make_response, request, redirect, url_for, \
+    session, render_template, current_app, send_from_directory, flash
 import json
 import sys
 import os
@@ -11,9 +11,10 @@ from csvkit import convert
 from csvkit.unicsv import UnicodeCSVReader
 from csvkit.cleanup import RowChecker
 from cStringIO import StringIO
-from geomancer.helpers import import_class, get_geo_types, get_data_sources, get_geo_types, validate_geo_type
+from geomancer.helpers import import_class, get_geo_types, get_data_sources, \
+    guess_geotype, check_combos, SENSICAL_TYPES
 from geomancer.app_config import ALLOWED_EXTENSIONS, \
-    MAX_CONTENT_LENGTH, MANCERS
+    MAX_CONTENT_LENGTH
 
 views = Blueprint('views', __name__)
 
@@ -40,12 +41,16 @@ def contribute_data():
 
 @views.route('/geographies', methods=['GET', 'POST'])
 def geographies():
-    geographies = get_geo_types()
+    geographies, errors = get_geo_types()
+    for error in errors:
+        flash(error)
     return render_template('geographies.html', geographies=geographies)
 
 @views.route('/data-sources', methods=['GET', 'POST'])
 def data_sources():
-    data_sources = get_data_sources()
+    data_sources, errors = get_data_sources()
+    for error in errors:
+        flash(error)
     return render_template('data-sources.html', data_sources=data_sources)
 
 # routes for geomancin'
@@ -74,7 +79,7 @@ def upload():
                         rows = []
                         columns = [[] for c in session['header_row']]
                         column_ids = range(len(session['header_row']))
-                        for row in range(10):
+                        for row in range(100):
                             try:
                                 rows.append(reader.next())
                             except StopIteration:
@@ -82,11 +87,13 @@ def upload():
                         for i, row in enumerate(rows):
                             for j,d in enumerate(row):
                                 columns[j].append(row[column_ids[j]])
-                        columns = [', '.join(c) for c in columns]
                         sample_data = []
-                        for index,_ in enumerate(session['header_row']):
-                            sample_data.append((index, session['header_row'][index], columns[index]))
+                        guesses = {}
+                        for index, header_val in enumerate(session['header_row']):
+                            guesses[index] = guess_geotype(header_val, columns[index])
+                            sample_data.append((index, header_val, columns[index]))
                         session['sample_data'] = sample_data
+                        session['guesses'] = json.dumps(guesses)
                         outp.seek(0)
                         session['file'] = outp.getvalue()
                         session['filename'] = f.filename
@@ -109,28 +116,48 @@ def select_geo():
         reader = UnicodeCSVReader(inp)
         header = reader.next()
         fields = {}
-        geo_type = None
         valid = True
+        geotype_val = None
         if not request.form:
             valid = False
             context['errors'] = ['Select a field that contains a geography type']
         else:
+            geotypes = []
+            indexes = []
             for k,v in request.form.items():
                 if k.startswith("geotype"):
-                    geo_type = v
-                    index = int(k.split('_')[1])
-                    fields[header[index]] = {
-                        'geo_type': v,
-                        'column_index': index
+                    geotypes.append(v)
+                    indexes.append(k.split('_')[1])
+            if len(indexes) > 2:
+                valid = False
+                context['errors'] = ['We can only merge geographic information from 2 columns']
+            else:
+                fields_key = ';'.join([header[int(i)] for i in indexes])
+                geotype_val = ';'.join([g for g in sorted(geotypes)])
+                if not check_combos(geotype_val):
+                    valid = False
+                    types = [t.title() for t in geotype_val.split(';')]
+                    context['errors'] = ['The geographic combination of {0} and {1} does not work'.format(*types)]
+                else:
+                    fields[fields_key] = {
+                        'geo_type': geotype_val,
+                        'column_index': ';'.join(indexes)
                     }
 
-            found_geo_type = get_geo_types(geo_type)[0]['info']
-            sample_as_list = session['sample_data'][index][2].split(', ')
-            valid = validate_geo_type(found_geo_type, sample_as_list)
-            context['errors'] = ['The column you selected must be formatted like "%s" to match on %s geographies. Please pick another column or change the format of your data.' % (found_geo_type.formatting_example, found_geo_type.human_name)]
+            # found_geo_type = get_geo_types(geo_type)[0]['info']
+            # sample_list = session['sample_data'][index][2]
+            # valid, message = found_geo_type.validate(sample_list)
+            # context['errors'] = [message]
         if valid:
-            mancer_data = get_data_sources(geo_type)
-            session.update({'fields': fields, 'mancer_data': mancer_data})
+            try:
+                geo_type = SENSICAL_TYPES[geotype_val]
+            except KeyError:
+                geo_type = geotype_val
+            mancer_data, errors = get_data_sources(geo_type=geo_type)
+            session['fields'] = fields
+            session['mancer_data'] = mancer_data
+            for error in errors:
+                flash(error)
             return redirect(url_for('views.select_tables'))
     return render_template('select_geo.html', **context)
 
@@ -142,7 +169,6 @@ def select_tables():
     if request.method == 'POST' and not request.form:
         valid = False
         context['errors'] = ['Select at least on table to join to your spreadsheet']
-    context.update({'fields': session['fields'], 'mancer_data': session['mancer_data']})
     return render_template('select_tables.html', **context)
 
 @views.route('/geomance/<session_key>/')

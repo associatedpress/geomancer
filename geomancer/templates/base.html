@@ -46,6 +46,23 @@
         </div><!--/.nav-collapse -->
       </div>
       <div class="container">
+        <div class="row">
+         {% with messages = get_flashed_messages() %}
+         {% if messages %}
+         <div class="row">
+           {% for message in messages %}
+           <div class="alert alert-danger alert-dismissible" role="alert">
+             <button type="button" class="close" data-dismiss="alert">
+               <span aria-hidden="true">&times;</span>
+               <span class="sr-only">Close</span>
+             </button>
+             {{ message|safe }}
+           </div>
+           {% endfor %}
+         </div>
+         {% endif %}
+         {% endwith %}
+        </div>
         {% block content %}{% endblock %}
 
         <br />

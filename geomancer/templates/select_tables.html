@@ -1,12 +1,12 @@
 {% extends 'wizard_base.html' %}
 {% block title %}Add data - Geomancer {% endblock %}
 {% block wizard_content %}
-<h2>2. Add data</h2>
+<h2>3. Add data</h2>
 <form id="mance-form" role="form">
-    {% for field_name, info in fields.items() %}
-        <h4>Column to match on: <strong>{{field_name}}</strong></h4>
+    {% for field_name, info in session['fields'].items() %}
+        <h4>Column(s) to match on: <strong>{{field_name|string_split(';')|join(', ')}}</strong></h4>
 
-        {% for mancer in mancer_data %}
+        {% for mancer in session['mancer_data'] %}
             {% if mancer['data_types'] | length > 0 %}
                 <h3>{{mancer.name}} <small><a href='{{mancer.info_url}}' target='_blank'>{{mancer.info_url}}</a></small></h3>
                 <p>{{mancer.description}}</p>
@@ -47,7 +47,7 @@
                     </tbody>
                 </table>
             {% endif %}
-        {% endfor %} 
+        {% endfor %}
     {% endfor %}
     <button type="submit" class="btn btn-success">Next &gt;</button>
 </form>
