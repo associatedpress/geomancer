@@ -2,7 +2,8 @@
 {% block title %}Select geography - Geomancer {% endblock %}
 {% block wizard_content %}
 <h2>2. Select geography</h2>
-<h4>Select the column that holds geographic data</h4>
+<h4>Select the column that contain geographic data.</h4>
+<p>For more accuracy, you can select <strong>State</strong> along with either <strong>City, County, Congressional district, or School district</strong>.</p>
 <form role="form" id="geotypes-form" action="{{ url_for('views.select_geo') }}" method="POST">
     <table class="table">
         <thead>

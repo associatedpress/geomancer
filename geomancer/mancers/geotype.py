@@ -163,7 +163,7 @@ class SchoolDistrict(GeoType):
                 .format(u', '.join(diffs))
 
 class CongressionalDistrict(GeoType):
-    human_name = 'Congressional District'
+    human_name = 'Congressional district'
     machine_name = 'congress_district'
     formatting_notes = 'U.S Congressional District.' 
     formatting_example = 'Congressional District 7, IL'
