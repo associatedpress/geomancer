@@ -162,6 +162,33 @@ class CensusReporter(BaseMancer):
         for i in xrange(0, len(geo_ids), 100):
             yield geo_ids[i:i+100]
 
+    def _try_search(self, gids, columns, bad_gids=[]):
+        query = {
+            'table_ids': ','.join(columns),
+            'geo_ids': ','.join(sorted([g[1] for g in gids])),
+        }
+        params = urlencode(query)
+        try:
+            response = self.urlopen('%s/data/show/latest?%s' % (self.base_url, params))
+        except scrapelib.HTTPError, e:
+            try:
+                body = json.loads(e.body.json()['error'])
+            except ValueError:
+                body = None
+            except AttributeError:
+                body = e.body
+            if 'The ACS 2013 5-year release doesn\'t include GeoID(s)' in body:
+                error = json.loads(body)
+                bad_gids.append(error['error'].rsplit(' ',1)[1].replace('.', ''))
+                for idx,gid in enumerate(gids):
+                    if gid[1] in bad_gids:
+                        gids.pop(idx)
+                response = self._try_search(gids, columns, bad_gids=bad_gids)
+            else:
+                raise MancerError('Census Reporter API returned an error', body=body)
+        return response
+
+
     def search(self, geo_ids=None, columns=None):
         """ 
         Response should look like:
@@ -200,22 +227,8 @@ class CensusReporter(BaseMancer):
 
         results = {'header': []}
         for gids in self._chunk_geoids(geo_ids):
-            query = {
-                'table_ids': ','.join(columns),
-                'geo_ids': ','.join(sorted([g[1] for g in gids])),
-            }
-            params = urlencode(query)
-            try:
-                response = self.urlopen('%s/data/show/latest?%s' % (self.base_url, params))
-            except scrapelib.HTTPError, e:
-                try:
-                    body = json.loads(e.body.json()['error'])
-                except ValueError:
-                    body = None
-                except AttributeError:
-                    body = e.body
-                raise MancerError('Census Reporter API returned an error', body=body)
-            raw_results = json.loads(response)
+            raw_results = self._try_search(gids, columns)
+            raw_results = json.loads(raw_results)
             for geo_type, geo_id in gids:
                 if not results.get(geo_id):
                     results[geo_id] = []
