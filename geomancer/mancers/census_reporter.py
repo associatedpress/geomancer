@@ -51,6 +51,7 @@ class CensusReporter(BaseMancer):
             "B05006",  # Place of Birth for the Foreign-born Population in the United States
             "B19083", # Gini Index of Income Inequality
             "B15003", # Educational Attainment
+            "B03002", # Hispanic or Latino Origin by Race
         ]
         columns = []
         for table in table_ids:
