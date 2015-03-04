@@ -12,6 +12,10 @@ Read more: [AP wins Knight grant to build data journalism tool](http://www.ap.or
 
 * Python 2.7
 * [Redis](http://redis.io/)
+* libxml2
+* libxml2-dev
+* libxslt1-dev
+* zlib1g-dev
 
 **Install app requirements**
 
