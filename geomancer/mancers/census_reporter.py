@@ -48,9 +48,10 @@ class CensusReporter(BaseMancer):
             "B25077", # Median Value (Dollars)
             "B26001", # Group Quarters Population
             "B11009", # Unmarried-partner Households by Sex of Partner
-            "B05006",  # Place of Birth for the Foreign-born Population in the United States
+            "B05006", # Place of Birth for the Foreign-born Population in the United States
             "B19083", # Gini Index of Income Inequality
             "B15003", # Educational Attainment
+            "B03002", # Hispanic or Latino Origin by Race
         ]
         columns = []
         for table in table_ids:
@@ -162,6 +163,33 @@ class CensusReporter(BaseMancer):
         for i in xrange(0, len(geo_ids), 100):
             yield geo_ids[i:i+100]
 
+    def _try_search(self, gids, columns, bad_gids=[]):
+        query = {
+            'table_ids': ','.join(columns),
+            'geo_ids': ','.join(sorted([g[1] for g in gids])),
+        }
+        params = urlencode(query)
+        try:
+            response = self.urlopen('%s/data/show/latest?%s' % (self.base_url, params))
+        except scrapelib.HTTPError, e:
+            try:
+                body = json.loads(e.body.json()['error'])
+            except ValueError:
+                body = None
+            except AttributeError:
+                body = e.body
+            if 'The ACS 2013 5-year release doesn\'t include GeoID(s)' in body:
+                error = json.loads(body)
+                bad_gids.append(error['error'].rsplit(' ',1)[1].replace('.', ''))
+                for idx,gid in enumerate(gids):
+                    if gid[1] in bad_gids:
+                        gids.pop(idx)
+                response = self._try_search(gids, columns, bad_gids=bad_gids)
+            else:
+                raise MancerError('Census Reporter API returned an error', body=body)
+        return response
+
+
     def search(self, geo_ids=None, columns=None):
         """ 
         Response should look like:
@@ -190,24 +218,18 @@ class CensusReporter(BaseMancer):
         The keys are CensusReporter 'geo_ids' and the value is a list that you
         should be able to call the python 'zip' function on with the 'header' key.
         """
+        # these are the tables where we want to leave the table name out
+        # of the header cell name in output, for prettiness, b/c
+        # there is redundant info in table_title & detail_title
+        table_name_exceptions = [   'Median Household Income in the Past 12 Months (In 2013 Inflation-adjusted Dollars)',
+                                    'Median Value (Dollars)',
+                                    'Per Capita Income in the Past 12 Months (In 2013 Inflation-adjusted Dollars)',
+                                    ]
+
         results = {'header': []}
         for gids in self._chunk_geoids(geo_ids):
-            query = {
-                'table_ids': ','.join(columns),
-                'geo_ids': ','.join(sorted([g[1] for g in gids])),
-            }
-            params = urlencode(query)
-            try:
-                response = self.urlopen('%s/data/show/latest?%s' % (self.base_url, params))
-            except scrapelib.HTTPError, e:
-                try:
-                    body = json.loads(e.body.json()['error'])
-                except ValueError:
-                    body = None
-                except AttributeError:
-                    body = e.body
-                raise MancerError('Census Reporter API returned an error', body=body)
-            raw_results = json.loads(response)
+            raw_results = self._try_search(gids, columns)
+            raw_results = json.loads(raw_results)
             for geo_type, geo_id in gids:
                 if not results.get(geo_id):
                     results[geo_id] = []
@@ -221,9 +243,13 @@ class CensusReporter(BaseMancer):
                         table_title = table_info['title']
                         column_title = None
                         detail_title = table_info['columns'][detail_id]['name']
-                        column_title = '%s, %s' % (table_title, detail_title,)
+                        if table_title in table_name_exceptions:
+                            column_title = detail_title
+                        else:
+                            column_title = '%s, %s' % (table_title, detail_title,)
                         if column_title not in results['header']:
                             results['header'].extend([column_title, '%s (error margin)' % column_title])
+
                         detail_info = raw_results['data'][geo_id][table_id]
                         results[geo_id].extend([
                             detail_info['estimate'][detail_id], 

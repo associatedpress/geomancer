@@ -167,9 +167,13 @@ def find_geo_type(geo_type, col_idxs):
 
 SENSICAL_TYPES = {
     'city;state': u'city',
+    'state;city': u'city',
     'county;state': u'state',
+    'state;county': u'state',
     'congress_district;state': u'congress_district',
+    'state;congress_district': u'congress_district',
     'school_district;state': u'school_district',
+    'state;school_district': u'school_district',
 }
 
 def check_combos(combo):
