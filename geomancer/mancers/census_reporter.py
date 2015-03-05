@@ -48,9 +48,10 @@ class CensusReporter(BaseMancer):
             "B25077", # Median Value (Dollars)
             "B26001", # Group Quarters Population
             "B11009", # Unmarried-partner Households by Sex of Partner
-            "B05006",  # Place of Birth for the Foreign-born Population in the United States
+            "B05006", # Place of Birth for the Foreign-born Population in the United States
             "B19083", # Gini Index of Income Inequality
             "B15003", # Educational Attainment
+            "B03002", # Hispanic or Latino Origin by Race
         ]
         columns = []
         for table in table_ids:
@@ -217,6 +218,14 @@ class CensusReporter(BaseMancer):
         The keys are CensusReporter 'geo_ids' and the value is a list that you
         should be able to call the python 'zip' function on with the 'header' key.
         """
+        # these are the tables where we want to leave the table name out
+        # of the header cell name in output, for prettiness, b/c
+        # there is redundant info in table_title & detail_title
+        table_name_exceptions = [   'Median Household Income in the Past 12 Months (In 2013 Inflation-adjusted Dollars)',
+                                    'Median Value (Dollars)',
+                                    'Per Capita Income in the Past 12 Months (In 2013 Inflation-adjusted Dollars)',
+                                    ]
+
         results = {'header': []}
         for gids in self._chunk_geoids(geo_ids):
             raw_results = self._try_search(gids, columns)
@@ -234,9 +243,13 @@ class CensusReporter(BaseMancer):
                         table_title = table_info['title']
                         column_title = None
                         detail_title = table_info['columns'][detail_id]['name']
-                        column_title = '%s, %s' % (table_title, detail_title,)
+                        if table_title in table_name_exceptions:
+                            column_title = detail_title
+                        else:
+                            column_title = '%s, %s' % (table_title, detail_title,)
                         if column_title not in results['header']:
                             results['header'].extend([column_title, '%s (error margin)' % column_title])
+
                         detail_info = raw_results['data'][geo_id][table_id]
                         results[geo_id].extend([
                             detail_info['estimate'][detail_id], 

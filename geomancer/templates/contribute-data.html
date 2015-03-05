@@ -83,6 +83,18 @@ MANCERS = (
     'geomancer.mancers.my_mancer.MyMancer',
 )
       </pre>
+  <h3>Step 4a (optional): Add API keys to app_config.py</h3>
+      <p>
+          If the API that you are using requires an API key, you can add that into <code>app_config.py</code> like so:
+      </p>
+      <pre>
+MANCER_KEYS = {
+    'wizard_school_district' : 'biGl0ngUu1dT4ing',
+}
+      </pre>
+      <p>
+          The key should (i.e. <code>wizard_school_district</code>) should match the value you used for the <code>machine_name</code> of your mancer class.
+      </p>
   <h3>Step 5: Submit a pull request!</h3>
       <p>
           If you'd like to share your work with the rest of the world,
