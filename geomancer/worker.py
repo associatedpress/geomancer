@@ -4,6 +4,7 @@ from redis import Redis
 from uuid import uuid4
 import sys
 import os
+import re
 from cStringIO import StringIO
 from csvkit.unicsv import UnicodeCSVReader, UnicodeCSVWriter
 from geomancer.mancers.base import MancerError
@@ -105,7 +106,8 @@ def do_the_work(file_contents, field_defs, filename):
                         'geo_type': geo_type,
                     }
     for row_idx, row in enumerate(reader):
-        vals = [unicode(row[int(i)]) for i in col_idxs]
+        vals = [re.sub(r'(?i)county', '', unicode(row[int(i)])).strip() \
+                for i in col_idxs]
         val = val_fmt.format(*vals)
         for column in field_cols:
             mancer = mancer_mapper[column]['mancer']
