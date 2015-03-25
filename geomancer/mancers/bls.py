@@ -29,9 +29,9 @@ class BureauLaborStatistics(BaseMancer):
     # b/c bls api has low limit & it doesn't take long to grab all states
     oes_column_data = {}
     # a mapping of bls oes series id data codes to geomancer column names
-    oes_column_lookup = {   '13': '2013 Annual Wages - Median',
-                            '12': '2013 Annual Wages - 25th Percentile',
-                            '14': '2013 Annual Wages - 75th Percentile'}
+    oes_column_lookup = {   '13': '2014 Annual Wages - Median',
+                            '12': '2014 Annual Wages - 25th Percentile',
+                            '14': '2014 Annual Wages - 75th Percentile'}
 
     def __init__(self, api_key=None):
         self.api_key = MANCER_KEYS[self.machine_name]
@@ -46,7 +46,7 @@ class BureauLaborStatistics(BaseMancer):
                 'source_name': self.name,
                 'source_url': '',  'http://www.bls.gov/oes/'
                 'geo_types': [State(), StateFIPS()],
-                'columns': ['2013 Annual Wages - Median', '2013 Annual Wages - 25th Percentile', '2013 Annual Wages - 75th Percentile'], # should median/25/75 be diff cols in same chunk or diff chunks? does it matter?
+                'columns': ['2014 Annual Wages - Median', '2014 Annual Wages - 25th Percentile', '2014 Annual Wages - 75th Percentile'], # should median/25/75 be diff cols in same chunk or diff chunks? does it matter?
                 'count': 3
             }
 
@@ -93,7 +93,7 @@ class BureauLaborStatistics(BaseMancer):
 
             # make the request
             headers = {'Content-type': 'application/json'}
-            data = json.dumps({"seriesid": series_ids,"startyear":"2013", "endyear":"2013", "registrationKey":self.api_key})
+            data = json.dumps({"seriesid": series_ids,"startyear":"2014", "endyear":"2014", "registrationKey":self.api_key})
             p = requests.post('http://api.bls.gov/publicAPI/v2/timeseries/data/', data=data, headers=headers)
             json_data = json.loads(p.text)
 
