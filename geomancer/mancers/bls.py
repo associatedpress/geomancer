@@ -10,6 +10,7 @@ import re
 from urlparse import urlparse
 import us
 import requests
+import pandas as pd
 
 class BureauLaborStatistics(BaseMancer):
     """ 
@@ -33,6 +34,16 @@ class BureauLaborStatistics(BaseMancer):
                             '12': '2014 Annual Wages - 25th Percentile',
                             '14': '2014 Annual Wages - 75th Percentile'}
 
+    qcew_column_lookup = {  
+                            'annual_avg_estabs_count':'2013 Annual Average of 4 Quarterly Establishment Counts',
+                            'annual_avg_emplvl': '2013 Annual Average of Monthly Employment Levels',
+                            'total_annual_wages': '2013 Total Annual Wages (Sum of 4 quarterly total wage levels)',
+                            'taxable_annual_wages':'2013 Taxable Annual Wages (Sum of the 4 quarterly taxable wage totals)',
+                            'annual_contributions':'2013 Annual Contributions (Sum of the 4 quarterly contribution totals)',
+                            'annual_avg_wkly_wage':'2013 Average Weekly Wage (based on the 12-monthly employment levels and total annual wage levels)',
+                            'avg_annual_pay':'2013 Average Annual Pay (based on employment and wage levels)'
+    }
+
     def __init__(self, api_key=None):
         self.api_key = MANCER_KEYS[self.machine_name]
         BaseMancer.__init__(self)
@@ -44,11 +55,30 @@ class BureauLaborStatistics(BaseMancer):
                 'human_name': 'Occupational Employment Statistics',
                 'description': 'Occupational Employment Statistics',
                 'source_name': self.name,
-                'source_url': '',  'http://www.bls.gov/oes/'
+                'source_url': 'http://www.bls.gov/oes/',
                 'geo_types': [State(), StateFIPS()],
                 'columns': ['2014 Annual Wages - Median', '2014 Annual Wages - 25th Percentile', '2014 Annual Wages - 75th Percentile'], # should median/25/75 be diff cols in same chunk or diff chunks? does it matter?
                 'count': 3
+            },
+            {
+                'table_id': 'qcew',
+                'human_name': 'Quarterly Census of Employment & Wages',
+                'description': 'Quarterly Census of Employment & Wages',
+                'source_name': self.name,
+                'source_url': 'http://www.bls.gov/cew/home.htm',
+                'geo_types': [State(), StateFIPS()],
+                'columns': [    
+                                '2013 Annual Average of 4 Quarterly Establishment Counts',
+                                '2013 Annual Average of Monthly Employment Levels', 
+                                '2013 Total Annual Wages (Sum of 4 quarterly total wage levels)',
+                                '2013 Taxable Annual Wages (Sum of the 4 quarterly taxable wage totals)',
+                                '2013 Annual Contributions (Sum of the 4 quarterly contribution totals)',
+                                '2013 Average Weekly Wage (based on the 12-monthly employment levels and total annual wage levels)',
+                                '2013 Average Annual Pay (based on employment and wage levels)'
+                                ],
+                'count': 7
             }
+            ]
 
         return columns
 
@@ -105,6 +135,12 @@ class BureauLaborStatistics(BaseMancer):
                 this_val = result['data'][0]['value']
                 self.oes_column_data[col][this_geo_id] = this_val
 
+    def qcewGetSummaryData(self, state_fips):
+        urlPath = "http://www.bls.gov/cew/data/api/2013/a/area/"+state_fips+"000.csv"
+        df = pd.read_csv(urlPath)
+        summary_df = df[(df['industry_code']=='10') & (df['own_code']==0)] # industry code 10 is all industries, own code 0 is all ownership
+        return summary_df
+
 
     def search(self, geo_ids=None, columns=None):
         # columns is a list consisting of table_ids from the possible values in column_info?
@@ -136,6 +172,20 @@ class BureauLaborStatistics(BaseMancer):
                             results[geo_id] = []
                         if geo_type == 'state' or geo_type =='state_fips':
                             results[geo_id].append(self.oes_column_data[col][geo_id])
+
+            elif table_id == 'qcew':
+                for col in self.qcew_column_lookup:
+                    results['header'].append(self.qcew_column_lookup[col])
+
+                for geo_type, geo_id in geo_ids:
+                    if not results.get(geo_id):
+                        results[geo_id] = []
+                    if geo_type == 'state' or geo_type == 'state_fips':
+
+                        summary_df = self.qcewGetSummaryData(geo_id)
+                        for col in self.qcew_column_lookup:
+                            results[geo_id].append(summary_df[col][0])
+
 
         return results
 
