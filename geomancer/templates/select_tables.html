@@ -86,9 +86,9 @@
     <script type="text/javascript">
         $(document).ready(function(){
             $('#mance-form').on('submit', function(e){
-                e.preventDefault()
+                e.preventDefault();
                 var data = parseParams($(this).serialize());
-                console.log(data)
+                // console.log(data)
                 if($.isEmptyObject(data)){
                     $('#errors').remove();
                     var stuff = '<div id="errors"><br />';
@@ -97,7 +97,7 @@
                     stuff += '</div></div>';
                     $('#navigation').append(stuff);
                 } else {
-                    var d = {}
+                    var d = {};
                     $.each(data, function(key, i){
                         var vals = key.split('-');
                         if (typeof d[vals[0]] === 'undefined'){
@@ -106,7 +106,7 @@
                                 'append_columns': []
                             }
                         }
-                        d[vals[0]]['append_columns'].push(vals[2])
+                        d[vals[0]]['append_columns'].push(vals[2]);
                     });
                     $.ajax({
                         url:"/api/geomance/",
@@ -116,7 +116,7 @@
                             window.location = '/geomance/' + resp['session_key'];
                         },
                         processData: false,
-                        contentType: 'application/json',
+                        contentType: 'application/json'
                     })
                 }
             })
@@ -124,7 +124,7 @@
                 var table_id = $(this).data('table_id');
                 $.when(load_table_columns(table_id)).then(
                     function(resp){
-                        var template = new EJS({'text': $('#columnModalEJS').html()})
+                        var template = new EJS({'text': $('#columnModalEJS').html()});
                         var modal_contents = template.render(resp[0]);
                         $('#column-modal').html(modal_contents);
                         $('#column-modal').modal();
@@ -133,7 +133,7 @@
             })
         })
         function load_table_columns(table_id){
-            return $.getJSON('/api/table-info/?table_id=' + table_id)
+            return $.getJSON('/api/table-info/?table_id=' + table_id);
         }
         function parseParams(query){
             var re = /([^&=]+)=?([^&]*)/g;
