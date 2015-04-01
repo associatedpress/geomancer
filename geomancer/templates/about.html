@@ -8,6 +8,7 @@
     <ol>
       <li><a href='#what-is-this'>What is this?</a></li>
       <li><a href='#data-policy'>Data policy</a></li>
+      <li><a href='#api'>API</a></li>
       <li><a href='#code'>We're open source!</a></li>
       <li><a href='#team-and-credits'>Team and credits</a></li>
       <li><a href='#contact-us'>Contact us</a></li>
@@ -29,6 +30,398 @@
   <p>Uploading your data to our server is necessary for Geomancer to work. We do not, however, store any of it permenantly. All processing is done in memory, so when you end your session, your uploaded data will automatically be deleted.</p>
 
   <p><strong>Please note</strong>: Do not upload any sensitive data to this site! If you have sensitive data that you want to use with Geomancer, look in to <a href='https://github.com/associatedpress/geomancer-deploy'>setting up your own instance</a>.</p>
+
+  <h3 id='api'>API (for the nerds)</h3>
+
+  <p><strong></strong> If you want to access Geomancer programatically, we have an API for you! The Geomancer API can be used to list the geographic types and data sources we support and <strong>geomance</strong> posted spreadsheets.</p>  
+
+  <p>A few things to know:</p>
+
+  <ul>
+    <li>All API calls should be made with <code>HTTP GET</code> or <code>HTTP POST</code></li>
+    <li>All API responses are in <a href='http://www.json.org/'>JSON format</a>.</li>
+    <li>All methods are accessed via: <code>http://geomancer.io/api/SOME-ENDPOINT</code></li>
+  </ul>
+
+  <h4>Endpoints</h4>
+
+  <div class="panel-group" id="accordion-api-data-sources">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <a data-toggle="collapse" data-parent="#accordion-api-data-sources" href="#collapse-api-data-sources" id="api-data-sources">
+          <span class='label label-info'>GET</span>
+          <strong><code>/api/data-sources/</code></strong>
+          <p class='pull-right'>list all available data sources</p>
+          <div class='clearfix'></div>
+        </a>
+      </div>
+      <div id="collapse-api-data-sources" class="panel-collapse collapse">
+        <div class="panel-body">
+          <p>This returns all available data sources and tables in Geomancer.</p>
+
+          <p><strong>Query Parameters</strong></p>
+          <p>All query parameters are optional.</p>
+          <table class='table table-bordered'>
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Default value</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong><code>geo_type</code></strong></td>
+                <td>none</td>
+                <td>Filter the data sources by a specific geography type. See <strong><code>/api/geo-types/</code></strong> for the full list of options.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p><strong>Response</strong></p>
+          <table class='table table-bordered'>
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong><code>machine_name</code></strong></td>
+                <td>Name of data source</td>
+              </tr>
+              <tr>
+                <td><strong><code>description</code></strong></td>
+                <td>Data source description</td>
+              </tr>
+              <tr>
+                <td><strong><code>info_url</code></strong></td>
+                <td>Link to more information on data source</td>
+              </tr>
+              <tr>
+                <td><strong><code>base_url</code></strong></td>
+                <td>API url root</td>
+              </tr>
+              <tr>
+                <td><strong><code>data_types</code></strong></td>
+                <td>
+                  <table class='table table-bordered'>
+                    <thead>
+                      <tr>
+                        <th>Parameter</th>
+                        <th>Description</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><strong><code>count</code></strong></td>
+                        <td>Number of tables in data source</td>
+                      </tr>
+                      <tr>                  
+                        <td><strong><code>source_name</code></strong></td>
+                        <td>Name of data source</td>
+                      </tr>
+                      <tr>  
+                        <td><strong><code>description</code></strong></td>
+                        <td>Description of table</td>
+                      </tr>
+                      <tr>  
+                        <td><strong><code>geo_types</code></strong></td>
+                        <td>Geographic types supported</td>
+                      </tr>
+                      <tr>  
+                        <td><strong><code>source_url</code></strong></td>
+                        <td>API endpoint for this table</td>
+                      </tr>
+                      <tr>  
+                        <td><strong><code>table_id</code></strong></td>
+                        <td>API unique identifier of table</td>
+                      </tr>
+                      <tr>  
+                        <td><strong><code>human_name</code></strong></td>
+                        <td>Friendly name of table</td>
+                      </tr>
+                      <tr>  
+                        <td><strong><code>columns</code></strong></td>
+                        <td>List of columns that will be added from this table</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class='well examples'>
+            <p><strong>Example</strong></p>
+            <p>
+              <a href='/v1/api/datasets'>http://geomancer.io/api/data-sources/</a><br />
+              Returns a list of data sources and tables in Geomancer
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-group" id="accordion-api-geo-types">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <a data-toggle="collapse" data-parent="#accordion-api-geo-types" href="#collapse-api-geo-types" id="api-geo-types">
+          <span class='label label-info'>GET</span>
+          <strong><code>/api/geo-types/</code></strong>
+          <p class='pull-right'>list all supported geographic types</p>
+          <div class='clearfix'></div>
+        </a>
+      </div>
+      <div id="collapse-api-geo-types" class="panel-collapse collapse">
+        <div class="panel-body">
+          <p>This returns all supported geographic types and related data sources in Geomancer.</p>
+
+          <p><strong>Query Parameters</strong></p>
+          <p>All query parameters are optional.</p>
+          <table class='table table-bordered'>
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Default value</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong><code>geo_type</code></strong></td>
+                <td>none</td>
+                <td>Geography type. Used to fetch a single geographic type and related data sources.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p><strong>Response</strong></p>
+          <table class='table table-bordered'>
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong><code>machine_name</code></strong></td>
+                <td>Name of geographic type</td>
+              </tr>
+              <tr>
+                <td><strong><code>human_name</code></strong></td>
+                <td>Friendly name of geographic type</td>
+              </tr>
+              <tr>
+                <td><strong><code>formatting_notes</code></strong></td>
+                <td>Instructions on expected format for this geographic type</td>
+              </tr>
+              <tr>
+                <td><strong><code>formatting_example</code></strong></td>
+                <td>Example of properly formatted geographic type</td>
+              </tr>
+              <tr>
+                <td><strong><code>tables</code></strong></td>
+                <td>
+                  <table class='table table-bordered'>
+                    <thead>
+                      <tr>
+                        <th>Parameter</th>
+                        <th>Description</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><strong><code>count</code></strong></td>
+                        <td>Number of tables in data source</td>
+                      </tr>
+                      <tr>  
+                        <td><strong><code>human_name</code></strong></td>
+                        <td>Friendly name of table</td>
+                      </tr>
+                      <tr>  
+                        <td><strong><code>table_id</code></strong></td>
+                        <td>API unique identifier of table</td>
+                      </tr>
+                      <tr>                  
+                        <td><strong><code>source_name</code></strong></td>
+                        <td>Name of data source</td>
+                      </tr>
+                      <tr>  
+                        <td><strong><code>source_url</code></strong></td>
+                        <td>API endpoint for this table</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class='well examples'>
+            <p><strong>Example</strong></p>
+            <p>
+              <a href='/api/geo-types'>http://geomancer.io/api/geo-types/</a><br />
+              Returns a list of all supported geographic types and related data sources in Geomancer
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-group" id="accordion-api-geomance">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <a data-toggle="collapse" data-parent="#accordion-api-geomance" href="#collapse-api-geomance" id="api-geomance">
+          <span class='label label-success'>POST</span>
+          <strong><code>/api/geomance/</code></strong>
+          <p class='pull-right'>run geomancer on a posted file</p>
+          <div class='clearfix'></div>
+        </a>
+      </div>
+      <div id="collapse-api-geomance" class="panel-collapse collapse">
+        <div class="panel-body">
+
+          <p>Once you've figured out what geographic types and data sources you want to use, you can <strong>geomance</strong> a spreadsheet via an API call by posting a file and a JSON configuration as a <code>multipart POST</code>.</p> 
+
+          <p>Once a task is started, geomancer will start processing the request and give you back a link to your file with the additional columns by polling the <strong><code>/api/geomance-results/&lt;session_key&gt;/</code></strong> endpoint.</p>
+
+          <p><strong>Post Parameters</strong></p>
+
+          <table class='table table-bordered'>
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Default value</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong><code>file</code></strong></td>
+                <td>none</td>
+                <td>Must be in CSV, XLS or XLSX format. See more on <a href='/upload-formats/'> spreadsheet formatting</a></td>
+              </tr>
+              <tr>
+                <td><strong><code>form</code></strong></td>
+                <td>none</td>
+                <td>
+
+                  Field definitions in a string encoded JSON blob like so:</p>
+<pre>
+{
+  10: {
+    'type': 'city_state',
+    'append_columns': ['total_population', 'median_age']
+  }
+}
+</pre>
+          <p>The key is the zero-indexed position of the columns within the posted spreadsheet.</p>
+
+          <p>The value is a dict containing the geographic type and the columns to append. The values in that list can be fetched from <strong><code>/api/data-sources/</code></strong> and <strong><code>/api/geo-type/</code></strong>.</p>
+          
+          <p>You can also match on two columns. To do so, separate the column indexes and geotypes with a semicolon like so: </p>
+
+<pre>
+{
+  10;2: {
+    'type': 'city;state',
+    'append_columns': ['total_population', 'median_age']
+  }
+}
+</pre>
+          <p>In this example, column 10 contains the <code>city</code> and column 2 contains the <code>state</code>.</p>
+
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p><strong>Response</strong></p>
+          <p>Responds with a key that can be used to poll for results.</p>
+
+          <table class='table table-bordered'>
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong><code>session_key</code></strong></td>
+                <td>Unique identifier of a task. Poll the <strong><code>/api/geomance-results/&lt;session_key&gt;/</code></strong> endpoint to get your result and see when the task finishes</td>
+              </tr>
+            </tbody>
+          </table>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-group" id="accordion-api-geomance-results">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <a data-toggle="collapse" data-parent="#accordion-api-geomance-results" href="#collapse-api-geomance-results" id="api-geomance-results">
+          <span class='label label-info'>GET</span>
+          <strong><code>/api/geomance-results/&lt;session_key&gt;/</code></strong>
+          <p class='pull-right'>query the status of a geomancer task</p>
+          <div class='clearfix'></div>
+        </a>
+      </div>
+      <div id="collapse-api-geomance-results" class="panel-collapse collapse">
+        <div class="panel-body">
+          <p><strong>Query Parameters</strong></p>
+          <table class='table table-bordered'>
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Default value</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong><code>session_key</code></strong></td>
+                <td>none</td>
+                <td>Unique identifier of a task. Returned after posting to the <strong><code>/api/geomance/</code></strong> endpoint</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p><strong>Response</strong></p>
+          <p>Responds with a key that can be used to poll for results.</p>
+
+          <table class='table table-bordered'>
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong><code>ready</code></strong></td>
+                <td>Returns <code>true</code> if the task is completed, <code>false</code> otherwise.</td>
+              </tr>
+              <tr>
+                <td><strong><code>result</code></strong></td>
+                <td>Link to download your completed file. Only available if <strong><code>ready</code></strong> is <code>true</code></td>
+              </tr>
+              <tr>
+                <td><strong><code>status</code></strong></td>
+                <td>Success or failure of task. Only available if <strong><code>ready</code></strong> is <code>true</code></td>
+              </tr>
+            </tbody>
+          </table>
+          
+        </div>
+      </div>
+    </div>
+  </div>
   
   <h3 id='code'>We're open source!</h3>
 
