@@ -8,7 +8,7 @@ import re
 from cStringIO import StringIO
 from csvkit.unicsv import UnicodeCSVReader, UnicodeCSVWriter
 from geomancer.mancers.base import MancerError
-from geomancer.helpers import import_class, find_geo_type
+from geomancer.helpers import import_class, find_geo_type, get_geo_types
 from geomancer.app_config import RESULT_FOLDER, MANCERS, MANCER_KEYS
 from datetime import datetime
 import xlwt
@@ -86,6 +86,7 @@ def do_the_work(file_contents, field_defs, filename):
 
     geo_type, col_idxs, val_fmt = find_geo_type(field_defs[fields_key]['type'], 
                                        fields_key)
+    geo_name = get_geo_types(geo_type=geo_type)[0][0]['info'].human_name
     for mancer in MANCERS:
         m = import_class(mancer)
         api_key = MANCER_KEYS.get(m.machine_name)
@@ -156,7 +157,8 @@ def do_the_work(file_contents, field_defs, filename):
                 if client:
                     client.captureException()
                 raise e
-            all_data['header'].extend(data['header'])
+            header_vals = ['{0} ({1})'.format(h, geo_name) for h in data['header']]
+            all_data['header'].extend(header_vals)
             for gid in geo_ids:
                 try:
                     all_data[gid].extend(data[gid])

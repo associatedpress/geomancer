@@ -68,8 +68,15 @@ class CensusReporter(BaseMancer):
                     CongressionalDistrict(), CensusTract()],
                 'columns': [v['column_title'] for v in table_info['columns'].values() if v['indent'] is not None]
             }
+
             d['columns'].extend(['%s (error margin)' % v for v in d['columns']])
             d['columns'] = sorted(d['columns'])
+            
+            if table == 'B25077': # Overriding the name for "Median Value" table
+                d['human_name'] = 'Median Value, Owner-Occupied Housing Units'
+                d['columns'] = ['Median Value, Owner-Occupied Housing Units', 
+                                'Median Value, Owner-Occupied Housing Units (error margin)']
+            
             d['count'] = len(d['columns'])
             columns.append(d)
         return columns
@@ -222,7 +229,6 @@ class CensusReporter(BaseMancer):
         # of the header cell name in output, for prettiness, b/c
         # there is redundant info in table_title & detail_title
         table_name_exceptions = [   'Median Household Income in the Past 12 Months (In 2013 Inflation-adjusted Dollars)',
-                                    'Median Value (Dollars)',
                                     'Per Capita Income in the Past 12 Months (In 2013 Inflation-adjusted Dollars)',
                                     ]
 
@@ -245,6 +251,8 @@ class CensusReporter(BaseMancer):
                         detail_title = table_info['columns'][detail_id]['name']
                         if table_title in table_name_exceptions:
                             column_title = detail_title
+                        elif table_id == 'B25077':
+                            column_title = 'Median Value, Owner-Occupied Housing Units'
                         else:
                             column_title = '%s, %s' % (table_title, detail_title,)
                         if column_title not in results['header']:
