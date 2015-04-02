@@ -33,7 +33,7 @@
 
   <h3 id='api'>API (for the nerds)</h3>
 
-  <p><strong></strong> If you want to access Geomancer programatically, we have an API for you! The Geomancer API can be used to list the geographic types and data sources we support and <strong>geomance</strong> posted spreadsheets.</p>  
+  <p><strong></strong> If you want to access Geomancer programatically, we have an API for you! The Geomancer API can be used to list the geographic types and data sources we support and <strong>geomance</strong> posted spreadsheets.</p>
 
   <p>A few things to know:</p>
 
@@ -118,31 +118,31 @@
                         <td><strong><code>count</code></strong></td>
                         <td>Number of tables in data source</td>
                       </tr>
-                      <tr>                  
+                      <tr>
                         <td><strong><code>source_name</code></strong></td>
                         <td>Name of data source</td>
                       </tr>
-                      <tr>  
+                      <tr>
                         <td><strong><code>description</code></strong></td>
                         <td>Description of table</td>
                       </tr>
-                      <tr>  
+                      <tr>
                         <td><strong><code>geo_types</code></strong></td>
                         <td>Geographic types supported</td>
                       </tr>
-                      <tr>  
+                      <tr>
                         <td><strong><code>source_url</code></strong></td>
                         <td>API endpoint for this table</td>
                       </tr>
-                      <tr>  
+                      <tr>
                         <td><strong><code>table_id</code></strong></td>
                         <td>API unique identifier of table</td>
                       </tr>
-                      <tr>  
+                      <tr>
                         <td><strong><code>human_name</code></strong></td>
                         <td>Friendly name of table</td>
                       </tr>
-                      <tr>  
+                      <tr>
                         <td><strong><code>columns</code></strong></td>
                         <td>List of columns that will be added from this table</td>
                       </tr>
@@ -155,7 +155,7 @@
           <div class='well examples'>
             <p><strong>Example</strong></p>
             <p>
-              <a href='/v1/api/datasets'>http://geomancer.io/api/data-sources/</a><br />
+              <a href='/api/data-sources'>http://geomancer.io/api/data-sources/</a><br />
               Returns a list of data sources and tables in Geomancer
             </p>
           </div>
@@ -237,19 +237,19 @@
                         <td><strong><code>count</code></strong></td>
                         <td>Number of tables in data source</td>
                       </tr>
-                      <tr>  
+                      <tr>
                         <td><strong><code>human_name</code></strong></td>
                         <td>Friendly name of table</td>
                       </tr>
-                      <tr>  
+                      <tr>
                         <td><strong><code>table_id</code></strong></td>
                         <td>API unique identifier of table</td>
                       </tr>
-                      <tr>                  
+                      <tr>
                         <td><strong><code>source_name</code></strong></td>
                         <td>Name of data source</td>
                       </tr>
-                      <tr>  
+                      <tr>
                         <td><strong><code>source_url</code></strong></td>
                         <td>API endpoint for this table</td>
                       </tr>
@@ -284,7 +284,7 @@
       <div id="collapse-api-geomance" class="panel-collapse collapse">
         <div class="panel-body">
 
-          <p>Once you've figured out what geographic types and data sources you want to use, you can <strong>geomance</strong> a spreadsheet via an API call by posting a file and a JSON configuration as a <code>multipart POST</code>.</p> 
+          <p>Once you've figured out what geographic types and data sources you want to use, you can <strong>geomance</strong> a spreadsheet via an API call by posting a file and a JSON configuration as a <code>multipart POST</code>.</p>
 
           <p>Once a task is started, geomancer will start processing the request and give you back a link to your file with the additional columns by polling the <strong><code>/api/geomance-results/&lt;session_key&gt;/</code></strong> endpoint.</p>
 
@@ -321,7 +321,7 @@
           <p>The key is the zero-indexed position of the columns within the posted spreadsheet.</p>
 
           <p>The value is a dict containing the geographic type and the columns to append. The values in that list can be fetched from <strong><code>/api/data-sources/</code></strong> and <strong><code>/api/geo-type/</code></strong>.</p>
-          
+
           <p>You can also match on two columns. To do so, separate the column indexes and geotypes with a semicolon like so: </p>
 
 <pre>
@@ -356,7 +356,7 @@
               </tr>
             </tbody>
           </table>
-          
+
         </div>
       </div>
     </div>
@@ -417,12 +417,12 @@
               </tr>
             </tbody>
           </table>
-          
+
         </div>
       </div>
     </div>
   </div>
-  
+
   <h3 id='code'>We're open source!</h3>
 
   <p>All of the code for this project is open source. You can find, view and fork it <a href='https://github.com/associatedpress/geomancer/'>on GitHub</a>.</p>
