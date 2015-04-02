@@ -11,9 +11,12 @@ SENTRY_DSN = ''
 MANCERS = (
     'geomancer.mancers.census_reporter.CensusReporter',
     'geomancer.mancers.usa_spending.USASpending',
-    'geomancer.mancers.bea.BureauEconomicAnalysis'
+    'geomancer.mancers.bea.BureauEconomicAnalysis',
+    'geomancer.mancers.bls.BureauLaborStatistics'
 )
 
+# key = mancer machine_name, val = API key
 MANCER_KEYS = {
-    'bureau_economic_analysis' : None
+    'bureau_economic_analysis' : None,  # register at http://bea.gov/API/signup/index.cfm
+    'bureau_labor_statistics' : None    # register at http://data.bls.gov/registrationEngine/
 }
