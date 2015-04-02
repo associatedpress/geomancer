@@ -68,8 +68,15 @@ class CensusReporter(BaseMancer):
                     CongressionalDistrict(), CensusTract()],
                 'columns': [v['column_title'] for v in table_info['columns'].values() if v['indent'] is not None]
             }
+
             d['columns'].extend(['%s (error margin)' % v for v in d['columns']])
             d['columns'] = sorted(d['columns'])
+            
+            if table == 'B25077': # Overriding the name for "Median Value" table
+                d['human_name'] = 'Median Value, Owner-Occupied Housing Units'
+                d['columns'] = ['Median Value, Owner-Occupied Housing Units', 
+                                'Median Value, Owner-Occupied Housing Units (error margin)']
+            
             d['count'] = len(d['columns'])
             columns.append(d)
         return columns
