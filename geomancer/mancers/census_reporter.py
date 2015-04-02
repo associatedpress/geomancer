@@ -229,7 +229,6 @@ class CensusReporter(BaseMancer):
         # of the header cell name in output, for prettiness, b/c
         # there is redundant info in table_title & detail_title
         table_name_exceptions = [   'Median Household Income in the Past 12 Months (In 2013 Inflation-adjusted Dollars)',
-                                    'Median Value (Dollars)',
                                     'Per Capita Income in the Past 12 Months (In 2013 Inflation-adjusted Dollars)',
                                     ]
 
@@ -252,6 +251,8 @@ class CensusReporter(BaseMancer):
                         detail_title = table_info['columns'][detail_id]['name']
                         if table_title in table_name_exceptions:
                             column_title = detail_title
+                        elif table_id == 'B25077':
+                            column_title = 'Median Value, Owner-Occupied Housing Units'
                         else:
                             column_title = '%s, %s' % (table_title, detail_title,)
                         if column_title not in results['header']:
