@@ -47,11 +47,12 @@
 
   <div class="panel-group" id="accordion-api-data-sources">
     <div class="panel panel-default">
-      <div class="panel-heading">
-        <a data-toggle="collapse" data-parent="#accordion-api-data-sources" href="#collapse-api-data-sources" id="api-data-sources">
+      <div class="panel-heading" data-toggle="collapse" data-parent="#accordion-api-data-sources" href="#collapse-api-data-sources" id="api-data-sources">
+        <a>
+          <i class="fa fa-chevron-circle-right fa-lg plusminus"></i>
           <span class='label label-info'>GET</span>
           <strong><code>/api/data-sources/</code></strong>
-          <p class='pull-right'>list all available data sources</p>
+          <p class='pull-right'><small>list all available data sources</small></p>
           <div class='clearfix'></div>
         </a>
       </div>
@@ -166,11 +167,12 @@
 
   <div class="panel-group" id="accordion-api-geo-types">
     <div class="panel panel-default">
-      <div class="panel-heading">
-        <a data-toggle="collapse" data-parent="#accordion-api-geo-types" href="#collapse-api-geo-types" id="api-geo-types">
+      <div class="panel-heading" data-toggle="collapse" data-parent="#accordion-api-geo-types" href="#collapse-api-geo-types" id="api-geo-types">
+        <a>
+          <i class="fa fa-chevron-circle-right fa-lg plusminus"></i>
           <span class='label label-info'>GET</span>
           <strong><code>/api/geo-types/</code></strong>
-          <p class='pull-right'>list all supported geographic types</p>
+          <p class='pull-right'><small>list all supported geographic types</small></p>
           <div class='clearfix'></div>
         </a>
       </div>
@@ -273,11 +275,12 @@
 
   <div class="panel-group" id="accordion-api-geomance">
     <div class="panel panel-default">
-      <div class="panel-heading">
-        <a data-toggle="collapse" data-parent="#accordion-api-geomance" href="#collapse-api-geomance" id="api-geomance">
+      <div class="panel-heading" data-toggle="collapse" data-parent="#accordion-api-geomance" href="#collapse-api-geomance" id="api-geomance">
+        <a>
+          <i class="fa fa-chevron-circle-right fa-lg plusminus"></i>
           <span class='label label-success'>POST</span>
           <strong><code>/api/geomance/</code></strong>
-          <p class='pull-right'>run geomancer on a posted file</p>
+          <p class='pull-right'><small>run geomancer on a posted file</small></p>
           <div class='clearfix'></div>
         </a>
       </div>
@@ -364,11 +367,12 @@
 
   <div class="panel-group" id="accordion-api-geomance-results">
     <div class="panel panel-default">
-      <div class="panel-heading">
-        <a data-toggle="collapse" data-parent="#accordion-api-geomance-results" href="#collapse-api-geomance-results" id="api-geomance-results">
+      <div class="panel-heading" data-toggle="collapse" data-parent="#accordion-api-geomance-results" href="#collapse-api-geomance-results" id="api-geomance-results">
+        <a>
+          <i class="fa fa-chevron-circle-right fa-lg plusminus"></i>
           <span class='label label-info'>GET</span>
           <strong><code>/api/geomance-results/&lt;session_key&gt;/</code></strong>
-          <p class='pull-right'>query the status of a geomancer task</p>
+          <p class='pull-right'><small>query the status of a geomancer task</small></p>
           <div class='clearfix'></div>
         </a>
       </div>
@@ -462,4 +466,19 @@
   </p>
 </div>
 
+{% endblock %}
+
+{% block extra_javascript %}
+  <script>
+    $(document).ready(function() {
+      $(".plusminus").parent().parent().click(function () {
+        console.log($(this).parent().children().eq(1))
+        if ($(this).parent().children().eq(1).hasClass("panel-collapse collapse")){
+          $(this).find('i').removeClass("fa-chevron-circle-right").addClass("fa-chevron-circle-down");
+        } else{
+          $(this).find('i').removeClass("fa-chevron-circle-down").addClass("fa-chevron-circle-right");
+        }
+      });
+    });
+  </script>
 {% endblock %}
