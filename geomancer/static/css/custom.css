@@ -219,3 +219,8 @@ table, label,.control-label,.help-block,.checkbox,.radio { font-size: 14px; }
     margin-right: 8px;
     opacity: 0.7;
 }
+
+/* Collapse */
+.panel-heading{
+  cursor: pointer; cursor: hand;
+}
