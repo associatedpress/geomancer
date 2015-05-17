@@ -38,10 +38,10 @@
         <div class="navbar-collapse collapse pull-right">
           <ul class="nav navbar-nav">
             <li class="{% if request.path == url_for('views.upload') %}active{% endif %}"><a href='{{ url_for('views.upload') }}'>Get started!</a></li>
-            <li class="{% if request.path == url_for('views.data_sources') %}active{% endif %}"><a href='{{ url_for('views.data_sources') }}'>Data sources</a></li>
-            <li class="{% if request.path == url_for('views.geographies') %}active{% endif %}"><a href='{{ url_for('views.geographies') }}'>Geographies</a></li>
-            <li class="{% if request.path == url_for('views.contribute_data') %}active{% endif %}"><a href='{{ url_for('views.contribute_data') }}'>Contribute source</a></li>
-            <li class="{% if request.path == url_for('views.about') %}active{% endif %}"><a href='{{ url_for('views.about') }}'>About</a></li>
+            <li class="{% if request.path == url_for('views.data_sources') %}active{% endif %}"><a href='{{ url_for('views.data_sources') }}'>Available Data</a></li>
+            <li class="{% if request.path == url_for('views.geographies') %}active{% endif %}"><a href='{{ url_for('views.geographies') }}'>Available Geographies</a></li>
+            <li class="{% if request.path == url_for('views.contribute_data') %}active{% endif %}"><a href='{{ url_for('views.contribute_data') }}'>Contribute</a></li>
+            <li class="{% if request.path == url_for('views.about') %}active{% endif %}"><a href='{{ url_for('views.about') }}'><strong>About</strong></a></li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
