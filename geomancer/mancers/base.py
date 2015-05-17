@@ -64,7 +64,7 @@ class BaseMancer(scrapelib.Scraper):
                 count += 1
         return count
 
-    def column_info(self):
+    def get_metadata(self):
         """ 
         This returns a list of dicts containing info about datasets that can be
         returned by the API. This needs to be a static method so that the

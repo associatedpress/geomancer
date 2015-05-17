@@ -123,7 +123,7 @@ class MyGreatMancer(BaseMancer):
     info_url = 'http://lotsadata.gov'
     description = 'This is probably the best mancer ever written'
 
-    def column_info(self):
+    def get_metadata(self):
         return 'woo'
 
     def search(self, geo_ids=None, columns=None):
@@ -135,7 +135,7 @@ class MyGreatMancer(BaseMancer):
           <p>Override the <code>name</code>, <code>machine_name</code>, <code>base_url</code>, <code>info_url</code>, & <code>description</code> properties accordingly.</p>
 
           <h3>2. Implement class methods for your mancer</h3>
-          <p> This is the bulk of the work. You will need to implement the <code>column_info</code>, <code>search</code>, & <code>geo_lookup</code> methods.
+          <p> This is the bulk of the work. You will need to implement the <code>get_metadata</code>, <code>search</code>, & <code>geo_lookup</code> methods.
           <p>
             Detailed information about how the responses from these
             methods should be structured as well as two example mancers

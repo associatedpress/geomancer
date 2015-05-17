@@ -28,8 +28,8 @@ class BureauEconomicAnalysis(BaseMancer):
         self.api_key = api_key
         BaseMancer.__init__(self)
 
-    def column_info(self):
-        columns = [
+    def get_metadata(self):
+        datasets = [
             {
                 'table_id': 'GDP_SP',
                 'human_name': 'Nominal GDP',
@@ -82,7 +82,7 @@ class BureauEconomicAnalysis(BaseMancer):
             }
         ]
 
-        return columns
+        return datasets
 
     def lookup_state_name(self, term):
         st = us.states.lookup(term)

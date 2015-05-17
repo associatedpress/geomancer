@@ -101,7 +101,7 @@ def table_info():
             m = m(api_key=api_key)
         except ImportError, e:
             continue
-        col_info = m.column_info()
+        col_info = m.get_metadata()
         for col in col_info:
             columns[col['table_id']] = {
               'table_id': col['table_id'],

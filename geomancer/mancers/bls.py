@@ -48,8 +48,8 @@ class BureauLaborStatistics(BaseMancer):
         self.api_key = MANCER_KEYS[self.machine_name]
         BaseMancer.__init__(self)
 
-    def column_info(self):
-        columns = [
+    def get_metadata(self):
+        datasets = [
             {
                 'table_id': 'oes',
                 'human_name': 'Occupational Employment Statistics',
@@ -80,7 +80,7 @@ class BureauLaborStatistics(BaseMancer):
             }
             ]
 
-        return columns
+        return datasets
 
     # given a search term, returns state fips code
     def lookup_state_name(self, term):
@@ -143,7 +143,7 @@ class BureauLaborStatistics(BaseMancer):
 
 
     def search(self, geo_ids=None, columns=None):
-        # columns is a list consisting of table_ids from the possible values in column_info?
+        # columns is a list consisting of table_ids from the possible values in get_metadata?
         results = {'header':[]}
 
         all_state_fips = ['01', '02', '04', '05', '06', '08', '09', '10',
