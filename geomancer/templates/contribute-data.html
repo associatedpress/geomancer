@@ -3,20 +3,133 @@
 {% block content %}
 
 <div class="col-md-12">
-  <h1>How to contribute data sources to Geomancer</h1>
+  <h1>How to contribute to Geomancer</h1>
   <p>
-      Do you have a data source you'd like to add to <strong>Geomancer</strong>?
+      Is there data that you'd like to add to <strong>Geomancer</strong>?
       We built this as an open, extensible platform, so anyone can contribute.
-      If you know how to program in Python, you can add your own data source using the
+      If you know how to program in Python, you can adapt Geomancer to your needs using the
       instructions below. Otherwise, post your request to our
       <a href="https://groups.google.com/forum/#!forum/geomancer" target="_blank">Google Group</a>.
   </p>
   <hr />
-  <h3>Step 1: Fork and setup Geomancer</h3>
 
-  <p>First, <a href='https://github.com/associatedpress/geomancer/fork'><i class='fa fa-code-fork'></i> fork</a> the <a href='https://github.com/associatedpress/geomancer'>geomancer repository</a>. This requires a <a href='https://github.com'>GitHub account</a>.</p>
+  <div class="panel-group" id="accordion-0">
+    <div class="panel panel-info">
+      <div class="panel-heading" data-toggle="collapse" data-parent="#accordion-0" href="#collapse-0" id="api-data-sources">
+          <span class="h4">
+            <i class="fa fa-chevron-circle-right fa-lg plusminus"></i>
+            Setup & Overview
+          </span>
+        <div class='clearfix'></div>
+      </div>
+      <div id="collapse-0" class="panel-collapse collapse">
+        <div class="panel-body">
+          <h3>
+            1. Fork & clone Geomancer
+          </h3>
+          <p>First, <a href='https://github.com/associatedpress/geomancer/fork'><i class='fa fa-code-fork'></i> fork</a> the <a href='https://github.com/associatedpress/geomancer'>geomancer repository</a>. This requires a <a href='https://github.com'>GitHub account</a>.</p>
+          <p>Then, clone your Geomancer fork:</p>
+          <pre>
+$ git clone https://github.com/YOURGITHUBUSERNAME/geomancer.git
+$ cd geomancer</pre>
 
-  <p>Next, follow the <a href='https://github.com/associatedpress/geomancer#setup'>setup instructions</a> to get Geomancer working on your local machine.</p>
+          <h3>
+            2. Install requirements
+          </h3>
+          <p>Make sure OS level dependencies are installed:</p>
+          <ul>
+            <li>Python 2.7</li>
+            <li><a href="http://redis.io/" target="blank">Redis</a></li>
+            <li>libxml2</li>
+            <li>libxml2-dev</li>
+            <li>libxslt1-dev</li>
+            <li>zlib1g-dev</li>
+          </ul>
+          <p>Install required python libraries. We recommend using <a href="http://virtualenv.readthedocs.org/en/latest/" target="blank">virtualenv</a> and <a href="http://virtualenvwrapper.readthedocs.org/en/latest/" target="blank">virtualenvwrapper</a> for working in a virtualized development environment. <a href="http://docs.python-guide.org/en/latest/dev/virtualenvs/" target="blank">Read how to set up virtualenv.</a></p>
+          <p>Once you have virtualenv set up:</p>
+          <pre>
+$ mkvirtualenv geomancer
+$ pip install -r requirements.txt</pre>
+          <p>NOTE: Mac users might need <a href="http://stackoverflow.com/questions/22313407/clang-error-unknown-argument-mno-fused-madd-python-package-installation-fa" target="blank">this lxml workaround</a>.</p>
+          <p>Afterwards, whenever you want to work on geomancer using the virtual environment you created:</p>
+          <pre>$ workon geomancer</pre>
+
+          <h3> 3. Configure Geomancer </h3>
+          <pre>
+$ cp geomancer/app_config.py.example geomancer/app_config.py</pre>
+          In your newly created <code>app_config.py</code> file, the active data sources are defined by <code>MANCERS</code>. Add any relevant API keys to <code>MANCER_KEYS</code>.
+
+          <h3> 4. Run Geomancer locally </h3>
+          <p>There are three components that should be running simultaneously for the app to work: Redis, the Flask app, and the worker process that appends to the spreadsheets. For debugging purposes, it is useful to run each of these commands in a separate terminal session.</p>
+          <pre>
+$ redis-server # This command may differ depending on your OS
+$ python runworker.py # starts the worker for processing files
+$ python runserver.py # starts the web server</pre>
+          
+          <p>Open your browser and navigate to <a href="http://localhost:5000" target="blank">http://localhost:5000</a></p>
+          <h3> 5. Make your changes! </h3>
+          <p>If you'd like to share your work with the rest of the world, <a href="https://github.com/associatedpress/geomancer/compare" target="blank">submit a pull request</a> with your changes!</p>
+
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-group" id="accordion-1">
+    <div class="panel panel-success">
+      <div class="panel-heading" data-toggle="collapse" data-parent="#accordion-1" href="#collapse-1" id="api-data-sources">
+          <span class="h4">
+            <i class="fa fa-chevron-circle-right fa-lg plusminus"></i>
+            Add columns or datasets to an existing data source
+          </span>
+        <div class='clearfix'></div>
+      </div>
+      <div id="collapse-1" class="panel-collapse collapse">
+        <div class="panel-body">
+          content here
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-group" id="accordion-2">
+    <div class="panel panel-success">
+      <div class="panel-heading" data-toggle="collapse" data-parent="#accordion-2" href="#collapse-2" id="api-data-sources">
+        <span class="h4">
+          <i class="fa fa-chevron-circle-right fa-lg plusminus"></i>
+          Add a new data source
+        </span>
+        <div class='clearfix'></div>
+      </div>
+      <div id="collapse-2" class="panel-collapse collapse">
+        <div class="panel-body">
+          content here
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-group" id="accordion-3">
+    <div class="panel panel-success">
+      <div class="panel-heading" data-toggle="collapse" data-parent="#accordion-3" href="#collapse-3" id="api-data-sources">
+        <span class="h4">
+          <i class="fa fa-chevron-circle-right fa-lg plusminus"></i>
+          Add a new geography type
+        </span>
+        <div class='clearfix'></div>
+      </div>
+      <div id="collapse-3" class="panel-collapse collapse">
+        <div class="panel-body">
+          content here
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
 
   <h3>Step 2: Create a new <code>BaseMancer</code> class</h3>
   <p>
@@ -95,11 +208,24 @@ MANCER_KEYS = {
       <p>
           The key should (i.e. <code>wizard_school_district</code>) should match the value you used for the <code>machine_name</code> of your mancer class.
       </p>
-  <h3>Step 5: Submit a pull request!</h3>
-      <p>
-          If you'd like to share your work with the rest of the world,
-          <a href='https://github.com/associatedpress/geomancer/compare'>submit a pull request</a>!
-      </p>
+
+
 </div>
 
+{% endblock %}
+
+{% block extra_javascript %}
+  <script>
+    $(document).ready(function() {
+      $(".plusminus").parent().parent().click(function () {
+        if ($(this).parent().children().eq(1).hasClass("panel-collapse collapse")){
+          console.log("1")
+          $(this).find('i').removeClass("fa-chevron-circle-right").addClass("fa-chevron-circle-down");
+        } else{
+          console.log("2")
+          $(this).find('i').removeClass("fa-chevron-circle-down").addClass("fa-chevron-circle-right");
+        }
+      });
+    });
+  </script>
 {% endblock %}
