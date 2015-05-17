@@ -13,8 +13,8 @@
   </div>
 </div>
 <div class="col-md-9">
-  <p><strong>Geomancer</strong> currently has data from {{ data_sources | length }} sources.</p>
-  <p>Is there data that your newsroom would find useful, that isn't already here? You can adapt geomancer by adding datasets/columns from existing data sources, or by adding a completely new data source.</p>
+  <p class="h4"><strong>Geomancer</strong> currently has data from <span class="label label-default label-as-badge"><strong>{{ data_sources | length }}</strong></span> sources.</p>
+  <p>Is there data that your newsroom would find useful, that isn't already here? You can adapt Geomancer by adding datasets/columns from existing data sources, or by adding a completely new data source.</p>
   <a href="{{ url_for('views.contribute_data') }}" class="btn btn-success">Learn how to contribute &gt;</a>
   <hr>
 
