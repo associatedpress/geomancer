@@ -57,7 +57,7 @@ class BureauLaborStatistics(BaseMancer):
                 'source_name': self.name,
                 'source_url': 'http://www.bls.gov/oes/',
                 'geo_types': [State(), StateFIPS()],
-                'columns': ['2014 Annual Wages - Median', '2014 Annual Wages - 25th Percentile', '2014 Annual Wages - 75th Percentile'], # should median/25/75 be diff cols in same chunk or diff chunks? does it matter?
+                'columns': [self.oes_column_lookup[col] for col in self.oes_column_lookup],
                 'count': 3
             },
             {
@@ -67,15 +67,7 @@ class BureauLaborStatistics(BaseMancer):
                 'source_name': self.name,
                 'source_url': 'http://www.bls.gov/cew/home.htm',
                 'geo_types': [State(), StateFIPS()],
-                'columns': [    
-                                '2013 Annual Average of 4 Quarterly Establishment Counts',
-                                '2013 Annual Average of Monthly Employment Levels', 
-                                '2013 Total Annual Wages (Sum of 4 quarterly total wage levels)',
-                                '2013 Taxable Annual Wages (Sum of the 4 quarterly taxable wage totals)',
-                                '2013 Annual Contributions (Sum of the 4 quarterly contribution totals)',
-                                '2013 Average Weekly Wage (based on the 12-monthly employment levels and total annual wage levels)',
-                                '2013 Average Annual Pay (based on employment and wage levels)'
-                                ],
+                'columns': [self.qcew_column_lookup[col] for col in self.qcew_column_lookup],
                 'count': 7
             }
             ]
