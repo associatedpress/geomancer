@@ -74,64 +74,6 @@ class BureauLaborStatistics(BaseMancer):
 
         return datasets
 
-    # given a search term, returns state fips code
-    def lookup_state_name(self, term):
-        st = us.states.lookup(term)
-        if not st:
-            st = [s for s in us.STATES if getattr(s, 'ap_abbr') == term]
-        if st:
-            return st.fips
-        else:
-            return search_term
-
-    def bls_oes_series_id(self, geo_id, stat_id):
-        # documentation on constructing series ids at http://www.bls.gov/help/hlpforma.htm#OE
-        # geo_id is state FIPS code as string
-        prefix = 'OEU'
-        area_type = 'S'
-        area_code = geo_id + '00000'
-        industry_code = '000000' # this is the code for all industries
-        occupation_code = '000000' # this is the code for all occupations
-        datatype_code = stat_id
-
-        return prefix+area_type+area_code+industry_code+occupation_code+datatype_code
-
-    def geo_lookup(self, search_term, geo_type=None):
-        regex = re.compile('[%s]' % re.escape(punctuation))
-        search_term = regex.sub('', search_term)
-        if geo_type == 'state' or geo_type == 'state_fips':
-            return {'term': search_term, 'geoid': self.lookup_state_name(search_term)}
-        else:
-            return {'term': search_term, 'geoid': search_term}
-
-    def grab_oes_data(self, geo_ids=None):
-        # geo_ids is a list of state fips code strings
-        for col in self.oes_column_lookup:
-            series_ids = []
-            for geo_id in geo_ids:
-                series_id = self.bls_oes_series_id(geo_id, col)
-                series_ids.append(series_id)
-
-            # make the request
-            headers = {'Content-type': 'application/json'}
-            data = json.dumps({"seriesid": series_ids,"startyear":"2014", "endyear":"2014", "registrationKey":self.api_key})
-            p = requests.post('http://api.bls.gov/publicAPI/v2/timeseries/data/', data=data, headers=headers)
-            json_data = json.loads(p.text)
-
-            self.oes_column_data[col] = {}
-            # loop through the json data and add it to oes_column_data[col][geo_id]
-            for result in json_data['Results']['series']:
-                # grab state id from results series id
-                this_geo_id = result['seriesID'][4:6]
-                this_val = result['data'][0]['value']
-                self.oes_column_data[col][this_geo_id] = this_val
-
-    def qcewGetSummaryData(self, state_fips):
-        urlPath = "http://www.bls.gov/cew/data/api/2013/a/area/"+state_fips+"000.csv"
-        df = pd.read_csv(urlPath)
-        summary_df = df[(df['industry_code']=='10') & (df['own_code']==0)] # industry code 10 is all industries, own code 0 is all ownership
-        return summary_df
-
     def search(self, geo_ids=None, columns=None):
         # columns is a list consisting of table_ids from the possible values in get_metadata?
         results = {'header':[]}
@@ -178,6 +120,62 @@ class BureauLaborStatistics(BaseMancer):
                         for col in self.qcew_column_lookup:
                             results[geo_id].append(summary_df[col][0])
 
-
         return results
 
+    def geo_lookup(self, search_term, geo_type=None):
+        regex = re.compile('[%s]' % re.escape(punctuation))
+        search_term = regex.sub('', search_term)
+        if geo_type == 'state' or geo_type == 'state_fips':
+            return {'term': search_term, 'geoid': self.lookup_state_name(search_term)}
+        else:
+            return {'term': search_term, 'geoid': search_term}
+
+    # given a search term, returns state fips code
+    def lookup_state_name(self, term):
+        st = us.states.lookup(term)
+        if not st:
+            st = [s for s in us.STATES if getattr(s, 'ap_abbr') == term]
+        if st:
+            return st.fips
+        else:
+            return search_term
+
+    def bls_oes_series_id(self, geo_id, stat_id):
+        # documentation on constructing series ids at http://www.bls.gov/help/hlpforma.htm#OE
+        # geo_id is state FIPS code as string
+        prefix = 'OEU'
+        area_type = 'S'
+        area_code = geo_id + '00000'
+        industry_code = '000000' # this is the code for all industries
+        occupation_code = '000000' # this is the code for all occupations
+        datatype_code = stat_id
+
+        return prefix+area_type+area_code+industry_code+occupation_code+datatype_code
+
+    def grab_oes_data(self, geo_ids=None):
+        # geo_ids is a list of state fips code strings
+        for col in self.oes_column_lookup:
+            series_ids = []
+            for geo_id in geo_ids:
+                series_id = self.bls_oes_series_id(geo_id, col)
+                series_ids.append(series_id)
+
+            # make the request
+            headers = {'Content-type': 'application/json'}
+            data = json.dumps({"seriesid": series_ids,"startyear":"2014", "endyear":"2014", "registrationKey":self.api_key})
+            p = requests.post('http://api.bls.gov/publicAPI/v2/timeseries/data/', data=data, headers=headers)
+            json_data = json.loads(p.text)
+
+            self.oes_column_data[col] = {}
+            # loop through the json data and add it to oes_column_data[col][geo_id]
+            for result in json_data['Results']['series']:
+                # grab state id from results series id
+                this_geo_id = result['seriesID'][4:6]
+                this_val = result['data'][0]['value']
+                self.oes_column_data[col][this_geo_id] = this_val
+
+    def qcewGetSummaryData(self, state_fips):
+        urlPath = "http://www.bls.gov/cew/data/api/2013/a/area/"+state_fips+"000.csv"
+        df = pd.read_csv(urlPath)
+        summary_df = df[(df['industry_code']=='10') & (df['own_code']==0)] # industry code 10 is all industries, own code 0 is all ownership
+        return summary_df
