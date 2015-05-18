@@ -228,4 +228,5 @@ table, label,.control-label,.help-block,.checkbox,.radio { font-size: 14px; }
 /* api alert */
 #api-alert{
   background-color: #b7e3c7;
+  font-weight: 200;
 }
