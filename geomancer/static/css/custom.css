@@ -224,3 +224,8 @@ table, label,.control-label,.help-block,.checkbox,.radio { font-size: 14px; }
 .panel-heading{
   cursor: pointer; cursor: hand;
 }
+
+/* api alert */
+#api-alert{
+  background-color: #b7e3c7;
+}
