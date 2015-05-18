@@ -96,7 +96,6 @@ class BureauLaborStatistics(BaseMancer):
 
         return prefix+area_type+area_code+industry_code+occupation_code+datatype_code
 
-
     def geo_lookup(self, search_term, geo_type=None):
         regex = re.compile('[%s]' % re.escape(punctuation))
         search_term = regex.sub('', search_term)
@@ -105,7 +104,7 @@ class BureauLaborStatistics(BaseMancer):
         else:
             return {'term': search_term, 'geoid': search_term}
 
-    def grab_data(self, geo_ids=None):
+    def grab_oes_data(self, geo_ids=None):
         # geo_ids is a list of state fips code strings
         for col in self.oes_column_lookup:
             series_ids = []
@@ -133,7 +132,6 @@ class BureauLaborStatistics(BaseMancer):
         summary_df = df[(df['industry_code']=='10') & (df['own_code']==0)] # industry code 10 is all industries, own code 0 is all ownership
         return summary_df
 
-
     def search(self, geo_ids=None, columns=None):
         # columns is a list consisting of table_ids from the possible values in get_metadata?
         results = {'header':[]}
@@ -145,14 +143,13 @@ class BureauLaborStatistics(BaseMancer):
               '45', '46', '47', '48', '49', '50', '51', '53', '54', '55', '56']
 
         for table_id in columns:
-            # currently oes is the only table id
             if table_id == 'oes':
                 # only grab data when oes_column_data is not populated
                 if len(self.oes_column_data)==0:
                     for col in self.oes_column_lookup:
                         self.oes_column_data[col] = {}
 
-                    self.grab_data(all_state_fips)
+                    self.grab_oes_data(all_state_fips)
 
                 # looping through columns in OES data
                 for col in self.oes_column_lookup:
@@ -163,7 +160,10 @@ class BureauLaborStatistics(BaseMancer):
                         if not results.get(geo_id):
                             results[geo_id] = []
                         if geo_type == 'state' or geo_type =='state_fips':
-                            results[geo_id].append(self.oes_column_data[col][geo_id])
+                            if geo_id in self.oes_column_data[col]:
+                                results[geo_id].append(self.oes_column_data[col][geo_id])
+                            else:
+                                results[geo_id].append("")
 
             elif table_id == 'qcew':
                 for col in self.qcew_column_lookup:
