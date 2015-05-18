@@ -88,7 +88,15 @@ $ python runserver.py # starts the web server</pre>
       </div>
       <div id="collapse-1" class="panel-collapse collapse">
         <div class="panel-body">
-          content here
+          <p>
+            Each <a href="/data-sources" target="blank">data source</a> corresponds to a 'mancer' (e.g. <code>bls.py</code>) in <code>geomancer/mancers/</code>. The datasets and columns that are available to a mancer are defined manually. Mancer datasets usually correspond to tables, and mancer columns correspond to the columns within a table.
+          </p>
+          <p>
+            Because the datasets and columns are defined manually, and because of the high granularity of available data, the mancers don't include all possible data from a data source. For example, BLS QCEW data is available for a wide range of geographies and many industries, but the BLS mancer currently only has data at the state level and at the highest industry summary level (all industries).
+          </p>
+          <p>
+            If you're interested in adding data to an existing mancer (say, adding columns with statistics for specific industries to the BLS mancer), all you'll need to do is modify the mancer metadata (defined in the <code>get_metadata</code> method) and ensure that the <code>search</code> method knows how to return the data you've added.
+          </p>
         </div>
       </div>
     </div>
