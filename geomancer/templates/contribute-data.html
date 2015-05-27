@@ -13,16 +13,16 @@
   </p>
   <hr />
 
-  <div class="panel-group" id="accordion-0">
+  <div class="panel-group" id="accordion-setup">
     <div class="panel panel-info">
-      <div class="panel-heading" data-toggle="collapse" data-parent="#accordion-0" href="#collapse-0" id="api-data-sources">
+      <div class="panel-heading" data-toggle="collapse" data-parent="#accordion-setup" href="#collapse-setup" id="api-data-sources">
           <span class="h4">
             <i class="fa fa-chevron-circle-right fa-lg plusminus"></i>
-            Setup & Overview
+            Setup
           </span>
         <div class='clearfix'></div>
       </div>
-      <div id="collapse-0" class="panel-collapse collapse">
+      <div id="collapse-setup" class="panel-collapse collapse">
         <div class="panel-body">
           <h3>
             1. Fork & clone Geomancer
@@ -77,6 +77,47 @@ $ python runserver.py # starts the web server</pre>
     </div>
   </div>
 
+  <div class="panel-group" id="accordion-overview">
+    <div class="panel panel-info">
+      <div class="panel-heading" data-toggle="collapse" data-parent="#accordion-overview" href="#collapse-overview" id="api-data-sources">
+          <span class="h4">
+            <i class="fa fa-chevron-circle-right fa-lg plusminus"></i>
+            Overview of the Extensible Design
+          </span>
+        <div class='clearfix'></div>
+      </div>
+      <div id="collapse-overview" class="panel-collapse collapse">
+        <div class="panel-body">
+          <p>
+            Each <a href="/data-sources" target="blank">data source</a> corresponds to a 'mancer' in <code>geomancer/mancers/</code>. For example, the <code>BureauLaborStatistics</code> class in <code>geomancer/mancers/bls.py</code> is the 'mancer' for BLS.
+          </p>
+          <p>
+            The datasets and columns that are available to a mancer are defined manually. Mancer datasets usually correspond to tables at the source, and mancer columns correspond to the columns within a table.
+          </p>
+          <p>
+            The methods defined for all mancers are:
+            <ul>
+              <li>
+                <code>get_metadata</code><br>
+                <small>This method returns information about the datasets and columns included in the data source, and is used to populate the <a href='/data-sources'>data sources page</a>. This is a static method.</small>
+              </li>
+              <li>
+                <code>geo_lookup</code><br>
+                <small>Given a search term and a geography type, this method returns a dictionary with the keys <code>term</code> (the original search term) and <code>geoid</code> (the full geographic id to be used by the search method). If need be, this method can look up geographic ids through specific APIs.</small>
+              </li>
+              <li>
+                <code>search</code><br>
+                <small>Given a list of geography ids and a list of columns to append, the search method returns all the data to be appended to the original spreadsheet: the appropriate values for each column & each geography, as well as a header.</small>
+              </li>
+            </ul>
+          </p>
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="panel-group" id="accordion-1">
     <div class="panel panel-success">
       <div class="panel-heading" data-toggle="collapse" data-parent="#accordion-1" href="#collapse-1" id="api-data-sources">
@@ -89,11 +130,9 @@ $ python runserver.py # starts the web server</pre>
       <div id="collapse-1" class="panel-collapse collapse">
         <div class="panel-body">
           <p>
-            Each <a href="/data-sources" target="blank">data source</a> corresponds to a 'mancer' (e.g. <code>bls.py</code>) in <code>geomancer/mancers/</code>. The datasets and columns that are available to a mancer are defined manually. Mancer datasets usually correspond to tables, and mancer columns correspond to the columns within a table.
-          </p>
-          <p>
             Because the datasets and columns are defined manually, and because of the high granularity of available data, the mancers don't include all possible data from a data source. For example, BLS QCEW data is available for a wide range of geographies and many industries, but the BLS mancer currently only has data at the state level and at the highest industry summary level (all industries).
           </p>
+          <h3>Adding Data</h3>
           <p>
             If you're interested in adding data to an existing mancer (say, adding columns with statistics for specific industries to the BLS mancer), all you'll need to do is modify the mancer metadata (defined in the <code>get_metadata</code> method) and ensure that the <code>search</code> method knows how to return the data you've added.
           </p>
