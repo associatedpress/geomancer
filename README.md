@@ -24,11 +24,11 @@ We recommend using [virtualenv](http://virtualenv.readthedocs.org/en/latest/virt
 Once you have virtualenvwrapper set up,
 
 ```bash
-$ mkvirtualenv geomancer
-$ git clone https://github.com/associatedpress/geomancer.git
-$ cd geomancer
-$ pip install -r requirements.txt
-$ cp geomancer/app_config.py.example geomancer/app_config.py
+mkvirtualenv geomancer
+git clone https://github.com/associatedpress/geomancer.git
+cd geomancer
+pip install -r requirements.txt
+cp geomancer/app_config.py.example geomancer/app_config.py
 ```
 
   NOTE: Mac users might need this [lxml workaround](http://stackoverflow.com/questions/22313407/clang-error-unknown-argument-mno-fused-madd-python-package-installation-fa).
@@ -36,7 +36,7 @@ $ cp geomancer/app_config.py.example geomancer/app_config.py
 Afterwards, whenever you want to work on geomancer,
 
 ```bash
-$ workon geomancer
+workon geomancer
 ```
 
 ### Running Geomancer
@@ -44,9 +44,9 @@ $ workon geomancer
 There are three components that should be running simultaneously for the app to work: Redis, the Flask app, and the worker process that appends to the spreadsheets. For debugging purposes, it is useful to run these three processes in separate terminal sessions. 
 
 ``` bash 
-$ redis-server # This command may differ depending on your OS
-$ python runworker.py # starts the worker for processing files
-$ python runserver.py # starts the web server
+redis-server # This command may differ depending on your OS
+python runworker.py # starts the worker for processing files
+python runserver.py # starts the web server
 ```
 
 Open your browser and navigate to `http://localhost:5000`
