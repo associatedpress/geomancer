@@ -49,9 +49,9 @@ def get_geo_types(geo_type=None):
         except ImportError, e:
             errors.append(e.message)
             continue
-        for col in m.column_info():
+        for col in m.get_metadata():
             geo_types.extend(col['geo_types'])
-        columns.extend(m.column_info())
+        columns.extend(m.get_metadata())
     for t in geo_types:
         types[t.machine_name] = {}
         types[t.machine_name]['info'] = t
@@ -121,7 +121,7 @@ def get_data_sources(geo_type=None):
             "description": m.description, 
             "data_types": {}
         }
-        info = m.column_info()
+        info = m.get_metadata()
         for col in info:
             if geo_type:
                 col_types = [i.machine_name for i in col['geo_types']]

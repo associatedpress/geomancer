@@ -95,7 +95,7 @@ def do_the_work(file_contents, field_defs, filename):
         except ImportError, e:
             errors.append(e.message)
             continue
-        mancer_cols = [c['table_id'] for c in m.column_info()]
+        mancer_cols = [c['table_id'] for c in m.get_metadata()]
         for k, v in field_defs.items():
             field_cols = v['append_columns']
             for f in field_cols:

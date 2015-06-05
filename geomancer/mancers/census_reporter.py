@@ -38,7 +38,7 @@ class CensusReporter(BaseMancer):
         Demographic data from the 2013 American Community Survey.
     """
 
-    def column_info(self):
+    def get_metadata(self):
         table_ids = [
             "B01003", # Total Population
             "B19013", # Median Household Income

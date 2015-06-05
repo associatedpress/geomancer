@@ -43,8 +43,8 @@ class USASpending(BaseMancer):
         Data from the U.S. Office of Management and Budget on federal contracts awarded.
     """
 
-    def column_info(self):
-        cols = [
+    def get_metadata(self):
+        datasets = [
             {
               'table_id': 'fpds', 
               'human_name': 'Federal Contracts',
@@ -76,16 +76,16 @@ class USASpending(BaseMancer):
               'columns': '',
             },
         ]
-        for col in cols:
-            table_id = col['table_id']
+        for dataset in datasets:
+            table_id = dataset['table_id']
             url = '%s/%s/%s.php' % (self.base_url, table_id, table_id)
             param = TABLE_PARAMS[table_id]['state']
             query = {param: 'IL', 'detail': 's'}
             params = urlencode(query)
             table = self.fetch_xml(url, params)
-            col['count'] = len(table)
-            col['columns'] = [' '.join(c.split('_')).title() for c in table.keys()]
-        return cols
+            dataset['count'] = len(table)
+            dataset['columns'] = [' '.join(c.split('_')).title() for c in table.keys()]
+        return datasets
 
     def fetch_xml(self, url, params):
         table = OrderedDict()

@@ -3,103 +3,272 @@
 {% block content %}
 
 <div class="col-md-12">
-  <h1>How to contribute data sources to Geomancer</h1>
+  <h1>How to contribute to Geomancer</h1>
   <p>
-      Do you have a data source you'd like to add to <strong>Geomancer</strong>?
-      We built this as in an open, extensible platform, so anyone can contribute.
-      If you know how to program in Python, you can add your own data source using the
+      Is there data that you'd like to add to <strong>Geomancer</strong>?
+      We built this as an open, extensible platform, so anyone can contribute.
+      If you know how to program in Python, you can adapt Geomancer to your needs using the
       instructions below. Otherwise, post your request to our
       <a href="https://groups.google.com/forum/#!forum/geomancer" target="_blank">Google Group</a>.
   </p>
   <hr />
-  <h3>Step 1: Fork and setup Geomancer</h3>
 
-  <p>First, <a href='https://github.com/associatedpress/geomancer/fork'><i class='fa fa-code-fork'></i> fork</a> the <a href='https://github.com/associatedpress/geomancer'>geomancer repository</a>. This requires a <a href='https://github.com'>GitHub account</a>.</p>
+  <div class="panel-group" id="accordion-setup">
+    <div class="panel panel-info">
+      <div class="panel-heading" data-toggle="collapse" data-parent="#accordion-setup" href="#collapse-setup" id="api-data-sources">
+          <span class="h4">
+            <i class="fa fa-chevron-circle-right fa-lg plusminus"></i>
+            Setup
+          </span>
+        <div class='clearfix'></div>
+      </div>
+      <div id="collapse-setup" class="panel-collapse collapse">
+        <div class="panel-body">
+          <h3>
+            1. Fork & clone Geomancer
+          </h3>
+          <p>First, <a href='https://github.com/associatedpress/geomancer/fork'><i class='fa fa-code-fork'></i> fork</a> the <a href='https://github.com/associatedpress/geomancer'>geomancer repository</a>. This requires a <a href='https://github.com'>GitHub account</a>.</p>
+          <p>Then, clone your Geomancer fork:</p>
+          <pre>
+$ git clone https://github.com/YOURGITHUBUSERNAME/geomancer.git
+$ cd geomancer</pre>
 
-  <p>Next, follow the <a href='https://github.com/associatedpress/geomancer#setup'>setup instructions</a> to get Geomancer working on your local machine.</p>
+          <h3>
+            2. Install requirements
+          </h3>
+          <p>Make sure OS level dependencies are installed:</p>
+          <ul>
+            <li>Python 2.7</li>
+            <li><a href="http://redis.io/" target="blank">Redis</a></li>
+            <li>libxml2</li>
+            <li>libxml2-dev</li>
+            <li>libxslt1-dev</li>
+            <li>zlib1g-dev</li>
+          </ul>
+          <p>Install required python libraries. We recommend using <a href="http://virtualenv.readthedocs.org/en/latest/" target="blank">virtualenv</a> and <a href="http://virtualenvwrapper.readthedocs.org/en/latest/" target="blank">virtualenvwrapper</a> for working in a virtualized development environment. <a href="http://docs.python-guide.org/en/latest/dev/virtualenvs/" target="blank">Read how to set up virtualenv.</a></p>
+          <p>Once you have virtualenv set up:</p>
+          <pre>
+$ mkvirtualenv geomancer
+$ pip install -r requirements.txt</pre>
+          <p>NOTE: Mac users might need <a href="http://stackoverflow.com/questions/22313407/clang-error-unknown-argument-mno-fused-madd-python-package-installation-fa" target="blank">this lxml workaround</a>.</p>
+          <p>Afterwards, whenever you want to work on geomancer using the virtual environment you created:</p>
+          <pre>$ workon geomancer</pre>
 
-  <h3>Step 2: Create a new <code>BaseMancer</code> class</h3>
-  <p>
-      Geomancer implements a base class that establishes a pattern for setting up a new data source.
-      Simply inherit from that class and override a few properties and methods like so:
-  </p>
-      <pre>
-  from geomancer.mancers.base import BaseMancer
+          <h3> 3. Configure Geomancer </h3>
+          <pre>
+$ cp geomancer/app_config.py.example geomancer/app_config.py</pre>
+          In your newly created <code>app_config.py</code> file, the active data sources are defined by <code>MANCERS</code>. Add any relevant API keys to <code>MANCER_KEYS</code>.
 
-  class MyGreatMancer(BaseMancer):
+          <h3> 4. Run Geomancer locally </h3>
+          <p>There are three components that should be running simultaneously for the app to work: Redis, the Flask app, and the worker process that appends to the spreadsheets. For debugging purposes, it is useful to run each of these commands in a separate terminal session.</p>
+          <pre>
+$ redis-server # This command may differ depending on your OS
+$ python runworker.py # starts the worker for processing files
+$ python runserver.py # starts the web server</pre>
+          
+          <p>Open your browser and navigate to <a href="http://localhost:5000" target="blank">http://localhost:5000</a></p>
+          <h3> 5. Make your changes! </h3>
+          <p>If you'd like to share your work with the rest of the world, <a href="https://github.com/associatedpress/geomancer/compare" target="blank">submit a pull request</a> with your changes!</p>
 
-      name = 'The best mancer ever'
-      machine_name = 'best_mancer'
-      base_url = 'http://lotsadata.gov/api'
-      info_url = 'http://lotsadata.gov'
-      description = 'This is probably the best mancer ever written'
 
-      def column_info(self):
-          return 'woo'
 
-      def search(self, geo_ids=None, columns=None):
-          return 'woo'
+        </div>
+      </div>
+    </div>
+  </div>
 
-      def geo_lookup(self, search_term, geo_type=None):
-          return 'woo'
-      </pre>
-      <p>
-          Detailed information about how the responses from these
-          methods should be structured as well as two example mancers
-          can be found in the
-          <a href="https://github.com/associatedpress/geomancer/tree/master/geomancer/mancers" target="_blank">Github repository</a>.
-      </p>
-  <h3>Step 3: Add a <code>GeoType</code> (optional)</h3>
-      <p>
-          Does your mancer offer data that relates to geographic areas that are not
-          currently offered by Geomancer? This is also built in an extensible way. Each
-          <code>GeoType</code> is implemented as a subclass that expects
-          a few static properties to be overridden:
-      </p>
-      <pre>
-  from geomancer.mancers.geotype import GeoType
+  <div class="panel-group" id="accordion-overview">
+    <div class="panel panel-info">
+      <div class="panel-heading" data-toggle="collapse" data-parent="#accordion-overview" href="#collapse-overview" id="api-data-sources">
+          <span class="h4">
+            <i class="fa fa-chevron-circle-right fa-lg plusminus"></i>
+            Overview of the Extensible Design
+          </span>
+        <div class='clearfix'></div>
+      </div>
+      <div id="collapse-overview" class="panel-collapse collapse">
+        <div class="panel-body">
+          <p>
+            Each <a href="/data-sources" target="blank">data source</a> corresponds to a 'mancer' in <code>geomancer/mancers/</code>. For example, the <code>BureauLaborStatistics</code> class in <code>geomancer/mancers/bls.py</code> is the 'mancer' for BLS.
+          </p>
+          <p>
+            The datasets and columns that are available to a mancer are defined manually. Mancer datasets usually correspond to tables at the source, and mancer columns correspond to the columns within a table.
+          </p>
+          <p>
+            The methods defined for all mancers are:
+            <ul>
+              <li>
+                <code>get_metadata</code><br>
+                <small>This method returns information about the datasets and columns included in the data source, and is used to populate the <a href='/data-sources'>data sources page</a>. This is a static method.</small>
+              </li>
+              <li>
+                <code>geo_lookup</code><br>
+                <small>Given a search term and a geography type, this method returns a dictionary with the keys <code>term</code> (the original search term) and <code>geoid</code> (the full geographic id to be used by the search method). If need be, this method can look up geographic ids through specific APIs.</small>
+              </li>
+              <li>
+                <code>search</code><br>
+                <small>Given a list of geography ids and a list of columns to append, the search method returns all the data to be appended to the original spreadsheet: the appropriate values for each column & each geography, as well as a header.</small>
+              </li>
+            </ul>
+          </p>
 
-  class WizardSchoolDistrict(GeoType):
-      human_name = 'Wizard school district'
-      machine_name = 'wizard_school_district'
-      formatting_notes = 'Full name of a school district for wizards and witches'
-      formatting_example = 'Hogwarts School of Witchcraft and Wizardry'
 
-      </pre>
-      <p>
-          More details on how to implement a new <code>GeoType</code> can be found
-          <a href="https://github.com/associatedpress/geomancer/blob/master/geomancer/mancers/geotype.py" target="_blank">here</a>.
-      </p>
-  <h3>Step 4: Register your mancer in the application cofiguration</h3>
-      <p>
-          The basic configuration options for Geomancer exist in <code>app_config.py</code>.
-          Add the import path to the module where you wrote your mancer and you should start seeing it as an option when you run the app.
-      </p>
+        </div>
+      </div>
+    </div>
+  </div>
 
-      <pre>
+  <div class="panel-group" id="accordion-1">
+    <div class="panel panel-success">
+      <div class="panel-heading" data-toggle="collapse" data-parent="#accordion-1" href="#collapse-1" id="api-data-sources">
+          <span class="h4">
+            <i class="fa fa-chevron-circle-right fa-lg plusminus"></i>
+            Add columns or datasets to an existing data source
+          </span>
+        <div class='clearfix'></div>
+      </div>
+      <div id="collapse-1" class="panel-collapse collapse">
+        <div class="panel-body">
+          <p>
+            Because the datasets and columns are defined manually, and because of the high granularity of available data, the mancers don't include all possible data from a data source. For example, BLS QCEW data is available for a wide range of geographies and many industries, but the BLS mancer currently only has data at the state level and at the highest industry summary level (all industries).
+          </p>
+          <h3>Adding Data</h3>
+          <p>
+            If you're interested in adding data to an existing mancer (say, adding columns with statistics for specific industries to the BLS mancer), all you'll need to do is modify the mancer metadata (defined in the <code>get_metadata</code> method) and ensure that the <code>search</code> method knows how to return the data you've added.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-group" id="accordion-2">
+    <div class="panel panel-success">
+      <div class="panel-heading" data-toggle="collapse" data-parent="#accordion-2" href="#collapse-2" id="api-data-sources">
+        <span class="h4">
+          <i class="fa fa-chevron-circle-right fa-lg plusminus"></i>
+          Add a new data source
+        </span>
+        <div class='clearfix'></div>
+      </div>
+      <div id="collapse-2" class="panel-collapse collapse">
+        <div class="panel-body">
+          Each <a href="/data-sources" target="blank">data source</a> corresponds to a 'mancer' in <code>geomancer/mancers/</code>.
+
+          <h3>1. Create a new class for your data source</h3>
+          <p>
+              Geomancer implements a base class that establishes a pattern for setting up a new data source.
+              In a new <code>.py</code> file in <code>geomancer/mancers/</code>, inherit from the <code>BaseMancer</code> class like so:
+          </p>
+          <pre>
+from geomancer.mancers.base import BaseMancer
+
+class MyGreatMancer(BaseMancer):
+
+    name = 'My Great Mancer'
+    machine_name = 'my_great_mancer'
+    base_url = 'http://lotsadata.gov/api'
+    info_url = 'http://lotsadata.gov'
+    description = 'This is probably the best mancer ever written'
+
+    def get_metadata(self):
+        return 'woo'
+
+    def search(self, geo_ids=None, columns=None):
+        return 'woo'
+
+    def geo_lookup(self, search_term, geo_type=None):
+        return 'woo'</pre>
+
+          <p>Override the <code>name</code>, <code>machine_name</code>, <code>base_url</code>, <code>info_url</code>, & <code>description</code> properties accordingly.</p>
+
+          <h3>2. Implement class methods for your mancer</h3>
+          <p> This is the bulk of the work. You will need to implement the <code>get_metadata</code>, <code>search</code>, & <code>geo_lookup</code> methods.
+          <p>
+            Detailed information about how the responses from these
+            methods should be structured as well as two example mancers
+            can be found in the
+            <a href="https://github.com/associatedpress/geomancer/tree/master/geomancer/mancers" target="_blank">Github repository</a>.
+          </p>
+
+          <h3>3. Register your mancer in the application cofiguration</h3>
+          <p>The basic configuration options for Geomancer exist in <code>app_config.py</code>. Add the import path to the module where you wrote your mancer and you should start seeing it as an option when you run the app.
+          </p>
+          <pre>
 MANCERS = (
     'geomancer.mancers.census_reporter.CensusReporter',
     'geomancer.mancers.usa_spending.USASpending',
     'geomancer.mancers.my_mancer.MyMancer',
-)
-      </pre>
-  <h3>Step 4a (optional): Add API keys to app_config.py</h3>
-      <p>
-          If the API that you are using requires an API key, you can add that into <code>app_config.py</code> like so:
-      </p>
-      <pre>
+)</pre>
+          <p>If your data source requires an API key, add the API key to <code>app_config.py</code>: </p>
+          <pre>
 MANCER_KEYS = {
-    'wizard_school_district' : 'biGl0ngUu1dT4ing',
-}
-      </pre>
+    'my_great_mancer' : 'biGl0ngUu1dT4ing',
+}</pre>
+          <p>
+              The key (i.e. <code>my_great_mancer</code>) should match the value you used for the <code>machine_name</code> property of your mancer class.
+          </p>
+
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-group" id="accordion-3">
+    <div class="panel panel-success">
+      <div class="panel-heading" data-toggle="collapse" data-parent="#accordion-3" href="#collapse-3" id="api-data-sources">
+        <span class="h4">
+          <i class="fa fa-chevron-circle-right fa-lg plusminus"></i>
+          Add a new geography type
+        </span>
+        <div class='clearfix'></div>
+      </div>
+      <div id="collapse-3" class="panel-collapse collapse">
+        <div class="panel-body">
+          
+          <p>
+          Do you have data with geography types that are not
+          currently offered by Geomancer? The geography types are built in an extensible way - each
+          geography is implemented as a <code>GeoType</code> subclass that expects
+          a few static properties to be overridden:
+          </p>
+          <pre>
+from geomancer.mancers.geotype import GeoType
+
+class WizardSchoolDistrict(GeoType):
+    human_name = 'Wizard school district'
+    machine_name = 'wizard_school_district'
+    formatting_notes = 'Full name of a school district for wizards and witches'
+    formatting_example = 'Hogwarts School of Witchcraft and Wizardry'</pre>
       <p>
-          The key should (i.e. <code>wizard_school_district</code>) should match the value you used for the <code>machine_name</code> of your mancer class.
+          More details on how to implement a new <code>GeoType</code> can be found
+          <a href="https://github.com/associatedpress/geomancer/blob/master/geomancer/mancers/geotype.py" target="_blank">here</a>.
       </p>
-  <h3>Step 5: Submit a pull request!</h3>
-      <p>
-          If you'd like to share your work with the rest of the world,
-          <a href='https://github.com/associatedpress/geomancer/compare'>submit a pull request</a>!
-      </p>
+
+
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+
 </div>
 
+{% endblock %}
+
+{% block extra_javascript %}
+  <script>
+    $(document).ready(function() {
+      $(".plusminus").parent().parent().click(function () {
+        if ($(this).parent().children().eq(1).hasClass("panel-collapse collapse")){
+          $(this).find('i').removeClass("fa-chevron-circle-right").addClass("fa-chevron-circle-down");
+        } else{
+          $(this).find('i').removeClass("fa-chevron-circle-down").addClass("fa-chevron-circle-right");
+        }
+      });
+    });
+  </script>
 {% endblock %}

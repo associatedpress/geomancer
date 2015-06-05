@@ -47,13 +47,12 @@
 
   <div class="panel-group" id="accordion-api-data-sources">
     <div class="panel panel-default">
-      <div class="panel-heading">
-        <a data-toggle="collapse" data-parent="#accordion-api-data-sources" href="#collapse-api-data-sources" id="api-data-sources">
-          <span class='label label-info'>GET</span>
-          <strong><code>/api/data-sources/</code></strong>
-          <p class='pull-right'>list all available data sources</p>
-          <div class='clearfix'></div>
-        </a>
+      <div class="panel-heading" data-toggle="collapse" data-parent="#accordion-api-data-sources" href="#collapse-api-data-sources" id="api-data-sources">
+        <i class="fa fa-chevron-circle-right fa-lg plusminus"></i>
+        <span class='label label-info'>GET</span>
+        <strong><code>/api/data-sources/</code></strong>
+        <p class='pull-right'><small>list all available data sources</small></p>
+        <div class='clearfix'></div>
       </div>
       <div id="collapse-api-data-sources" class="panel-collapse collapse">
         <div class="panel-body">
@@ -166,13 +165,12 @@
 
   <div class="panel-group" id="accordion-api-geo-types">
     <div class="panel panel-default">
-      <div class="panel-heading">
-        <a data-toggle="collapse" data-parent="#accordion-api-geo-types" href="#collapse-api-geo-types" id="api-geo-types">
-          <span class='label label-info'>GET</span>
-          <strong><code>/api/geo-types/</code></strong>
-          <p class='pull-right'>list all supported geographic types</p>
-          <div class='clearfix'></div>
-        </a>
+      <div class="panel-heading" data-toggle="collapse" data-parent="#accordion-api-geo-types" href="#collapse-api-geo-types" id="api-geo-types">
+        <i class="fa fa-chevron-circle-right fa-lg plusminus"></i>
+        <span class='label label-info'>GET</span>
+        <strong><code>/api/geo-types/</code></strong>
+        <p class='pull-right'><small>list all supported geographic types</small></p>
+        <div class='clearfix'></div>
       </div>
       <div id="collapse-api-geo-types" class="panel-collapse collapse">
         <div class="panel-body">
@@ -273,13 +271,12 @@
 
   <div class="panel-group" id="accordion-api-geomance">
     <div class="panel panel-default">
-      <div class="panel-heading">
-        <a data-toggle="collapse" data-parent="#accordion-api-geomance" href="#collapse-api-geomance" id="api-geomance">
-          <span class='label label-success'>POST</span>
-          <strong><code>/api/geomance/</code></strong>
-          <p class='pull-right'>run geomancer on a posted file</p>
-          <div class='clearfix'></div>
-        </a>
+      <div class="panel-heading" data-toggle="collapse" data-parent="#accordion-api-geomance" href="#collapse-api-geomance" id="api-geomance">
+        <i class="fa fa-chevron-circle-right fa-lg plusminus"></i>
+        <span class='label label-success'>POST</span>
+        <strong><code>/api/geomance/</code></strong>
+        <p class='pull-right'><small>run geomancer on a posted file</small></p>
+        <div class='clearfix'></div>
       </div>
       <div id="collapse-api-geomance" class="panel-collapse collapse">
         <div class="panel-body">
@@ -364,13 +361,12 @@
 
   <div class="panel-group" id="accordion-api-geomance-results">
     <div class="panel panel-default">
-      <div class="panel-heading">
-        <a data-toggle="collapse" data-parent="#accordion-api-geomance-results" href="#collapse-api-geomance-results" id="api-geomance-results">
-          <span class='label label-info'>GET</span>
-          <strong><code>/api/geomance-results/&lt;session_key&gt;/</code></strong>
-          <p class='pull-right'>query the status of a geomancer task</p>
-          <div class='clearfix'></div>
-        </a>
+      <div class="panel-heading" data-toggle="collapse" data-parent="#accordion-api-geomance-results" href="#collapse-api-geomance-results" id="api-geomance-results">
+        <i class="fa fa-chevron-circle-right fa-lg plusminus"></i>
+        <span class='label label-info'>GET</span>
+        <strong><code>/api/geomance-results/&lt;session_key&gt;/</code></strong>
+        <p class='pull-right'><small>query the status of a geomancer task</small></p>
+        <div class='clearfix'></div>
       </div>
       <div id="collapse-api-geomance-results" class="panel-collapse collapse">
         <div class="panel-body">
@@ -437,6 +433,10 @@
       <li><a href='http://redis.io/'>redis</a> - a key-value cache and store system</li>
   </ul>
 
+  <p>We built this as an <strong>open</strong> & <strong>extensible</strong> platform, so that others can adapt this tool to their data needs. If you know how to program in Python, you can contribute new data to Geomancer (otherwise, post your request to our <a href="https://groups.google.com/forum/#!forum/geomancer" target="_blank">Google Group</a>).</p>
+
+  <a href="{{ url_for('views.contribute_data') }}" class="btn btn-success btn-sm">See documentation for contributing data &gt;</a>
+
   <h3 id='team-and-credits'>Team and credits</h3>
 
   <p>Geomancer is a project of <a href='http://ap.org'>Associated Press</a> and was implemented by <a href='http://datamade.us'>DataMade</a>, a civic technology company. We are: </p>
@@ -458,4 +458,18 @@
   </p>
 </div>
 
+{% endblock %}
+
+{% block extra_javascript %}
+  <script>
+    $(document).ready(function() {
+      $(".plusminus").parent().parent().click(function () {
+        if ($(this).children().eq(1).hasClass("panel-collapse collapse")){
+          $(this).find('i').removeClass("fa-chevron-circle-right").addClass("fa-chevron-circle-down");
+        } else{
+          $(this).find('i').removeClass("fa-chevron-circle-down").addClass("fa-chevron-circle-right");
+        }
+      });
+    });
+  </script>
 {% endblock %}
